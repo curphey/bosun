@@ -220,33 +220,183 @@ Add to every source file header:
 
 ### 10. Issue and PR Templates
 
-Source: [GitHub Docs - Issue and PR templates](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository)
+Sources: [GitHub Docs - Issue forms syntax](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-issue-forms), [GitHub Docs - Form schema](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-githubs-form-schema)
 
-#### Issue Templates
+#### Issue Forms (YAML)
 Location: `.github/ISSUE_TEMPLATE/`
 
-Recommended templates:
-- `bug_report.yml` — Bug reports with reproduction steps
-- `feature_request.yml` — Feature proposals
-- `question.yml` — Support questions (optional)
+Issue forms provide structured input with validation. Use `.yml` extension.
 
-Use YAML forms for structured input.
+**Required top-level keys:**
+- `name` — Template name (must be unique)
+- `description` — Shown in template chooser
+- `body` — Array of form elements
+
+**Optional top-level keys:**
+- `title` — Pre-populated issue title (e.g., `"[Bug]: "`)
+- `labels` — Auto-applied labels (must exist in repo)
+- `assignees` — Auto-assigned users
+- `projects` — Add to project board
+
+**Form element types:**
+- `markdown` — Static text/instructions
+- `input` — Single-line text
+- `textarea` — Multi-line text (supports file attachments)
+- `dropdown` — Single or multi-select
+- `checkboxes` — Multiple choice
+
+#### Example: Bug Report Template
+```yaml
+# .github/ISSUE_TEMPLATE/bug_report.yml
+name: Bug Report
+description: Report a bug or unexpected behavior
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please fill out the details below.
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version are you using?
+      placeholder: "e.g., 1.2.3"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What happened? What did you expect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this?
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Critical (blocks all work)
+        - High (major feature broken)
+        - Medium (workaround exists)
+        - Low (minor inconvenience)
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, browser, runtime versions
+      render: shell
+```
+
+#### Example: Feature Request Template
+```yaml
+# .github/ISSUE_TEMPLATE/feature_request.yml
+name: Feature Request
+description: Suggest a new feature or enhancement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How would you like this to work?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What other solutions have you considered?
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched for existing feature requests
+          required: true
+        - label: I am willing to help implement this feature
+```
+
+#### Template Chooser Config
+```yaml
+# .github/ISSUE_TEMPLATE/config.yml
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://docs.example.com
+    about: Check docs before opening an issue
+  - name: Discussions
+    url: https://github.com/org/repo/discussions
+    about: Ask questions in Discussions
+```
 
 #### Pull Request Template
 Location: `.github/pull_request_template.md`
 
-Include:
-- Reference to related issue
-- Description of changes
-- Type of change (bug fix, feature, breaking change)
-- Testing checklist
-- Reviewer mentions
+```markdown
+## Summary
+<!-- Brief description of changes -->
+
+## Related Issue
+Fixes #
+
+## Type of Change
+- [ ] Bug fix (non-breaking change fixing an issue)
+- [ ] New feature (non-breaking change adding functionality)
+- [ ] Breaking change (fix or feature causing existing functionality to change)
+- [ ] Documentation update
+
+## Testing
+- [ ] Tests pass locally
+- [ ] New tests added for changes
+- [ ] Manual testing completed
+
+## Checklist
+- [ ] Code follows project style guidelines
+- [ ] Self-review completed
+- [ ] Documentation updated (if needed)
+- [ ] No new warnings introduced
+```
 
 #### Best Practices
-- Keep templates concise
+- Use YAML forms over Markdown templates for better UX
+- Keep templates concise — too long and contributors skip them
 - Use specific prompts, not vague instructions
+- Require fields that are essential for triage
+- Set `blank_issues_enabled: false` to enforce templates
+- Add contact links for docs/discussions to reduce noise
 - Update templates as project evolves
-- Integrate with CI/CD triggers
+- Integrate with CI/CD triggers on issue/PR events
 
 ---
 
