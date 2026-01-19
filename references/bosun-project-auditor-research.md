@@ -398,6 +398,72 @@ Fixes #
 - Update templates as project evolves
 - Integrate with CI/CD triggers on issue/PR events
 
+### 11. Version and Runtime Checks
+
+Sources: [Claude Code CLI Reference](https://code.claude.com/docs/en/cli-reference), [endoflife.date](https://endoflife.date), [Node.js EOL](https://nodejs.org/en/about/eol)
+
+#### Claude Code Version
+
+Check current version:
+```bash
+claude --version
+```
+
+Update to latest:
+```bash
+claude update
+```
+
+**Recommendation**: Check Claude Code version at start of audit and recommend update if outdated.
+
+#### Runtime EOL Tracking
+
+Use [endoflife.date](https://endoflife.date) as authoritative source for:
+- [Node.js](https://endoflife.date/nodejs)
+- [Python](https://endoflife.date/python)
+- [Go](https://endoflife.date/go)
+- [Java](https://endoflife.date/java)
+- [Ruby](https://endoflife.date/ruby)
+- [PHP](https://endoflife.date/php)
+- [.NET](https://endoflife.date/dotnet)
+
+#### Version Detection Commands
+
+| Runtime | Version Check | Config File |
+|---------|---------------|-------------|
+| Node.js | `node --version` | `.nvmrc`, `.node-version`, `package.json` engines |
+| Python | `python --version` | `.python-version`, `pyproject.toml`, `runtime.txt` |
+| Go | `go version` | `go.mod` (go directive) |
+| Java | `java --version` | `pom.xml`, `build.gradle` |
+| Ruby | `ruby --version` | `.ruby-version`, `Gemfile` |
+
+#### Risks of EOL Runtimes
+
+1. **No security patches** — Disclosed vulnerabilities remain unfixed
+2. **Ecosystem drift** — Popular packages drop support for EOL versions
+3. **Compliance failures** — Many audits forbid unmaintained runtimes
+4. **CI/CD issues** — Runners may deprecate old versions
+
+#### Recommended Checks
+
+- [ ] Claude Code is up to date (`claude update`)
+- [ ] Runtime version is not EOL
+- [ ] Runtime version is specified in config file (reproducible builds)
+- [ ] CI/CD uses same runtime version as development
+- [ ] Dockerfile/container uses supported base image version
+
+#### Node.js Specific
+
+Check for vulnerabilities in current Node version:
+```bash
+npx is-my-node-vulnerable
+```
+
+Current recommendations (as of Jan 2026):
+- Node.js 18 and earlier: **EOL** — upgrade immediately
+- Node.js 20: Maintenance LTS (supported until April 2026)
+- Node.js 22: Active LTS (recommended, supported until April 2027)
+
 ---
 
 ## Audit Checklist Summary
@@ -409,9 +475,11 @@ Fixes #
 - [ ] Branch protection on main
 - [ ] CI/CD pipeline exists
 - [ ] Dependabot alerts enabled
+- [ ] Runtime version is not EOL
 
 ### Important (Should Have)
 - [ ] CLAUDE.md for AI-assisted development
+- [ ] Claude Code is up to date
 - [ ] CONTRIBUTING.md
 - [ ] CODE_OF_CONDUCT.md
 - [ ] SECURITY.md
@@ -420,6 +488,7 @@ Fixes #
 - [ ] PR template
 - [ ] Secret scanning enabled
 - [ ] Code scanning enabled
+- [ ] Runtime version pinned in config file
 
 ### Recommended (Nice to Have)
 - [ ] CHANGELOG.md
@@ -429,6 +498,7 @@ Fixes #
 - [ ] Dependabot version updates configured
 - [ ] GitHub Discussions enabled (for community projects)
 - [ ] Project boards for issue tracking
+- [ ] Container base images use supported versions
 
 ---
 
@@ -455,6 +525,11 @@ Fixes #
 ### CI/CD
 - [GitHub Blog - GitHub Actions updates](https://github.blog/news-insights/product-news/lets-talk-about-github-actions/)
 - [Graphite - CI/CD Best Practices](https://graphite.dev/guides/in-depth-guide-ci-cd-best-practices)
+
+### Runtime EOL Tracking
+- [endoflife.date](https://endoflife.date) — Authoritative source for EOL dates
+- [Node.js EOL](https://nodejs.org/en/about/eol)
+- [Claude Code CLI Reference](https://code.claude.com/docs/en/cli-reference)
 
 ### Upstream Skills
 - [obra/superpowers](https://github.com/obra/superpowers)
