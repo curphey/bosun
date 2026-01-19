@@ -21,6 +21,6 @@
     "branch": "main",
     "paths": [".claude/"],
     "last_synced_commit": null,
-    "maps_to": ["bosun-architect"]
+    "maps_to": ["bosun-ux-ui"]
   }
 ]

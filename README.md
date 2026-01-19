@@ -64,6 +64,7 @@ Bosun implements a **pull-based sync model** for curating knowledge:
 | `bosun-seo-llm` | SEO + LLM discoverability |
 | `bosun-project-auditor` | Git, CI/CD, project setup |
 | `bosun-threat-model` | Threat modeling |
+| `bosun-ux-ui` | UI/UX design consistency |
 
 ## What are Claude Code Plugins?
 
@@ -117,7 +118,8 @@ bosun/
 │   ├── bosun-docs-writer/        # Documentation
 │   ├── bosun-seo-llm/            # SEO + LLM discoverability
 │   ├── bosun-project-auditor/    # Git, CI/CD, project setup
-│   └── bosun-threat-model/       # Threat modeling
+│   ├── bosun-threat-model/       # Threat modeling
+│   └── bosun-ux-ui/              # UI/UX design consistency
 ├── scripts/                      # Shell utilities
 │   ├── init-project.sh           # Bootstrap new projects
 │   ├── audit-project.sh          # Audit project configuration
@@ -133,7 +135,7 @@ bosun/
 This plugin curates from:
 - `obra/superpowers` → bosun-architect
 - `VoltAgent/awesome-claude-code-subagents` → language specialists, security
-- `Dammyjay93/claude-design-engineer` → bosun-architect
+- `Dammyjay93/claude-design-engineer` → bosun-ux-ui
 
 ## License
 
