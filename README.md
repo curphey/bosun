@@ -43,11 +43,11 @@ Agents are specialized workers that run in isolated contexts for independent ana
 
 | Agent | Purpose | Model | Skills Used |
 |-------|---------|-------|-------------|
-| `security-agent` | Vulnerability scanning, threat modeling | Opus | bosun-security, bosun-threat-model |
-| `quality-agent` | Code standards, performance, architecture | Sonnet | bosun-architect, language skills |
-| `docs-agent` | Documentation completeness and quality | Sonnet | bosun-docs-writer |
+| `security-agent` | Security analysis, vulnerability fixes, auth implementation | Opus | bosun-security, bosun-threat-model |
+| `quality-agent` | Code quality, refactoring, feature implementation | Sonnet | bosun-architect, language skills |
+| `docs-agent` | Documentation creation, improvement, and review | Sonnet | bosun-docs-writer |
 
-Agents are **read-only** by default (`disallowedTools: Edit, Write`) for safety.
+Agents have **full capabilities** - they can analyze, fix, refactor, and create code and documentation.
 
 ## Skills
 
