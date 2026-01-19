@@ -277,6 +277,227 @@ Implement with CSS custom properties:
 }
 ```
 
+## Responsive Design
+
+### Breakpoint System
+
+Use consistent breakpoints across the project:
+
+```css
+/* Standard breakpoints (mobile-first) */
+--breakpoint-sm: 640px;   /* Large phones */
+--breakpoint-md: 768px;   /* Tablets */
+--breakpoint-lg: 1024px;  /* Laptops */
+--breakpoint-xl: 1280px;  /* Desktops */
+--breakpoint-2xl: 1536px; /* Large screens */
+
+/* Usage: mobile-first (min-width) */
+@media (min-width: 768px) { ... }
+
+/* Tailwind equivalents */
+/* sm:, md:, lg:, xl:, 2xl: */
+```
+
+### Mobile-First Strategy
+
+Always start with mobile, enhance for larger screens:
+
+```css
+/* Good: Mobile-first */
+.container {
+  padding: 16px;           /* Mobile default */
+}
+@media (min-width: 768px) {
+  .container {
+    padding: 24px;         /* Tablet+ */
+  }
+}
+@media (min-width: 1024px) {
+  .container {
+    padding: 32px;         /* Desktop+ */
+  }
+}
+
+/* Bad: Desktop-first (harder to maintain) */
+.container {
+  padding: 32px;
+}
+@media (max-width: 1023px) {
+  .container { padding: 24px; }
+}
+@media (max-width: 767px) {
+  .container { padding: 16px; }
+}
+```
+
+### Container Queries (Modern)
+
+Use container queries for component-level responsiveness:
+
+```css
+/* Define containment */
+.card-container {
+  container-type: inline-size;
+  container-name: card;
+}
+
+/* Query the container, not viewport */
+@container card (min-width: 400px) {
+  .card {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+  }
+}
+
+@container card (max-width: 399px) {
+  .card {
+    display: flex;
+    flex-direction: column;
+  }
+}
+```
+
+### Responsive Typography
+
+Scale typography fluidly:
+
+```css
+/* Fluid typography with clamp() */
+:root {
+  --font-size-base: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+  --font-size-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+  --font-size-xl: clamp(1.5rem, 1.25rem + 1.25vw, 2.25rem);
+  --font-size-2xl: clamp(2rem, 1.5rem + 2vw, 3rem);
+}
+
+/* Or use a modular scale */
+html {
+  font-size: 16px;
+}
+@media (min-width: 768px) {
+  html { font-size: 17px; }
+}
+@media (min-width: 1024px) {
+  html { font-size: 18px; }
+}
+```
+
+### Responsive Layout Patterns
+
+| Pattern | Use Case | Implementation |
+|---------|----------|----------------|
+| Stack → Row | Cards, nav items | `flex-direction: column` → `row` |
+| Sidebar collapse | App shells | Drawer on mobile, fixed on desktop |
+| Table → Cards | Data tables | Hide columns or stack as cards |
+| Grid reflow | Product grids | `grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))` |
+| Modal → Full screen | Forms, dialogs | `max-width: 100%` on mobile |
+
+```css
+/* Auto-responsive grid (no media queries needed) */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: var(--spacing-md);
+}
+```
+
+### Touch & Interaction
+
+Adapt interactions for touch devices:
+
+```css
+/* Larger touch targets on mobile */
+@media (pointer: coarse) {
+  .button {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+
+  .link {
+    padding: 8px 0; /* Increase tap area */
+  }
+}
+
+/* Hover only on devices that support it */
+@media (hover: hover) {
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--elevation-2);
+  }
+}
+
+/* No hover effects on touch (prevents sticky hover) */
+@media (hover: none) {
+  .card:hover {
+    transform: none;
+  }
+}
+```
+
+### Responsive Images
+
+```html
+<!-- Responsive image with art direction -->
+<picture>
+  <source media="(min-width: 1024px)" srcset="hero-desktop.webp">
+  <source media="(min-width: 768px)" srcset="hero-tablet.webp">
+  <img src="hero-mobile.webp" alt="Hero image" loading="lazy">
+</picture>
+
+<!-- Responsive image with density -->
+<img
+  src="image.jpg"
+  srcset="image-1x.jpg 1x, image-2x.jpg 2x, image-3x.jpg 3x"
+  alt="Description"
+/>
+```
+
+```css
+/* Responsive background images */
+.hero {
+  background-image: url('hero-mobile.jpg');
+}
+@media (min-width: 768px) {
+  .hero {
+    background-image: url('hero-desktop.jpg');
+  }
+}
+@media (min-resolution: 2dppx) {
+  .hero {
+    background-image: url('hero-desktop@2x.jpg');
+  }
+}
+```
+
+### Responsive Audit Checklist
+
+- [ ] All breakpoints tested: 320px, 640px, 768px, 1024px, 1280px
+- [ ] Touch targets ≥44px on mobile
+- [ ] No horizontal scroll at any breakpoint
+- [ ] Text readable without zoom (≥16px body)
+- [ ] Images don't overflow containers
+- [ ] Tables have mobile strategy (scroll, stack, or hide columns)
+- [ ] Navigation accessible on all sizes
+- [ ] Forms usable on mobile (proper input types, labels visible)
+- [ ] Modals/dialogs work on small screens
+- [ ] Hover states have touch alternatives
+- [ ] Loading states work at all sizes
+- [ ] Print styles defined (if applicable)
+
+### Testing Tools
+
+```bash
+# Chrome DevTools device toolbar: Cmd/Ctrl + Shift + M
+
+# Responsive testing URLs
+# - responsively.app (view multiple sizes)
+# - polypane.app (paid, comprehensive)
+
+# Lighthouse mobile audit
+npx lighthouse https://example.com --preset=desktop
+npx lighthouse https://example.com --preset=mobile
+```
+
 ## UI Audit Report Template
 
 ```markdown
