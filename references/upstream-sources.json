@@ -3,24 +3,39 @@
     "name": "superpowers",
     "repo": "obra/superpowers",
     "branch": "main",
-    "paths": ["skills/"],
-    "last_synced_commit": null,
-    "maps_to": ["bosun-architect"]
+    "paths": [
+      "skills/"
+    ],
+    "last_synced_commit": "ac471e69c2a672f50e491a45f6ff56b104d0e562",
+    "maps_to": [
+      "bosun-architect"
+    ]
   },
   {
     "name": "voltagent-subagents",
     "repo": "VoltAgent/awesome-claude-code-subagents",
     "branch": "main",
-    "paths": ["subagents/"],
-    "last_synced_commit": null,
-    "maps_to": ["bosun-golang", "bosun-typescript", "bosun-python", "bosun-security"]
+    "paths": [
+      "subagents/"
+    ],
+    "last_synced_commit": "4462fb6a32f89aa86e86aefff7adcc3c9ce8dfa0",
+    "maps_to": [
+      "bosun-golang",
+      "bosun-typescript",
+      "bosun-python",
+      "bosun-security"
+    ]
   },
   {
     "name": "claude-design-engineer",
     "repo": "Dammyjay93/claude-design-engineer",
     "branch": "main",
-    "paths": [".claude/"],
-    "last_synced_commit": null,
-    "maps_to": ["bosun-ux-ui"]
+    "paths": [
+      ".claude/"
+    ],
+    "last_synced_commit": "b237fee96056fa910d27b17501e69062a0726d62",
+    "maps_to": [
+      "bosun-ux-ui"
+    ]
   }
 ]
