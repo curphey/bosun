@@ -1,0 +1,25 @@
+{
+  "name": "bosun",
+  "version": "0.2.0",
+  "description": "Ship's officer for your codebase — keeping everything shipshape. Orchestrates specialized agents for security, quality, and architecture reviews.",
+  "author": {
+    "name": "Mark Curphey"
+  },
+  "keywords": [
+    "development",
+    "security",
+    "architecture",
+    "code-quality",
+    "auditing",
+    "orchestration"
+  ],
+  "skills": "./skills/",
+  "agents": "./agents/",
+  "commands": "./commands/",
+  "homepage": "https://github.com/curphey/bosun",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/curphey/bosun.git"
+  },
+  "license": "MIT"
+}

@@ -4,7 +4,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Bosun is a Claude Code plugin that enforces development standards through curated specialist agents. It provides planning discipline, git hygiene, CI/CD setup, code quality enforcement, and project auditing.
+Bosun is a Claude Code plugin that orchestrates specialized agents for code quality, security, and architecture review. It provides parallel review capabilities through isolated agents that access curated skill knowledge.
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────┐
+│          BOSUN (Orchestrator)               │
+│  Coordinates parallel reviews, aggregates   │
+└──────────┬──────────────┬───────────────────┘
+           │              │
+    ┌──────▼──────┐ ┌─────▼──────┐
+    │ quality-    │ │ security-  │  ← Agents (parallel, isolated)
+    │ agent       │ │ agent      │
+    └──────┬──────┘ └─────┬──────┘
+           │              │
+    ┌──────▼──────┐ ┌─────▼──────┐
+    │ bosun-      │ │ bosun-     │  ← Skills (knowledge packages)
+    │ architect   │ │ security   │
+    │ SKILL       │ │ SKILL      │
+    └─────────────┘ └────────────┘
+```
+
+### Component Roles
+
+| Component | Role | Location |
+|-----------|------|----------|
+| **Agents** | Specialized workers (isolated contexts) | `agents/*.md` |
+| **Skills** | Reusable knowledge packages | `skills/*/SKILL.md` |
+| **Commands** | Explicit user-triggered workflows | `commands/*.md` |
+| **References** | RAG knowledge for skills | `skills/*/references/` |
 
 ## Design Philosophy
 
@@ -13,43 +42,64 @@ Bosun is a **control plane** — it sits at the top of the stack and owns its da
 - **No Runtime Dependencies**: Users install Bosun alone. All knowledge is self-contained.
 - **Curated, Not Inherited**: Knowledge is curated from best-in-class sources into owned skills, not inherited or wrapped.
 - **Single Source of Truth**: For projects using Bosun, the plugin IS the standard.
+- **Parallel Review**: Agents run in isolated contexts for independent analysis.
 
-Upstream repos (superpowers, VoltAgent, claude-design-engineer) are *sources of ideas*, not dependencies. Changes are reviewed, cherry-picked, and adapted — never automatically merged.
+Upstream repos (superpowers, VoltAgent, claude-design-engineer) are *sources of ideas*, not dependencies.
 
 ## Tech Stack
 
-- **Type:** Claude Code Plugin (skills + scripts)
-- **Languages:** Bash (scripts), Markdown (skills)
-- **Distribution:** GitHub marketplace via `marketplace.json`
+- **Type:** Claude Code Plugin (agents + skills + commands)
+- **Languages:** Markdown (skills, agents, commands), Bash (scripts)
+- **Distribution:** GitHub via `.claude-plugin/plugin.json`
 
 ## Directory Structure
 
 ```
 bosun/
-├── marketplace.json              # Plugin metadata
-├── skills/                       # Specialist agents (bosun-*)
-├── scripts/                      # Shell utilities
-├── references/                   # Upstream source tracking
-└── assets/templates/             # Project templates
+├── .claude-plugin/
+│   └── plugin.json           # Official plugin manifest
+├── agents/                   # Specialized workers
+│   ├── security-agent.md     # Security auditor
+│   ├── quality-agent.md      # Code quality reviewer
+│   └── docs-agent.md         # Documentation specialist
+├── skills/                   # Knowledge packages
+│   ├── bosun-security/
+│   │   ├── SKILL.md          # Skill definition
+│   │   └── references/       # RAG knowledge
+│   ├── bosun-architect/
+│   ├── bosun-golang/
+│   └── ...
+├── commands/                 # User-triggered workflows
+│   └── audit.md              # /audit command
+├── scripts/                  # Shell utilities
+├── references/               # Source research docs
+└── assets/templates/         # Project templates
 ```
 
 ## Code Conventions
 
-### Skills (SKILL.md files)
-- YAML frontmatter with `name` and `description` (required)
-- `description` should include trigger phrases
-- Keep under 500 lines; split to references/ if longer
-- Use code blocks for examples
+### Agents (agents/*.md)
+- YAML frontmatter with `name`, `description`, `tools`, `model`, `skills`
+- Use `disallowedTools: Edit, Write` for read-only agents
+- Specify `model: opus` for critical work, `sonnet` for standard
+- Reference skills with `skills: [bosun-security]`
+
+### Skills (skills/*/SKILL.md)
+- YAML frontmatter with `name`, `description`, `tags`
+- `description` should include trigger phrases for auto-discovery
+- Keep under 500 lines; put detailed docs in `references/`
+- Use code blocks for patterns and examples
+
+### Commands (commands/*.md)
+- YAML frontmatter with `name`, `description`
+- Document usage, what happens, and example output
+- Commands trigger explicit workflows (e.g., `/audit`)
 
 ### Naming
+- Agents: `{purpose}-agent` (e.g., `security-agent`)
 - Skills: `bosun-{purpose}` (e.g., `bosun-golang`)
+- Commands: `{verb}` (e.g., `audit`)
 - Scripts: `{verb}-{noun}.sh` (e.g., `audit-project.sh`)
-
-### Scripts
-- Bash with `set -euo pipefail`
-- Use color helpers: `log_info`, `log_success`, `log_warning`, `log_error`
-- Include usage comment at top
-- Make executable: `chmod +x`
 
 ## Git Workflow
 
@@ -62,6 +112,7 @@ bosun/
 ### Commits
 Use conventional commits:
 ```
+feat(agent): add security-agent for parallel review
 feat(skill): add bosun-rust specialist
 fix(audit): handle missing .github directory
 chore(deps): update upstream source tracking
@@ -70,21 +121,33 @@ docs: improve README installation section
 
 ## Common Tasks
 
+### Adding a New Agent
+1. Create `agents/{purpose}-agent.md`
+2. Define frontmatter: name, description, tools, model, skills
+3. Write instructions for the agent's specialized role
+4. Reference relevant skills for knowledge
+
 ### Adding a New Skill
 1. Create directory: `skills/bosun-{name}/`
 2. Create `SKILL.md` with frontmatter and instructions
-3. Add to `marketplace.json` skills array
+3. Add `references/` subdirectory for RAG knowledge
 4. Update README skills table
+
+### Running an Audit
+```
+/audit          # Full audit (security + quality + docs)
+/audit security # Security only
+/audit quality  # Quality only
+```
 
 ### Testing
 ```bash
 # Install plugin locally
-cp -r . ~/.claude/plugins/bosun
+/plugin install --local .
 
-# Test scripts
-./scripts/audit-project.sh /path/to/test-repo
-./scripts/init-project.sh /tmp/test-project
-./scripts/sync-upstream.sh
+# Test with a sample project
+cd /path/to/test-project
+/audit
 ```
 
 ### Updating Upstream Sources
