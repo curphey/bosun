@@ -353,73 +353,7 @@ func noLeak(ctx context.Context) {
 
 ---
 
-### 4. Go Security Best Practices
-
-Source: [OWASP Go-SCP](https://github.com/OWASP/Go-SCP)
-
-#### Input Validation
-
-```go
-import "github.com/go-playground/validator/v10"
-
-type User struct {
-    Email string `validate:"required,email"`
-    Age   int    `validate:"gte=0,lte=130"`
-}
-
-validate := validator.New()
-err := validate.Struct(user)
-```
-
-#### SQL Injection Prevention
-
-```go
-// Bad: string concatenation
-query := "SELECT * FROM users WHERE id = " + id
-
-// Good: parameterized queries
-query := "SELECT * FROM users WHERE id = $1"
-rows, err := db.Query(query, id)
-```
-
-#### XSS Prevention
-
-```go
-// Bad: text/template (no escaping)
-import "text/template"
-
-// Good: html/template (auto-escapes)
-import "html/template"
-```
-
-#### Cryptography
-
-```go
-// Bad: math/rand for security
-import "math/rand"
-token := rand.Int()
-
-// Good: crypto/rand
-import "crypto/rand"
-b := make([]byte, 32)
-_, err := rand.Read(b)
-
-// Password hashing
-import "golang.org/x/crypto/bcrypt"
-hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-```
-
-#### Vulnerability Scanning
-
-```bash
-# Check for known vulnerabilities
-go install golang.org/x/vuln/cmd/govulncheck@latest
-govulncheck ./...
-```
-
----
-
-### 5. Go Testing
+### 4. Go Testing
 
 Sources: [go.dev/wiki/TableDrivenTests](https://go.dev/wiki/TableDrivenTests), [go.dev/doc/security/fuzz](https://go.dev/doc/security/fuzz/)
 
@@ -524,7 +458,7 @@ go test -fuzz=FuzzParse -fuzztime=30s ./...
 
 ---
 
-### 6. Go Idioms and Patterns
+### 5. Go Idioms and Patterns
 
 #### Accept Interfaces, Return Structs
 
@@ -667,10 +601,6 @@ if errors.Is(err, os.ErrNotExist) {
 ### Tools
 - [golangci-lint](https://golangci-lint.run/)
 - [staticcheck](https://staticcheck.dev/docs/)
-
-### Security
-- [OWASP Go-SCP](https://github.com/OWASP/Go-SCP)
-- [OWASP Developer Guide - Go](https://devguide.owasp.org/en/05-implementation/01-documentation/02-go-scp/)
 
 ### Books & Resources
 - [100 Go Mistakes and How to Avoid Them](https://100go.co/)
