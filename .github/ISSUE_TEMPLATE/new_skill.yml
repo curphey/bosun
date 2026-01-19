@@ -1,0 +1,63 @@
+name: New Skill Proposal
+description: Propose a new Bosun specialist skill
+title: "[Skill]: bosun-"
+labels: ["skill-proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Proposing a new Bosun skill? Great! Please provide details below.
+
+        Remember Bosun's philosophy:
+        - **Curated, not inherited** — Skills contain owned knowledge, not wrappers
+        - **No runtime dependencies** — All knowledge is self-contained
+        - **Single source of truth** — Skills define the standard
+
+  - type: input
+    id: name
+    attributes:
+      label: Skill Name
+      description: "Format: bosun-{purpose}"
+      placeholder: "bosun-rust"
+    validations:
+      required: true
+
+  - type: textarea
+    id: purpose
+    attributes:
+      label: Purpose
+      description: What problem does this skill solve? Who benefits?
+    validations:
+      required: true
+
+  - type: textarea
+    id: knowledge
+    attributes:
+      label: Knowledge Sources
+      description: What best practices, standards, or guides would this skill curate?
+      placeholder: |
+        - Official Rust style guide
+        - Clippy lint categories
+        - Cargo best practices
+    validations:
+      required: true
+
+  - type: textarea
+    id: triggers
+    attributes:
+      label: Trigger Phrases
+      description: When should Claude invoke this skill?
+      placeholder: |
+        - "Review this Rust code"
+        - "Help me with cargo configuration"
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: No existing skill covers this domain
+          required: true
+        - label: Knowledge is substantial enough to warrant a dedicated skill
+          required: true
+        - label: I can contribute research or initial content
