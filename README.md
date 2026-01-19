@@ -17,10 +17,26 @@ Like a ship's bosun who oversees the crew and equipment, Bosun guides you throug
 
 ## Installation
 
-Install Bosun in Claude Code using the plugin system:
+First, add the Bosun marketplace:
 
 ```
 /plugin marketplace add curphey/bosun
+```
+
+Then install the plugin with one of the following scopes:
+
+**Global** (available in all projects):
+```
+/plugin install --global bosun@curphey/bosun
+```
+
+**Project** (available to anyone working on this repo):
+```
+/plugin install --project bosun@curphey/bosun
+```
+
+**User** (just for yourself in this project):
+```
 /plugin install bosun@curphey/bosun
 ```
 
