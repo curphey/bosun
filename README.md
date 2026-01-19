@@ -15,6 +15,19 @@ Like a ship's bosun who oversees the crew and equipment, Bosun guides you throug
 - **Code Review** — Automated review workflows, quality checks, and feedback integration
 - **Release** — Version management, changelog generation, and deployment preparation
 
+## What are Claude Code Plugins?
+
+[Claude Code](https://claude.ai/code) is Anthropic's CLI tool for AI-assisted development. Plugins extend Claude Code with additional skills and commands.
+
+Plugins can provide:
+- **Skills** — Markdown files that give Claude specialized knowledge and workflows for specific tasks
+- **Commands** — Slash commands (like `/brainstorm` or `/review`) that trigger specific behaviors
+- **Hooks** — Automatic triggers that activate skills based on context
+
+Plugins are distributed through marketplaces (GitHub repositories) and can be installed at different scopes depending on whether you want them available globally, per-project, or just for yourself.
+
+To learn more about Claude Code, run `/help` or visit the [Claude Code documentation](https://docs.anthropic.com/en/docs/claude-code).
+
 ## Installation
 
 First, add the Bosun marketplace:
