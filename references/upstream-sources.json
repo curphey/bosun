@@ -1,0 +1,26 @@
+[
+  {
+    "name": "superpowers",
+    "repo": "obra/superpowers",
+    "branch": "main",
+    "paths": ["skills/"],
+    "last_synced_commit": null,
+    "maps_to": ["bosun-architect"]
+  },
+  {
+    "name": "voltagent-subagents",
+    "repo": "VoltAgent/awesome-claude-code-subagents",
+    "branch": "main",
+    "paths": ["subagents/"],
+    "last_synced_commit": null,
+    "maps_to": ["bosun-golang", "bosun-typescript", "bosun-python", "bosun-security"]
+  },
+  {
+    "name": "claude-design-engineer",
+    "repo": "Dammyjay93/claude-design-engineer",
+    "branch": "main",
+    "paths": [".claude/"],
+    "last_synced_commit": null,
+    "maps_to": ["bosun-architect"]
+  }
+]
