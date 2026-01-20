@@ -1,0 +1,312 @@
+{
+  "description": "Comprehensive test fixture simulating a full audit with all agent categories",
+  "version": "1.0.0",
+  "metadata": {
+    "project": "enterprise-app",
+    "auditedAt": "2025-01-20T10:00:00Z",
+    "scope": "full",
+    "gitRef": "abc1234def5678",
+    "agents": [
+      "security-agent",
+      "quality-agent",
+      "docs-agent",
+      "architecture-agent",
+      "devops-agent",
+      "testing-agent",
+      "performance-agent",
+      "ux-ui-agent"
+    ]
+  },
+  "summary": {
+    "total": 24,
+    "bySeverity": {
+      "critical": 2,
+      "high": 6,
+      "medium": 10,
+      "low": 5,
+      "info": 1
+    },
+    "byStatus": {
+      "open": 24,
+      "fixed": 0,
+      "wontfix": 0,
+      "deferred": 0
+    },
+    "byCategory": {
+      "security": 4,
+      "quality": 4,
+      "docs": 2,
+      "architecture": 3,
+      "devops": 4,
+      "testing": 3,
+      "performance": 3,
+      "ux-ui": 1
+    }
+  },
+  "findings": [
+    {
+      "id": "SEC-001",
+      "category": "security",
+      "severity": "critical",
+      "title": "Hardcoded database credentials",
+      "description": "Production database password stored in source code",
+      "location": { "file": "src/config/database.js", "line": 12 },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["secrets", "database"]
+    },
+    {
+      "id": "SEC-002",
+      "category": "security",
+      "severity": "high",
+      "title": "SQL injection vulnerability",
+      "description": "User input concatenated into raw SQL query",
+      "location": { "file": "src/repositories/UserRepository.js", "line": 45 },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["injection", "database"]
+    },
+    {
+      "id": "SEC-003",
+      "category": "security",
+      "severity": "high",
+      "title": "Missing authentication on API endpoint",
+      "description": "Admin endpoint accessible without authentication",
+      "location": { "file": "src/api/admin.js", "line": 20 },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["authentication", "api"]
+    },
+    {
+      "id": "SEC-004",
+      "category": "security",
+      "severity": "medium",
+      "title": "Missing CSRF protection",
+      "description": "Form submissions lack CSRF tokens",
+      "location": { "file": "src/middleware/security.js", "line": 1 },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["csrf", "forms"]
+    },
+    {
+      "id": "QUA-001",
+      "category": "quality",
+      "severity": "high",
+      "title": "Function exceeds complexity threshold",
+      "description": "Cyclomatic complexity of 25 (threshold: 10)",
+      "location": { "file": "src/services/OrderService.js", "line": 150 },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["complexity", "maintainability"]
+    },
+    {
+      "id": "QUA-002",
+      "category": "quality",
+      "severity": "medium",
+      "title": "Unused imports",
+      "description": "15 unused imports across the codebase",
+      "location": { "file": "src/", "line": 1 },
+      "interactionTier": "auto",
+      "status": "open",
+      "tags": ["dead-code", "imports"]
+    },
+    {
+      "id": "QUA-003",
+      "category": "quality",
+      "severity": "medium",
+      "title": "Inconsistent error handling",
+      "description": "Mix of try-catch, callbacks, and unhandled promises",
+      "location": { "file": "src/", "line": 1 },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["errors", "consistency"]
+    },
+    {
+      "id": "QUA-004",
+      "category": "quality",
+      "severity": "low",
+      "title": "Magic numbers in business logic",
+      "description": "Numeric constants without named constants",
+      "location": { "file": "src/services/PricingService.js", "line": 78 },
+      "interactionTier": "auto",
+      "status": "open",
+      "tags": ["readability", "constants"]
+    },
+    {
+      "id": "DOC-001",
+      "category": "docs",
+      "severity": "medium",
+      "title": "Missing API documentation",
+      "description": "REST endpoints lack OpenAPI/Swagger documentation",
+      "location": { "file": "src/api/", "line": 1 },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["api", "openapi"]
+    },
+    {
+      "id": "DOC-002",
+      "category": "docs",
+      "severity": "low",
+      "title": "Outdated README",
+      "description": "Setup instructions reference deprecated dependencies",
+      "location": { "file": "README.md", "line": 45 },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["readme", "setup"]
+    },
+    {
+      "id": "ARC-001",
+      "category": "architecture",
+      "severity": "high",
+      "title": "Circular dependency",
+      "description": "UserService and OrderService have circular imports",
+      "location": { "file": "src/services/", "line": 1 },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["dependencies", "coupling"]
+    },
+    {
+      "id": "ARC-002",
+      "category": "architecture",
+      "severity": "medium",
+      "title": "Business logic in controller",
+      "description": "OrderController contains 500 lines of business rules",
+      "location": { "file": "src/controllers/OrderController.js", "line": 1 },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["layers", "separation"]
+    },
+    {
+      "id": "ARC-003",
+      "category": "architecture",
+      "severity": "medium",
+      "title": "Missing repository pattern",
+      "description": "Direct database calls from services",
+      "location": { "file": "src/services/", "line": 1 },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["patterns", "data-access"]
+    },
+    {
+      "id": "DEV-001",
+      "category": "devops",
+      "severity": "critical",
+      "title": "Container running as root",
+      "description": "Dockerfile lacks USER directive",
+      "location": { "file": "Dockerfile", "line": 1 },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["docker", "security"]
+    },
+    {
+      "id": "DEV-002",
+      "category": "devops",
+      "severity": "high",
+      "title": "Unpinned GitHub Action",
+      "description": "Actions use version tags instead of SHA pins",
+      "location": { "file": ".github/workflows/ci.yml", "line": 15 },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["github-actions", "supply-chain"]
+    },
+    {
+      "id": "DEV-003",
+      "category": "devops",
+      "severity": "medium",
+      "title": "Missing resource limits",
+      "description": "Kubernetes deployment lacks CPU/memory limits",
+      "location": { "file": "k8s/deployment.yaml", "line": 30 },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["kubernetes", "resources"]
+    },
+    {
+      "id": "DEV-004",
+      "category": "devops",
+      "severity": "low",
+      "title": "Local Terraform state",
+      "description": "No remote backend configured",
+      "location": { "file": "terraform/main.tf", "line": 1 },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["terraform", "state"]
+    },
+    {
+      "id": "TST-001",
+      "category": "testing",
+      "severity": "high",
+      "title": "Critical path untested",
+      "description": "Payment processing has 0% test coverage",
+      "location": { "file": "src/services/PaymentService.js", "line": 1 },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["coverage", "critical-path"]
+    },
+    {
+      "id": "TST-002",
+      "category": "testing",
+      "severity": "medium",
+      "title": "Flaky tests",
+      "description": "3 tests fail intermittently in CI",
+      "location": { "file": "tests/", "line": 1 },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["flaky", "reliability"]
+    },
+    {
+      "id": "TST-003",
+      "category": "testing",
+      "severity": "low",
+      "title": "Missing integration tests",
+      "description": "API endpoints lack integration test coverage",
+      "location": { "file": "tests/integration/", "line": 1 },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["integration", "api"]
+    },
+    {
+      "id": "PRF-001",
+      "category": "performance",
+      "severity": "high",
+      "title": "N+1 query",
+      "description": "Product listing triggers 100+ queries",
+      "location": { "file": "src/api/products.js", "line": 35 },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["database", "n+1"]
+    },
+    {
+      "id": "PRF-002",
+      "category": "performance",
+      "severity": "medium",
+      "title": "Large bundle size",
+      "description": "Main bundle is 1.8MB gzipped",
+      "location": { "file": "dist/main.js", "line": 1 },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["bundle", "frontend"]
+    },
+    {
+      "id": "PRF-003",
+      "category": "performance",
+      "severity": "medium",
+      "title": "Missing caching",
+      "description": "Static data fetched on every request",
+      "location": { "file": "src/api/config.js", "line": 10 },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["caching", "optimization"]
+    },
+    {
+      "id": "UXU-001",
+      "category": "ux-ui",
+      "severity": "info",
+      "title": "Insufficient color contrast",
+      "description": "Secondary text fails WCAG AA contrast ratio",
+      "location": { "file": "src/styles/theme.css", "line": 45 },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["accessibility", "wcag", "contrast"]
+    }
+  ]
+}

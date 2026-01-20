@@ -1,0 +1,135 @@
+{
+  "agent": "devops-agent",
+  "timestamp": "2025-01-20T10:00:10Z",
+  "findings": [
+    {
+      "id": "DEV-001",
+      "category": "devops",
+      "severity": "critical",
+      "title": "Docker image running as root",
+      "description": "Container runs with root privileges, enabling potential container escape",
+      "location": {
+        "file": "Dockerfile",
+        "line": 1
+      },
+      "evidence": "FROM node:18 without USER directive",
+      "suggestedFix": {
+        "description": "Add non-root user and USER directive",
+        "automated": true,
+        "effort": "minor",
+        "semanticCategory": "add non-root user"
+      },
+      "interactionTier": "confirm",
+      "status": "open",
+      "references": [
+        "https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user"
+      ],
+      "tags": ["docker", "security", "container"]
+    },
+    {
+      "id": "DEV-002",
+      "category": "devops",
+      "severity": "high",
+      "title": "Using latest tag in Dockerfile",
+      "description": "Base image uses :latest tag which causes non-reproducible builds",
+      "location": {
+        "file": "Dockerfile",
+        "line": 1
+      },
+      "evidence": "FROM node:latest",
+      "suggestedFix": {
+        "description": "Pin to specific version like node:20.11.0-alpine",
+        "automated": true,
+        "effort": "trivial",
+        "semanticCategory": "pin image version"
+      },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["docker", "reproducibility"]
+    },
+    {
+      "id": "DEV-003",
+      "category": "devops",
+      "severity": "high",
+      "title": "GitHub Action uses mutable tag",
+      "description": "Action pinned to version tag instead of SHA, vulnerable to supply chain attacks",
+      "location": {
+        "file": ".github/workflows/ci.yml",
+        "line": 15
+      },
+      "evidence": "uses: actions/checkout@v4",
+      "suggestedFix": {
+        "description": "Pin to full SHA: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608",
+        "automated": true,
+        "effort": "trivial",
+        "semanticCategory": "pin action to sha"
+      },
+      "interactionTier": "confirm",
+      "status": "open",
+      "references": [
+        "https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions"
+      ],
+      "tags": ["github-actions", "supply-chain", "security"]
+    },
+    {
+      "id": "DEV-004",
+      "category": "devops",
+      "severity": "medium",
+      "title": "Kubernetes pod missing resource limits",
+      "description": "Pod specification lacks CPU and memory limits, risking resource exhaustion",
+      "location": {
+        "file": "k8s/deployment.yaml",
+        "line": 25
+      },
+      "suggestedFix": {
+        "description": "Add resources.limits for cpu and memory",
+        "automated": true,
+        "effort": "trivial",
+        "semanticCategory": "add resource limits"
+      },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["kubernetes", "resources"]
+    },
+    {
+      "id": "DEV-005",
+      "category": "devops",
+      "severity": "medium",
+      "title": "Terraform state stored locally",
+      "description": "Terraform using local state file instead of remote backend",
+      "location": {
+        "file": "terraform/main.tf",
+        "line": 1
+      },
+      "suggestedFix": {
+        "description": "Configure S3 backend with DynamoDB locking",
+        "automated": false,
+        "effort": "moderate",
+        "semanticCategory": "configure remote state"
+      },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["terraform", "state", "collaboration"]
+    },
+    {
+      "id": "DEV-006",
+      "category": "devops",
+      "severity": "low",
+      "title": "Missing health check in Dockerfile",
+      "description": "Container lacks HEALTHCHECK instruction for orchestrator health monitoring",
+      "location": {
+        "file": "Dockerfile",
+        "line": 20
+      },
+      "suggestedFix": {
+        "description": "Add HEALTHCHECK instruction",
+        "automated": true,
+        "effort": "trivial",
+        "semanticCategory": "add healthcheck"
+      },
+      "interactionTier": "auto",
+      "status": "open",
+      "tags": ["docker", "health"]
+    }
+  ]
+}

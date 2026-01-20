@@ -1,0 +1,127 @@
+{
+  "agent": "testing-agent",
+  "timestamp": "2025-01-20T10:00:15Z",
+  "findings": [
+    {
+      "id": "TST-001",
+      "category": "testing",
+      "severity": "critical",
+      "title": "Critical path has zero test coverage",
+      "description": "Payment processing service has no unit or integration tests. High risk for production bugs.",
+      "location": {
+        "file": "src/services/PaymentService.js",
+        "line": 1
+      },
+      "suggestedFix": {
+        "description": "Add comprehensive tests for payment flow",
+        "automated": false,
+        "effort": "major",
+        "semanticCategory": "add unit test"
+      },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["coverage", "critical-path", "payments"]
+    },
+    {
+      "id": "TST-002",
+      "category": "testing",
+      "severity": "high",
+      "title": "Overall test coverage below threshold",
+      "description": "Project has 42% line coverage, below recommended 80% minimum",
+      "location": {
+        "file": ".",
+        "line": 1
+      },
+      "suggestedFix": {
+        "description": "Increase test coverage to 80% minimum",
+        "automated": false,
+        "effort": "major",
+        "semanticCategory": "add coverage"
+      },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["coverage", "threshold"]
+    },
+    {
+      "id": "TST-003",
+      "category": "testing",
+      "severity": "medium",
+      "title": "Flaky test in authentication suite",
+      "description": "Test 'should authenticate user' fails intermittently due to timing issues",
+      "location": {
+        "file": "tests/auth.test.js",
+        "line": 45
+      },
+      "evidence": "3 failures in last 20 CI runs",
+      "suggestedFix": {
+        "description": "Add proper async handling and mock time-dependent operations",
+        "automated": true,
+        "effort": "minor",
+        "semanticCategory": "fix flaky test"
+      },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["flaky", "reliability", "async"]
+    },
+    {
+      "id": "TST-004",
+      "category": "testing",
+      "severity": "medium",
+      "title": "Slow integration test suite",
+      "description": "Integration tests take 8+ minutes. Database reset between tests instead of transaction rollback.",
+      "location": {
+        "file": "tests/integration/",
+        "line": 1
+      },
+      "suggestedFix": {
+        "description": "Use transaction rollback for test isolation",
+        "automated": false,
+        "effort": "moderate",
+        "semanticCategory": "fix slow test"
+      },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["slow", "performance", "integration"]
+    },
+    {
+      "id": "TST-005",
+      "category": "testing",
+      "severity": "low",
+      "title": "Tests missing assertion messages",
+      "description": "Many assertions use expect(x).toBe(y) without descriptive failure messages",
+      "location": {
+        "file": "tests/",
+        "line": 1
+      },
+      "suggestedFix": {
+        "description": "Add descriptive messages to assertions",
+        "automated": true,
+        "effort": "minor",
+        "semanticCategory": "improve assertions"
+      },
+      "interactionTier": "auto",
+      "status": "open",
+      "tags": ["assertions", "debugging", "readability"]
+    },
+    {
+      "id": "TST-006",
+      "category": "testing",
+      "severity": "low",
+      "title": "Duplicated test setup code",
+      "description": "Same user creation logic repeated across 12 test files",
+      "location": {
+        "file": "tests/",
+        "line": 1
+      },
+      "suggestedFix": {
+        "description": "Extract to shared fixture or factory function",
+        "automated": false,
+        "effort": "minor",
+        "semanticCategory": "remove test duplication"
+      },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["duplication", "dry", "fixtures"]
+    }
+  ]
+}

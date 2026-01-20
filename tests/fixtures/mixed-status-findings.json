@@ -1,0 +1,135 @@
+{
+  "description": "Test fixture with mixed finding statuses for status filtering tests",
+  "version": "1.0.0",
+  "metadata": {
+    "project": "active-project",
+    "auditedAt": "2025-01-18T10:00:00Z",
+    "scope": "full",
+    "agents": ["security-agent", "quality-agent", "docs-agent", "architecture-agent"]
+  },
+  "summary": {
+    "total": 10,
+    "bySeverity": {
+      "critical": 1,
+      "high": 3,
+      "medium": 4,
+      "low": 2,
+      "info": 0
+    },
+    "byStatus": {
+      "open": 4,
+      "fixed": 3,
+      "wontfix": 2,
+      "deferred": 1
+    },
+    "byCategory": {
+      "security": 3,
+      "quality": 4,
+      "docs": 2,
+      "architecture": 1
+    }
+  },
+  "findings": [
+    {
+      "id": "SEC-001",
+      "category": "security",
+      "severity": "critical",
+      "title": "Hardcoded API key",
+      "location": { "file": "src/config.js", "line": 15 },
+      "interactionTier": "confirm",
+      "status": "fixed",
+      "fixedAt": "2025-01-19T11:00:00Z"
+    },
+    {
+      "id": "SEC-002",
+      "category": "security",
+      "severity": "high",
+      "title": "SQL injection",
+      "location": { "file": "src/db/users.js", "line": 42 },
+      "interactionTier": "approve",
+      "status": "open"
+    },
+    {
+      "id": "SEC-003",
+      "category": "security",
+      "severity": "medium",
+      "title": "Missing rate limiting",
+      "location": { "file": "src/api/auth.js", "line": 10 },
+      "interactionTier": "approve",
+      "status": "deferred",
+      "deferredReason": "Scheduled for Q2 security sprint",
+      "deferredUntil": "2025-04-01"
+    },
+    {
+      "id": "QUA-001",
+      "category": "quality",
+      "severity": "high",
+      "title": "Complex function",
+      "location": { "file": "src/utils.js", "line": 100 },
+      "interactionTier": "approve",
+      "status": "open"
+    },
+    {
+      "id": "QUA-002",
+      "category": "quality",
+      "severity": "medium",
+      "title": "Unused variable",
+      "location": { "file": "src/handlers.js", "line": 55 },
+      "interactionTier": "auto",
+      "status": "fixed",
+      "fixedAt": "2025-01-19T10:30:00Z"
+    },
+    {
+      "id": "QUA-003",
+      "category": "quality",
+      "severity": "low",
+      "title": "Console.log in production",
+      "location": { "file": "src/debug.js", "line": 12 },
+      "interactionTier": "auto",
+      "status": "wontfix",
+      "wontfixReason": "Debug mode intentional for development"
+    },
+    {
+      "id": "QUA-004",
+      "category": "quality",
+      "severity": "medium",
+      "title": "Magic number",
+      "location": { "file": "src/config.js", "line": 30 },
+      "interactionTier": "auto",
+      "status": "open"
+    },
+    {
+      "id": "DOC-001",
+      "category": "docs",
+      "severity": "high",
+      "title": "Missing README",
+      "location": { "file": "README.md", "line": 1 },
+      "interactionTier": "confirm",
+      "status": "fixed",
+      "fixedAt": "2025-01-19T14:00:00Z"
+    },
+    {
+      "id": "DOC-002",
+      "category": "docs",
+      "severity": "medium",
+      "title": "Outdated API docs",
+      "location": { "file": "docs/api.md", "line": 1 },
+      "interactionTier": "confirm",
+      "status": "wontfix",
+      "wontfixReason": "Switching to auto-generated OpenAPI docs"
+    },
+    {
+      "id": "ARC-001",
+      "category": "architecture",
+      "severity": "low",
+      "title": "Inconsistent naming",
+      "location": { "file": "src/", "line": 1 },
+      "interactionTier": "approve",
+      "status": "open"
+    }
+  ],
+  "expected_open_count": 4,
+  "expected_fixed_count": 3,
+  "expected_wontfix_count": 2,
+  "expected_deferred_count": 1
+}

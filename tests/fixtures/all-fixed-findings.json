@@ -1,0 +1,135 @@
+{
+  "description": "Test fixture for all findings resolved state",
+  "version": "1.0.0",
+  "metadata": {
+    "project": "well-maintained-project",
+    "auditedAt": "2025-01-15T10:00:00Z",
+    "scope": "full",
+    "agents": ["security-agent", "quality-agent", "docs-agent"]
+  },
+  "summary": {
+    "total": 5,
+    "bySeverity": {
+      "critical": 1,
+      "high": 2,
+      "medium": 1,
+      "low": 1,
+      "info": 0
+    },
+    "byStatus": {
+      "open": 0,
+      "fixed": 4,
+      "wontfix": 1,
+      "deferred": 0
+    },
+    "byCategory": {
+      "security": 2,
+      "quality": 2,
+      "docs": 1
+    }
+  },
+  "findings": [
+    {
+      "id": "SEC-001",
+      "category": "security",
+      "severity": "critical",
+      "title": "Hardcoded API key",
+      "description": "API key was hardcoded in configuration",
+      "location": {
+        "file": "src/config.js",
+        "line": 15
+      },
+      "suggestedFix": {
+        "description": "Move to environment variable",
+        "automated": true,
+        "effort": "trivial"
+      },
+      "interactionTier": "confirm",
+      "status": "fixed",
+      "fixedAt": "2025-01-16T11:00:00Z",
+      "fixedBy": "fix-command"
+    },
+    {
+      "id": "SEC-002",
+      "category": "security",
+      "severity": "high",
+      "title": "SQL injection vulnerability",
+      "description": "User input concatenated into query",
+      "location": {
+        "file": "src/db/users.js",
+        "line": 42
+      },
+      "suggestedFix": {
+        "description": "Use parameterized queries",
+        "automated": true,
+        "effort": "minor"
+      },
+      "interactionTier": "approve",
+      "status": "fixed",
+      "fixedAt": "2025-01-16T11:30:00Z",
+      "fixedBy": "fix-command"
+    },
+    {
+      "id": "QUA-001",
+      "category": "quality",
+      "severity": "high",
+      "title": "O(n²) algorithm",
+      "description": "Nested loops causing performance issues",
+      "location": {
+        "file": "src/search.js",
+        "line": 88
+      },
+      "suggestedFix": {
+        "description": "Use hash map",
+        "automated": false,
+        "effort": "moderate"
+      },
+      "interactionTier": "approve",
+      "status": "fixed",
+      "fixedAt": "2025-01-17T09:00:00Z",
+      "fixedBy": "manual"
+    },
+    {
+      "id": "QUA-002",
+      "category": "quality",
+      "severity": "low",
+      "title": "Unused import",
+      "description": "Module imported but never used",
+      "location": {
+        "file": "src/utils.js",
+        "line": 3
+      },
+      "suggestedFix": {
+        "description": "Remove unused import",
+        "automated": true,
+        "effort": "trivial"
+      },
+      "interactionTier": "auto",
+      "status": "fixed",
+      "fixedAt": "2025-01-16T10:45:00Z",
+      "fixedBy": "fix-command"
+    },
+    {
+      "id": "DOC-001",
+      "category": "docs",
+      "severity": "medium",
+      "title": "Missing API documentation",
+      "description": "Public functions lack JSDoc",
+      "location": {
+        "file": "src/api/index.js",
+        "line": 1
+      },
+      "suggestedFix": {
+        "description": "Add JSDoc comments",
+        "automated": false,
+        "effort": "moderate"
+      },
+      "interactionTier": "confirm",
+      "status": "wontfix",
+      "wontfixReason": "Using TypeScript types as documentation",
+      "wontfixAt": "2025-01-16T14:00:00Z"
+    }
+  ],
+  "expected_status_display": "All findings resolved!",
+  "expected_fix_behavior": "No fixes to apply - all resolved"
+}

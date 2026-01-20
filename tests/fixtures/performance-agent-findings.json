@@ -1,0 +1,178 @@
+{
+  "agent": "performance-agent",
+  "timestamp": "2025-01-20T10:00:20Z",
+  "findings": [
+    {
+      "id": "PRF-001",
+      "category": "performance",
+      "severity": "critical",
+      "title": "O(n²) algorithm in user search",
+      "description": "Nested loops iterate over 10,000 users causing 5+ second response times",
+      "location": {
+        "file": "src/services/userSearch.js",
+        "line": 42
+      },
+      "evidence": "for (user of users) { for (match of matches) { ... } }",
+      "suggestedFix": {
+        "description": "Use Map for O(1) lookups",
+        "automated": true,
+        "effort": "moderate",
+        "code": "const userMap = new Map(users.map(u => [u.id, u]));",
+        "semanticCategory": "optimize algorithm"
+      },
+      "interactionTier": "approve",
+      "status": "open",
+      "references": [
+        "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map"
+      ],
+      "tags": ["algorithm", "complexity", "search"]
+    },
+    {
+      "id": "PRF-002",
+      "category": "performance",
+      "severity": "critical",
+      "title": "N+1 query in order listing",
+      "description": "Fetching 100 orders triggers 101 database queries",
+      "location": {
+        "file": "src/api/orders.js",
+        "line": 28
+      },
+      "evidence": "orders.forEach(async o => { o.items = await getItems(o.id) })",
+      "suggestedFix": {
+        "description": "Use eager loading or batch query",
+        "automated": true,
+        "effort": "minor",
+        "semanticCategory": "fix n+1 query"
+      },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["database", "n+1", "query"]
+    },
+    {
+      "id": "PRF-003",
+      "category": "performance",
+      "severity": "high",
+      "title": "Missing database index",
+      "description": "users.email column queried on every login without index",
+      "location": {
+        "file": "migrations/001_create_users.sql",
+        "line": 1
+      },
+      "suggestedFix": {
+        "description": "Add index on email column",
+        "automated": true,
+        "effort": "trivial",
+        "code": "CREATE INDEX idx_users_email ON users(email);",
+        "semanticCategory": "add database index"
+      },
+      "interactionTier": "confirm",
+      "status": "open",
+      "tags": ["database", "index"]
+    },
+    {
+      "id": "PRF-004",
+      "category": "performance",
+      "severity": "high",
+      "title": "Large JavaScript bundle",
+      "description": "Main bundle is 2.4MB gzipped. Includes unused lodash methods and moment.js with all locales.",
+      "location": {
+        "file": "dist/main.js",
+        "line": 1
+      },
+      "suggestedFix": {
+        "description": "Enable tree shaking, replace moment with date-fns",
+        "automated": false,
+        "effort": "moderate",
+        "semanticCategory": "reduce bundle size"
+      },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["bundle", "frontend", "loading"]
+    },
+    {
+      "id": "PRF-005",
+      "category": "performance",
+      "severity": "high",
+      "title": "Memory leak in event listener",
+      "description": "Component adds resize listener but never removes it on unmount",
+      "location": {
+        "file": "src/components/Dashboard.jsx",
+        "line": 15
+      },
+      "evidence": "useEffect(() => { window.addEventListener('resize', fn) })",
+      "suggestedFix": {
+        "description": "Return cleanup function from useEffect",
+        "automated": true,
+        "effort": "trivial",
+        "code": "return () => window.removeEventListener('resize', fn);",
+        "semanticCategory": "fix memory leak"
+      },
+      "interactionTier": "auto",
+      "status": "open",
+      "tags": ["memory", "leak", "react"]
+    },
+    {
+      "id": "PRF-006",
+      "category": "performance",
+      "severity": "medium",
+      "title": "Expensive computation not memoized",
+      "description": "calculateStatistics called on every render with same data",
+      "location": {
+        "file": "src/components/Analytics.jsx",
+        "line": 32
+      },
+      "suggestedFix": {
+        "description": "Wrap with useMemo",
+        "automated": true,
+        "effort": "trivial",
+        "code": "const stats = useMemo(() => calculateStatistics(data), [data]);",
+        "semanticCategory": "add memoization"
+      },
+      "interactionTier": "auto",
+      "status": "open",
+      "tags": ["memoization", "render", "react"]
+    },
+    {
+      "id": "PRF-007",
+      "category": "performance",
+      "severity": "medium",
+      "title": "Images not lazy loaded",
+      "description": "Product page loads all 50 images immediately (15MB)",
+      "location": {
+        "file": "src/pages/Products.jsx",
+        "line": 45
+      },
+      "suggestedFix": {
+        "description": "Add loading='lazy' to images below fold",
+        "automated": true,
+        "effort": "trivial",
+        "code": "<img src={src} loading=\"lazy\" />",
+        "semanticCategory": "add lazy loading"
+      },
+      "interactionTier": "auto",
+      "status": "open",
+      "tags": ["images", "lazy-loading", "frontend"]
+    },
+    {
+      "id": "PRF-008",
+      "category": "performance",
+      "severity": "low",
+      "title": "Synchronous file read in request handler",
+      "description": "readFileSync blocks event loop under load",
+      "location": {
+        "file": "src/api/config.js",
+        "line": 8
+      },
+      "evidence": "const config = fs.readFileSync('config.json')",
+      "suggestedFix": {
+        "description": "Use async readFile or cache at startup",
+        "automated": true,
+        "effort": "trivial",
+        "semanticCategory": "optimize algorithm"
+      },
+      "interactionTier": "auto",
+      "status": "open",
+      "tags": ["blocking", "async", "nodejs"]
+    }
+  ]
+}

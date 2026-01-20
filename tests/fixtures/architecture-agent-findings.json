@@ -1,0 +1,127 @@
+{
+  "agent": "architecture-agent",
+  "timestamp": "2025-01-20T10:00:25Z",
+  "findings": [
+    {
+      "id": "ARC-001",
+      "category": "architecture",
+      "severity": "high",
+      "title": "Circular dependency between modules",
+      "description": "UserService imports OrderService which imports UserService, causing tight coupling",
+      "location": {
+        "file": "src/services/UserService.js",
+        "line": 5
+      },
+      "evidence": "import { OrderService } from './OrderService' // OrderService imports UserService",
+      "suggestedFix": {
+        "description": "Extract shared logic to new module or use dependency injection",
+        "automated": false,
+        "effort": "major",
+        "semanticCategory": "break circular dependency"
+      },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["dependencies", "coupling", "architecture"]
+    },
+    {
+      "id": "ARC-002",
+      "category": "architecture",
+      "severity": "high",
+      "title": "Business logic in controller layer",
+      "description": "HTTP controller contains validation, transformation, and business rules that belong in service layer",
+      "location": {
+        "file": "src/controllers/UserController.js",
+        "line": 25
+      },
+      "suggestedFix": {
+        "description": "Move business logic to UserService, keep controller thin",
+        "automated": false,
+        "effort": "moderate",
+        "semanticCategory": "refactor to service layer"
+      },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["layers", "separation-of-concerns"]
+    },
+    {
+      "id": "ARC-003",
+      "category": "architecture",
+      "severity": "medium",
+      "title": "God class with too many responsibilities",
+      "description": "ApplicationManager handles config, logging, caching, and database connections (2000+ lines)",
+      "location": {
+        "file": "src/core/ApplicationManager.js",
+        "line": 1
+      },
+      "suggestedFix": {
+        "description": "Split into ConfigManager, LogManager, CacheManager, DatabaseManager",
+        "automated": false,
+        "effort": "major",
+        "semanticCategory": "split god class"
+      },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["single-responsibility", "maintainability"]
+    },
+    {
+      "id": "ARC-004",
+      "category": "architecture",
+      "severity": "medium",
+      "title": "Missing abstraction for external service",
+      "description": "Direct Stripe API calls scattered across codebase. No adapter pattern for payment provider.",
+      "location": {
+        "file": "src/",
+        "line": 1
+      },
+      "suggestedFix": {
+        "description": "Create PaymentGateway interface with StripePaymentGateway implementation",
+        "automated": false,
+        "effort": "moderate",
+        "semanticCategory": "add abstraction layer"
+      },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["abstraction", "dependency-inversion", "testability"]
+    },
+    {
+      "id": "ARC-005",
+      "category": "architecture",
+      "severity": "low",
+      "title": "Inconsistent error handling pattern",
+      "description": "Some modules throw exceptions, others return error objects, others use callbacks",
+      "location": {
+        "file": "src/",
+        "line": 1
+      },
+      "suggestedFix": {
+        "description": "Standardize on async/await with thrown errors, add global error handler",
+        "automated": false,
+        "effort": "moderate",
+        "semanticCategory": "standardize error handling"
+      },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["consistency", "error-handling"]
+    },
+    {
+      "id": "ARC-006",
+      "category": "architecture",
+      "severity": "low",
+      "title": "Missing domain models",
+      "description": "Business entities passed as plain objects without validation or behavior",
+      "location": {
+        "file": "src/models/",
+        "line": 1
+      },
+      "suggestedFix": {
+        "description": "Create domain classes with validation and behavior methods",
+        "automated": false,
+        "effort": "major",
+        "semanticCategory": "add domain models"
+      },
+      "interactionTier": "approve",
+      "status": "open",
+      "tags": ["domain-driven-design", "validation"]
+    }
+  ]
+}
