@@ -1,7 +1,7 @@
 {
   "name": "bosun",
   "description": "Ship's officer for your codebase — keeping everything shipshape",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "skills": [
     "skills/bosun-architect",
     "skills/bosun-golang",
