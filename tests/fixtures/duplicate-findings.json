@@ -1,0 +1,57 @@
+{
+  "description": "Test fixture for deduplication - contains duplicate findings that should be merged",
+  "agent1_findings": [
+    {
+      "id": "SEC-001",
+      "category": "security",
+      "severity": "critical",
+      "title": "Hardcoded API key",
+      "location": {
+        "file": "src/config.js",
+        "line": 15
+      },
+      "interactionTier": "confirm",
+      "status": "open"
+    },
+    {
+      "id": "QUA-001",
+      "category": "quality",
+      "severity": "medium",
+      "title": "Complex function",
+      "location": {
+        "file": "src/utils.js",
+        "line": 100
+      },
+      "interactionTier": "approve",
+      "status": "open"
+    }
+  ],
+  "agent2_findings": [
+    {
+      "id": "SEC-001",
+      "category": "security",
+      "severity": "critical",
+      "title": "Hardcoded API key",
+      "location": {
+        "file": "src/config.js",
+        "line": 15
+      },
+      "interactionTier": "confirm",
+      "status": "open"
+    },
+    {
+      "id": "SEC-002",
+      "category": "security",
+      "severity": "high",
+      "title": "SQL injection",
+      "location": {
+        "file": "src/db.js",
+        "line": 42
+      },
+      "interactionTier": "approve",
+      "status": "open"
+    }
+  ],
+  "expected_merged_count": 3,
+  "expected_ids": ["SEC-001", "SEC-002", "QUA-001"]
+}

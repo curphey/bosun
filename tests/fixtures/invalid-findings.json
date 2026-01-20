@@ -1,0 +1,88 @@
+{
+  "description": "Test fixture with intentionally invalid findings for negative testing",
+  "test_cases": [
+    {
+      "name": "missing_required_field",
+      "description": "Finding missing required 'severity' field",
+      "finding": {
+        "id": "SEC-001",
+        "category": "security",
+        "title": "Test finding",
+        "location": { "file": "test.js" },
+        "interactionTier": "auto",
+        "status": "open"
+      },
+      "expected_error": "missing required property 'severity'"
+    },
+    {
+      "name": "invalid_id_format",
+      "description": "Finding with invalid ID format",
+      "finding": {
+        "id": "INVALID-001",
+        "category": "security",
+        "severity": "high",
+        "title": "Test finding",
+        "location": { "file": "test.js" },
+        "interactionTier": "auto",
+        "status": "open"
+      },
+      "expected_error": "pattern mismatch"
+    },
+    {
+      "name": "invalid_severity",
+      "description": "Finding with invalid severity value",
+      "finding": {
+        "id": "SEC-001",
+        "category": "security",
+        "severity": "extreme",
+        "title": "Test finding",
+        "location": { "file": "test.js" },
+        "interactionTier": "auto",
+        "status": "open"
+      },
+      "expected_error": "enum mismatch"
+    },
+    {
+      "name": "invalid_interaction_tier",
+      "description": "Finding with invalid interaction tier",
+      "finding": {
+        "id": "SEC-001",
+        "category": "security",
+        "severity": "high",
+        "title": "Test finding",
+        "location": { "file": "test.js" },
+        "interactionTier": "manual",
+        "status": "open"
+      },
+      "expected_error": "enum mismatch"
+    },
+    {
+      "name": "invalid_category",
+      "description": "Finding with invalid category",
+      "finding": {
+        "id": "SEC-001",
+        "category": "unknown",
+        "severity": "high",
+        "title": "Test finding",
+        "location": { "file": "test.js" },
+        "interactionTier": "auto",
+        "status": "open"
+      },
+      "expected_error": "enum mismatch"
+    },
+    {
+      "name": "missing_location_file",
+      "description": "Finding with location missing required file field",
+      "finding": {
+        "id": "SEC-001",
+        "category": "security",
+        "severity": "high",
+        "title": "Test finding",
+        "location": { "line": 10 },
+        "interactionTier": "auto",
+        "status": "open"
+      },
+      "expected_error": "missing required property 'file'"
+    }
+  ]
+}

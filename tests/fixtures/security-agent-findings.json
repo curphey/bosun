@@ -1,0 +1,67 @@
+{
+  "agent": "security-agent",
+  "timestamp": "2025-01-20T10:00:00Z",
+  "findings": [
+    {
+      "id": "SEC-001",
+      "category": "security",
+      "severity": "critical",
+      "title": "Hardcoded API key in configuration",
+      "description": "API key is hardcoded in the source code instead of using environment variables",
+      "location": {
+        "file": "src/config.js",
+        "line": 15,
+        "column": 1
+      },
+      "evidence": "const API_KEY = 'sk_live_...'",
+      "suggestedFix": {
+        "description": "Move API key to environment variable",
+        "automated": true,
+        "effort": "trivial",
+        "semanticCategory": "extract secrets to env vars"
+      },
+      "interactionTier": "confirm",
+      "status": "open",
+      "references": [
+        "https://owasp.org/www-project-web-security-testing-guide/"
+      ]
+    },
+    {
+      "id": "SEC-002",
+      "category": "security",
+      "severity": "high",
+      "title": "SQL injection vulnerability",
+      "description": "User input is directly concatenated into SQL query",
+      "location": {
+        "file": "src/db/users.js",
+        "line": 42
+      },
+      "evidence": "const query = `SELECT * FROM users WHERE id = ${userId}`",
+      "suggestedFix": {
+        "description": "Use parameterized queries",
+        "automated": true,
+        "effort": "minor"
+      },
+      "interactionTier": "approve",
+      "status": "open"
+    },
+    {
+      "id": "SEC-003",
+      "category": "security",
+      "severity": "medium",
+      "title": "Missing HTTPS redirect",
+      "description": "Application does not enforce HTTPS connections",
+      "location": {
+        "file": "src/server.js",
+        "line": 10
+      },
+      "suggestedFix": {
+        "description": "Add HTTPS redirect middleware",
+        "automated": true,
+        "effort": "trivial"
+      },
+      "interactionTier": "confirm",
+      "status": "open"
+    }
+  ]
+}

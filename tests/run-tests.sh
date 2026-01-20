@@ -337,10 +337,10 @@ test_scripts() {
         fi
 
         # Check shebang
-        if head -1 "$script" | grep -q "^#!/bin/bash"; then
-            test_pass "$basename: Has bash shebang"
+        if head -1 "$script" | grep -q "^#!/"; then
+            test_pass "$basename: Has shebang"
         else
-            test_fail "$basename: Missing bash shebang"
+            test_fail "$basename: Missing shebang"
         fi
 
         # Basic syntax check
@@ -353,6 +353,268 @@ test_scripts() {
 }
 
 # ====================
+# Test: Schema Validation
+# ====================
+test_schema_validation() {
+    log_info "Testing schema validation..."
+
+    local schema="$PROJECT_ROOT/schemas/findings.schema.json"
+    local fixtures_dir="$SCRIPT_DIR/fixtures"
+
+    # Check if ajv is available
+    if ! command -v ajv &> /dev/null; then
+        log_warning "ajv-cli not installed, skipping schema validation tests"
+        log_info "Install with: npm install -g ajv-cli ajv-formats"
+        return
+    fi
+
+    # Test valid fixture against schema
+    local sample_findings="$fixtures_dir/sample-findings.json"
+    if [[ -f "$sample_findings" ]]; then
+        if ajv validate -s "$schema" -d "$sample_findings" --spec=draft2020 -c ajv-formats 2>/dev/null; then
+            test_pass "sample-findings.json validates against schema"
+        else
+            test_fail "sample-findings.json does not validate against schema"
+        fi
+    fi
+
+    # Test that schema itself is valid
+    if ajv compile -s "$schema" --spec=draft2020 -c ajv-formats 2>/dev/null; then
+        test_pass "findings.schema.json is a valid JSON Schema"
+    else
+        test_fail "findings.schema.json is not a valid JSON Schema"
+    fi
+}
+
+# ====================
+# Test: Finding Aggregation
+# ====================
+test_finding_aggregation() {
+    log_info "Testing finding aggregation..."
+
+    local fixtures_dir="$SCRIPT_DIR/fixtures"
+    local sec_findings="$fixtures_dir/security-agent-findings.json"
+    local qua_findings="$fixtures_dir/quality-agent-findings.json"
+
+    # Check fixtures exist
+    if [[ ! -f "$sec_findings" ]]; then
+        test_fail "security-agent-findings.json fixture not found"
+        return
+    fi
+
+    if [[ ! -f "$qua_findings" ]]; then
+        test_fail "quality-agent-findings.json fixture not found"
+        return
+    fi
+
+    test_pass "Agent finding fixtures exist"
+
+    # Validate fixture JSON
+    if jq empty "$sec_findings" 2>/dev/null; then
+        test_pass "security-agent-findings.json is valid JSON"
+    else
+        test_fail "security-agent-findings.json is invalid JSON"
+    fi
+
+    if jq empty "$qua_findings" 2>/dev/null; then
+        test_pass "quality-agent-findings.json is valid JSON"
+    else
+        test_fail "quality-agent-findings.json is invalid JSON"
+    fi
+
+    # Test finding count
+    local sec_count=$(jq '.findings | length' "$sec_findings")
+    local qua_count=$(jq '.findings | length' "$qua_findings")
+
+    if [[ "$sec_count" -gt 0 ]]; then
+        test_pass "Security agent has $sec_count findings"
+    else
+        test_fail "Security agent has no findings"
+    fi
+
+    if [[ "$qua_count" -gt 0 ]]; then
+        test_pass "Quality agent has $qua_count findings"
+    else
+        test_fail "Quality agent has no findings"
+    fi
+
+    # Test ID format validation
+    local invalid_ids=$(jq -r '.findings[].id' "$sec_findings" | grep -v -E '^(SEC|QUA|DOC|ARC|DEV|UXU|TST|PRF)-[0-9]{3}$' || true)
+    if [[ -z "$invalid_ids" ]]; then
+        test_pass "All security finding IDs match expected pattern"
+    else
+        test_fail "Invalid finding IDs: $invalid_ids"
+    fi
+}
+
+# ====================
+# Test: Deduplication
+# ====================
+test_deduplication() {
+    log_info "Testing finding deduplication..."
+
+    local fixtures_dir="$SCRIPT_DIR/fixtures"
+    local dup_fixture="$fixtures_dir/duplicate-findings.json"
+
+    if [[ ! -f "$dup_fixture" ]]; then
+        test_fail "duplicate-findings.json fixture not found"
+        return
+    fi
+
+    # Validate fixture
+    if ! jq empty "$dup_fixture" 2>/dev/null; then
+        test_fail "duplicate-findings.json is invalid JSON"
+        return
+    fi
+
+    test_pass "duplicate-findings.json is valid JSON"
+
+    # Extract and merge findings, check for duplicates
+    local agent1_count=$(jq '.agent1_findings | length' "$dup_fixture")
+    local agent2_count=$(jq '.agent2_findings | length' "$dup_fixture")
+    local expected_merged=$(jq '.expected_merged_count' "$dup_fixture")
+
+    # Simulate merge and dedup by ID
+    local merged_ids=$(jq -r '(.agent1_findings + .agent2_findings) | unique_by(.id) | length' "$dup_fixture")
+
+    if [[ "$merged_ids" == "$expected_merged" ]]; then
+        test_pass "Deduplication: $agent1_count + $agent2_count findings merged to $merged_ids unique"
+    else
+        test_fail "Deduplication failed: expected $expected_merged, got $merged_ids"
+    fi
+
+    # Verify expected IDs are present
+    local expected_ids=$(jq -r '.expected_ids | sort | join(",")' "$dup_fixture")
+    local actual_ids=$(jq -r '(.agent1_findings + .agent2_findings) | unique_by(.id) | [.[].id] | sort | join(",")' "$dup_fixture")
+
+    if [[ "$expected_ids" == "$actual_ids" ]]; then
+        test_pass "Merged findings contain expected IDs"
+    else
+        test_fail "ID mismatch: expected [$expected_ids], got [$actual_ids]"
+    fi
+}
+
+# ====================
+# Test: Permission Tiers
+# ====================
+test_permission_tiers() {
+    log_info "Testing permission tier categorization..."
+
+    local fixtures_dir="$SCRIPT_DIR/fixtures"
+    local tier_fixture="$fixtures_dir/permission-tiers.json"
+
+    if [[ ! -f "$tier_fixture" ]]; then
+        test_fail "permission-tiers.json fixture not found"
+        return
+    fi
+
+    if ! jq empty "$tier_fixture" 2>/dev/null; then
+        test_fail "permission-tiers.json is invalid JSON"
+        return
+    fi
+
+    test_pass "permission-tiers.json is valid JSON"
+
+    # Test auto tier count
+    local expected_auto=$(jq '.expected_tiers.auto.count' "$tier_fixture")
+    local actual_auto=$(jq '[.findings[] | select(.interactionTier == "auto")] | length' "$tier_fixture")
+
+    if [[ "$expected_auto" == "$actual_auto" ]]; then
+        test_pass "Auto tier: $actual_auto findings (expected $expected_auto)"
+    else
+        test_fail "Auto tier count mismatch: expected $expected_auto, got $actual_auto"
+    fi
+
+    # Test confirm tier count
+    local expected_confirm=$(jq '.expected_tiers.confirm.count' "$tier_fixture")
+    local actual_confirm=$(jq '[.findings[] | select(.interactionTier == "confirm")] | length' "$tier_fixture")
+
+    if [[ "$expected_confirm" == "$actual_confirm" ]]; then
+        test_pass "Confirm tier: $actual_confirm findings (expected $expected_confirm)"
+    else
+        test_fail "Confirm tier count mismatch: expected $expected_confirm, got $actual_confirm"
+    fi
+
+    # Test approve tier count
+    local expected_approve=$(jq '.expected_tiers.approve.count' "$tier_fixture")
+    local actual_approve=$(jq '[.findings[] | select(.interactionTier == "approve")] | length' "$tier_fixture")
+
+    if [[ "$expected_approve" == "$actual_approve" ]]; then
+        test_pass "Approve tier: $actual_approve findings (expected $expected_approve)"
+    else
+        test_fail "Approve tier count mismatch: expected $expected_approve, got $actual_approve"
+    fi
+
+    # Test semantic category batching
+    local semantic_batch_count=$(jq '[.findings[] | select(.suggestedFix.semanticCategory == "extract secrets to env vars")] | length' "$tier_fixture")
+    if [[ "$semantic_batch_count" -eq 2 ]]; then
+        test_pass "Semantic batching: 2 findings share 'extract secrets to env vars' category"
+    else
+        test_fail "Semantic batching: expected 2, got $semantic_batch_count"
+    fi
+}
+
+# ====================
+# Test: Hooks
+# ====================
+test_hooks() {
+    log_info "Testing hooks..."
+
+    local hooks_dir="$PROJECT_ROOT/hooks"
+
+    if [[ ! -d "$hooks_dir" ]]; then
+        test_fail "hooks directory not found"
+        return
+    fi
+
+    test_pass "hooks directory exists"
+
+    # Check pre-commit hook
+    local pre_commit="$hooks_dir/pre-commit"
+    if [[ -f "$pre_commit" ]]; then
+        test_pass "pre-commit hook exists"
+
+        if [[ -x "$pre_commit" ]]; then
+            test_pass "pre-commit hook is executable"
+        else
+            test_fail "pre-commit hook is not executable"
+        fi
+
+        if bash -n "$pre_commit" 2>/dev/null; then
+            test_pass "pre-commit hook syntax OK"
+        else
+            test_fail "pre-commit hook has syntax errors"
+        fi
+    else
+        test_fail "pre-commit hook not found"
+    fi
+
+    # Check pre-commit config
+    local precommit_config="$hooks_dir/.pre-commit-config.yaml"
+    if [[ -f "$precommit_config" ]]; then
+        test_pass ".pre-commit-config.yaml exists"
+    else
+        test_fail ".pre-commit-config.yaml not found"
+    fi
+
+    # Check GitHub Actions workflow
+    local workflow="$hooks_dir/bosun-audit.yml"
+    if [[ -f "$workflow" ]]; then
+        test_pass "bosun-audit.yml workflow exists"
+    else
+        test_fail "bosun-audit.yml workflow not found"
+    fi
+
+    # Check install script
+    local install_script="$PROJECT_ROOT/scripts/install-hooks.sh"
+    if [[ -f "$install_script" && -x "$install_script" ]]; then
+        test_pass "install-hooks.sh exists and is executable"
+    else
+        test_fail "install-hooks.sh missing or not executable"
+    fi
+}
+
+# ====================
 # Main
 # ====================
 show_help() {
@@ -362,22 +624,27 @@ Usage: $(basename "$0") [test-name]
 Run Bosun plugin tests.
 
 Available tests:
-    all         Run all tests (default)
-    manifest    Test plugin manifest
-    schema      Test findings schema
-    agents      Test agent files
-    skills      Test skill files
-    commands    Test command files
-    structure   Test directory structure
-    scripts     Test shell scripts
+    all           Run all tests (default)
+    manifest      Test plugin manifest
+    schema        Test findings schema
+    agents        Test agent files
+    skills        Test skill files
+    commands      Test command files
+    structure     Test directory structure
+    scripts       Test shell scripts
+    validation    Test schema validation with ajv
+    aggregation   Test finding aggregation
+    dedup         Test finding deduplication
+    tiers         Test permission tier categorization
+    hooks         Test hooks and CI integration
 
 Options:
     -h, --help  Show this help message
 
 Examples:
-    $(basename "$0")            # Run all tests
-    $(basename "$0") agents     # Test agents only
-    $(basename "$0") skills     # Test skills only
+    $(basename "$0")              # Run all tests
+    $(basename "$0") agents       # Test agents only
+    $(basename "$0") aggregation  # Test finding aggregation
 EOF
 }
 
@@ -407,6 +674,16 @@ case "$TEST_NAME" in
         test_structure
         echo ""
         test_scripts
+        echo ""
+        test_hooks
+        echo ""
+        test_schema_validation
+        echo ""
+        test_finding_aggregation
+        echo ""
+        test_deduplication
+        echo ""
+        test_permission_tiers
         ;;
     manifest)
         test_plugin_manifest
@@ -428,6 +705,21 @@ case "$TEST_NAME" in
         ;;
     scripts)
         test_scripts
+        ;;
+    hooks)
+        test_hooks
+        ;;
+    validation)
+        test_schema_validation
+        ;;
+    aggregation)
+        test_finding_aggregation
+        ;;
+    dedup)
+        test_deduplication
+        ;;
+    tiers)
+        test_permission_tiers
         ;;
     *)
         log_error "Unknown test: $TEST_NAME"

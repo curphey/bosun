@@ -211,3 +211,27 @@ jobs:
           echo "Skills:   $(find skills -name 'SKILL.md' | wc -l | tr -d ' ')"
           echo "Commands: $(find commands -name '*.md' | wc -l | tr -d ' ')"
           echo "Scripts:  $(find scripts -name '*.sh' | wc -l | tr -d ' ')"
+
+  run-tests:
+    name: Run Test Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Install ajv-cli for schema validation
+        run: npm install -g ajv-cli ajv-formats
+
+      - name: Run test suite
+        run: ./tests/run-tests.sh
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: tests/
+          retention-days: 7

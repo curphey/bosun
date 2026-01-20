@@ -1,0 +1,108 @@
+{
+  "description": "Test fixture for permission tier categorization and batching",
+  "findings": [
+    {
+      "id": "QUA-001",
+      "category": "quality",
+      "severity": "low",
+      "title": "Unused import",
+      "location": { "file": "src/utils.js", "line": 3 },
+      "interactionTier": "auto",
+      "status": "open",
+      "suggestedFix": {
+        "description": "Remove unused import",
+        "automated": true,
+        "effort": "trivial"
+      }
+    },
+    {
+      "id": "QUA-002",
+      "category": "quality",
+      "severity": "low",
+      "title": "Trailing whitespace",
+      "location": { "file": "src/index.js", "line": 10 },
+      "interactionTier": "auto",
+      "status": "open",
+      "suggestedFix": {
+        "description": "Remove trailing whitespace",
+        "automated": true,
+        "effort": "trivial"
+      }
+    },
+    {
+      "id": "SEC-001",
+      "category": "security",
+      "severity": "critical",
+      "title": "Hardcoded secret",
+      "location": { "file": "src/config.js", "line": 15 },
+      "interactionTier": "confirm",
+      "status": "open",
+      "suggestedFix": {
+        "description": "Move to environment variable",
+        "automated": true,
+        "effort": "trivial",
+        "semanticCategory": "extract secrets to env vars"
+      }
+    },
+    {
+      "id": "SEC-002",
+      "category": "security",
+      "severity": "high",
+      "title": "Another hardcoded secret",
+      "location": { "file": "src/api.js", "line": 22 },
+      "interactionTier": "confirm",
+      "status": "open",
+      "suggestedFix": {
+        "description": "Move to environment variable",
+        "automated": true,
+        "effort": "trivial",
+        "semanticCategory": "extract secrets to env vars"
+      }
+    },
+    {
+      "id": "ARC-001",
+      "category": "architecture",
+      "severity": "medium",
+      "title": "Circular dependency",
+      "location": { "file": "src/modules/a.js", "line": 1 },
+      "interactionTier": "approve",
+      "status": "open",
+      "suggestedFix": {
+        "description": "Refactor to break circular dependency",
+        "automated": false,
+        "effort": "moderate"
+      }
+    },
+    {
+      "id": "QUA-003",
+      "category": "quality",
+      "severity": "high",
+      "title": "Missing error handling",
+      "location": { "file": "src/api/handler.js", "line": 50 },
+      "interactionTier": "approve",
+      "status": "open",
+      "suggestedFix": {
+        "description": "Add try-catch block",
+        "automated": true,
+        "effort": "minor"
+      }
+    }
+  ],
+  "expected_tiers": {
+    "auto": {
+      "count": 2,
+      "ids": ["QUA-001", "QUA-002"]
+    },
+    "confirm": {
+      "count": 2,
+      "ids": ["SEC-001", "SEC-002"],
+      "semantic_batches": {
+        "extract secrets to env vars": ["SEC-001", "SEC-002"]
+      }
+    },
+    "approve": {
+      "count": 2,
+      "ids": ["ARC-001", "QUA-003"]
+    }
+  }
+}

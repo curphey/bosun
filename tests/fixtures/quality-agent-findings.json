@@ -1,0 +1,60 @@
+{
+  "agent": "quality-agent",
+  "timestamp": "2025-01-20T10:00:05Z",
+  "findings": [
+    {
+      "id": "QUA-001",
+      "category": "quality",
+      "severity": "medium",
+      "title": "O(n²) algorithm complexity",
+      "description": "Nested loops create quadratic time complexity",
+      "location": {
+        "file": "src/search.js",
+        "line": 88
+      },
+      "suggestedFix": {
+        "description": "Use hash map for O(n) lookup",
+        "automated": false,
+        "effort": "moderate"
+      },
+      "interactionTier": "approve",
+      "status": "open"
+    },
+    {
+      "id": "QUA-002",
+      "category": "quality",
+      "severity": "low",
+      "title": "Unused import",
+      "description": "Module is imported but never used",
+      "location": {
+        "file": "src/utils.js",
+        "line": 3
+      },
+      "suggestedFix": {
+        "description": "Remove unused import",
+        "automated": true,
+        "effort": "trivial"
+      },
+      "interactionTier": "auto",
+      "status": "open"
+    },
+    {
+      "id": "QUA-003",
+      "category": "quality",
+      "severity": "low",
+      "title": "Console.log in production code",
+      "description": "Debug statement left in production code",
+      "location": {
+        "file": "src/api/handler.js",
+        "line": 55
+      },
+      "suggestedFix": {
+        "description": "Remove console.log statement",
+        "automated": true,
+        "effort": "trivial"
+      },
+      "interactionTier": "auto",
+      "status": "open"
+    }
+  ]
+}
