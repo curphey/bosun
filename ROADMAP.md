@@ -15,44 +15,58 @@ Core functionality complete:
 
 ## Phase 2: Automation & Expansion
 
-### Hooks & CI Integration (#34)
-- Pre-commit hook templates for local checks
-- GitHub Actions workflow for automated audits
+### Hooks & CI Integration - COMPLETE (#34)
+- ✅ Pre-commit hook templates for local checks
+- ✅ GitHub Actions workflow for automated audits
+- ✅ Pre-commit framework configuration
 - GitLab CI and other CI platform support
-- Pre-commit framework configuration
 
 ### Additional Language Skills
-- **JavaScript** (#35) - ES6+, Node.js, browser patterns
+- ✅ **JavaScript** (#35) - ES6+, Node.js, browser patterns
 - **Kotlin** - Android and server-side patterns
 - **Swift** - iOS/macOS development patterns
 - **Dart** - Flutter and web patterns
 
-### Test Coverage (#36)
-- Agent coordination and parallel execution tests
-- Finding aggregation and deduplication tests
-- Permission tier enforcement tests
-- Schema validation tests
+### Test Coverage - COMPLETE (#36)
+- ✅ Agent coordination and parallel execution tests
+- ✅ Finding aggregation and deduplication tests
+- ✅ Permission tier enforcement tests
+- ✅ Schema validation tests
 
-### Documentation (#37)
-- Error handling and edge case documentation
-- Troubleshooting guide
-- Recovery procedures for interrupted operations
+### Documentation - COMPLETE (#37)
+- ✅ Error handling and edge case documentation
+- ✅ Troubleshooting guide
+- ✅ Recovery procedures for interrupted operations
 
 ---
 
 ## Phase 3: Advanced Capabilities
 
 ### MCP Server for Dynamic RAG (#25)
-- Real-time CVE database queries
-- Live threat intelligence feeds
-- External tool integration (Snyk, Dependabot APIs)
-- Graceful fallback when unavailable
+
+Local MCP server for live security intelligence during audits.
+
+**Primary Data Sources:**
+| Source | Data |
+|--------|------|
+| [deps.dev](https://deps.dev) | OpenSSF Scorecard, vulnerabilities, dependency graphs |
+| [OSV.dev](https://osv.dev) | Cross-ecosystem vulnerability database |
+| [NVD](https://nvd.nist.gov) | CVEs with CVSS scores |
+| [GitHub Advisory DB](https://github.com/advisories) | Package security advisories |
+
+**Proposed Tools:**
+- `query_package_security(name, ecosystem)` - Vulnerabilities, deprecation, OpenSSF score
+- `check_cve(cve_id)` - CVE details, affected packages
+- `get_dependency_risks(lockfile)` - Transitive vulnerabilities
+
+**Architecture:** Runs locally as subprocess, caches responses, graceful offline fallback.
 
 ### Supply Chain Security
 - Dedicated SBOM analysis skill
-- Dependency vulnerability tracking
+- Dependency vulnerability tracking (via MCP)
 - License compliance checking
 - Sigstore verification patterns
+- Deprecated package detection
 
 ### Cloud-Specific Skills
 - **bosun-aws** - AWS security and architecture patterns
