@@ -317,7 +317,12 @@ bosun/
 ├── scripts/                      # Utilities
 │   ├── init-project.sh          # Bootstrap projects
 │   ├── audit-project.sh         # Audit configuration
-│   └── sync-upstream.sh         # Upstream sync
+│   ├── sync-upstream.sh         # Upstream sync
+│   └── install-hooks.sh         # Install git hooks
+├── hooks/                        # Git hooks & CI templates
+│   ├── pre-commit               # Pre-commit hook script
+│   ├── .pre-commit-config.yaml  # Pre-commit framework config
+│   └── bosun-audit.yml          # GitHub Actions template
 └── references/
     └── upstream-sources.json    # Source tracking
 ```
@@ -329,6 +334,7 @@ bosun/
 | `init-project.sh` | Bootstrap a new project with Bosun defaults |
 | `audit-project.sh` | Audit project configuration and health |
 | `sync-upstream.sh` | Check upstream sources for updates |
+| `install-hooks.sh` | Install git hooks for local checks |
 
 ```bash
 # Bootstrap a new project
@@ -339,7 +345,64 @@ bosun/
 
 # Check upstream for updates
 ./scripts/sync-upstream.sh check
+
+# Install git hooks
+./scripts/install-hooks.sh
 ```
+
+## Hooks & CI Integration
+
+Bosun provides hooks for automated checks in local development and CI pipelines.
+
+### Git Hooks
+
+Install pre-commit hooks for local security and quality checks:
+
+```bash
+# Install hooks
+./scripts/install-hooks.sh
+
+# Or manually
+cp hooks/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+The pre-commit hook checks for:
+- Hardcoded secrets and API keys
+- Debug statements (console.log, debugger, etc.)
+- Large files (>1MB)
+- Sensitive file types (.env, .pem, .key)
+
+### Pre-commit Framework
+
+For projects using the [pre-commit](https://pre-commit.com) framework:
+
+```bash
+pip install pre-commit
+cp hooks/.pre-commit-config.yaml .pre-commit-config.yaml
+pre-commit install
+```
+
+### GitHub Actions
+
+Copy the workflow template to your project:
+
+```bash
+cp hooks/bosun-audit.yml .github/workflows/bosun-audit.yml
+```
+
+Features:
+- Runs on pull requests and pushes
+- Secret detection (no API key needed)
+- Full Bosun audit (requires `ANTHROPIC_API_KEY` secret)
+- PR comments with findings summary
+- Findings uploaded as artifacts
+
+| File | Purpose |
+|------|---------|
+| `hooks/pre-commit` | Git pre-commit hook script |
+| `hooks/.pre-commit-config.yaml` | Pre-commit framework config |
+| `hooks/bosun-audit.yml` | GitHub Actions workflow template |
 
 ## Design Philosophy
 

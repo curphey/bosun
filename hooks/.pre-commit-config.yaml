@@ -1,0 +1,76 @@
+# Bosun pre-commit configuration
+#
+# Installation:
+#   pip install pre-commit
+#   cp hooks/.pre-commit-config.yaml .pre-commit-config.yaml
+#   pre-commit install
+#
+# Or use Bosun's install script:
+#   ./scripts/install-hooks.sh
+
+repos:
+  # Secret detection
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: package-lock.json|yarn.lock|pnpm-lock.yaml
+
+  # Git security
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-added-large-files
+        args: ['--maxkb=1024']
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-json
+      - id: check-toml
+
+  # Security scanning (optional - requires gitleaks)
+  # - repo: https://github.com/gitleaks/gitleaks
+  #   rev: v8.18.0
+  #   hooks:
+  #     - id: gitleaks
+
+# JavaScript/TypeScript (uncomment if applicable)
+#  - repo: https://github.com/pre-commit/mirrors-eslint
+#    rev: v8.56.0
+#    hooks:
+#      - id: eslint
+#        files: \.[jt]sx?$
+#        types: [file]
+#        additional_dependencies:
+#          - eslint
+#          - '@typescript-eslint/parser'
+#          - '@typescript-eslint/eslint-plugin'
+
+# Python (uncomment if applicable)
+#  - repo: https://github.com/astral-sh/ruff-pre-commit
+#    rev: v0.1.11
+#    hooks:
+#      - id: ruff
+#        args: [--fix]
+#      - id: ruff-format
+
+# Go (uncomment if applicable)
+#  - repo: https://github.com/dnephin/pre-commit-golang
+#    rev: v0.5.1
+#    hooks:
+#      - id: go-fmt
+#      - id: go-vet
+#      - id: go-imports
+
+# Rust (uncomment if applicable)
+#  - repo: https://github.com/doublify/pre-commit-rust
+#    rev: v1.0
+#    hooks:
+#      - id: fmt
+#      - id: cargo-check
