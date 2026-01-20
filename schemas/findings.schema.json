@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bosun/findings.schema.json",
+  "title": "Bosun Findings",
+  "description": "Schema for Bosun audit findings persisted to .bosun/findings.json",
+  "type": "object",
+  "required": ["version", "metadata", "summary", "findings"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version",
+      "const": "1.0.0"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Audit metadata",
+      "required": ["project", "auditedAt", "scope"],
+      "properties": {
+        "project": {
+          "type": "string",
+          "description": "Project name or path"
+        },
+        "auditedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of the audit"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["full", "security", "quality", "docs", "architecture", "devops", "ux-ui", "testing", "performance"],
+          "description": "Audit scope"
+        },
+        "path": {
+          "type": "string",
+          "description": "Optional path filter for scoped audits"
+        },
+        "gitRef": {
+          "type": "string",
+          "description": "Git commit SHA or branch at time of audit"
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "description": "Aggregated summary statistics",
+      "required": ["total", "bySeverity", "byStatus", "byCategory"],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of findings"
+        },
+        "bySeverity": {
+          "type": "object",
+          "properties": {
+            "critical": { "type": "integer", "minimum": 0, "default": 0 },
+            "high": { "type": "integer", "minimum": 0, "default": 0 },
+            "medium": { "type": "integer", "minimum": 0, "default": 0 },
+            "low": { "type": "integer", "minimum": 0, "default": 0 },
+            "info": { "type": "integer", "minimum": 0, "default": 0 }
+          },
+          "additionalProperties": false
+        },
+        "byStatus": {
+          "type": "object",
+          "properties": {
+            "open": { "type": "integer", "minimum": 0, "default": 0 },
+            "fixed": { "type": "integer", "minimum": 0, "default": 0 },
+            "wontfix": { "type": "integer", "minimum": 0, "default": 0 },
+            "deferred": { "type": "integer", "minimum": 0, "default": 0 }
+          },
+          "additionalProperties": false
+        },
+        "byCategory": {
+          "type": "object",
+          "properties": {
+            "security": { "type": "integer", "minimum": 0, "default": 0 },
+            "quality": { "type": "integer", "minimum": 0, "default": 0 },
+            "docs": { "type": "integer", "minimum": 0, "default": 0 },
+            "architecture": { "type": "integer", "minimum": 0, "default": 0 },
+            "devops": { "type": "integer", "minimum": 0, "default": 0 },
+            "ux-ui": { "type": "integer", "minimum": 0, "default": 0 },
+            "testing": { "type": "integer", "minimum": 0, "default": 0 },
+            "performance": { "type": "integer", "minimum": 0, "default": 0 }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "description": "List of individual findings",
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
+    }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "required": ["id", "category", "severity", "title", "location", "status", "interactionTier"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^(SEC|QUA|DOC|ARC|DEV|UXU|TST|PRF)-\\d{3}$",
+          "description": "Unique finding ID (e.g., SEC-001, QUA-012, UXU-001, TST-001, PRF-001)"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["security", "quality", "docs", "architecture", "devops", "ux-ui", "testing", "performance"],
+          "description": "Finding category"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["critical", "high", "medium", "low", "info"],
+          "description": "Severity level"
+        },
+        "title": {
+          "type": "string",
+          "description": "Short descriptive title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the finding"
+        },
+        "location": {
+          "type": "object",
+          "required": ["file"],
+          "properties": {
+            "file": {
+              "type": "string",
+              "description": "File path relative to project root"
+            },
+            "line": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Line number"
+            },
+            "endLine": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "End line number for multi-line findings"
+            },
+            "column": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Column number"
+            }
+          }
+        },
+        "suggestedFix": {
+          "type": "object",
+          "description": "Suggested remediation",
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "Human-readable fix description"
+            },
+            "automated": {
+              "type": "boolean",
+              "description": "Whether this fix can be automated",
+              "default": false
+            },
+            "effort": {
+              "type": "string",
+              "enum": ["trivial", "minor", "moderate", "major", "significant"],
+              "description": "Estimated effort to fix"
+            },
+            "code": {
+              "type": "string",
+              "description": "Optional code snippet for the fix"
+            },
+            "semanticCategory": {
+              "type": "string",
+              "description": "Semantic category for permission batching (e.g., 'extract secrets to env vars')"
+            }
+          }
+        },
+        "interactionTier": {
+          "type": "string",
+          "enum": ["auto", "confirm", "approve"],
+          "description": "Interaction tier determining approval requirements"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["open", "fixed", "wontfix", "deferred"],
+          "description": "Current status of the finding"
+        },
+        "fixedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when finding was fixed"
+        },
+        "fixedBy": {
+          "type": "string",
+          "description": "How the finding was fixed (e.g., 'auto', 'manual', 'fix-command')"
+        },
+        "references": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Reference URLs (CWE, OWASP, docs, etc.)"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Additional tags for filtering"
+        }
+      }
+    }
+  }
+}
