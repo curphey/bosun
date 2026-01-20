@@ -54,12 +54,10 @@ jobs:
 
       - name: Lint markdown files
         run: |
-          # Lint with relaxed rules for documentation
           markdownlint '**/*.md' \
             --ignore node_modules \
             --ignore .cache \
-            --disable MD013 MD033 MD041 MD024 MD012 || true
-          echo "Markdown linting complete (warnings only)"
+            --config .markdownlint.json
 
   lint-shell:
     name: Lint Shell Scripts
@@ -235,3 +233,138 @@ jobs:
           name: test-results
           path: tests/
           retention-days: 7
+
+  consistency-checks:
+    name: Consistency Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Check marketplace.json matches skills directory
+        run: |
+          echo "Checking marketplace.json skills match skills/ directory..."
+
+          # Get skills from marketplace.json
+          marketplace_skills=$(jq -r '.skills[]' marketplace.json | sed 's|skills/||' | sort)
+
+          # Get actual skill directories
+          actual_skills=$(find skills -maxdepth 1 -type d -name 'bosun-*' | sed 's|skills/||' | sort)
+
+          # Compare
+          missing_in_marketplace=""
+          missing_in_directory=""
+
+          for skill in $actual_skills; do
+            if ! echo "$marketplace_skills" | grep -q "^$skill$"; then
+              missing_in_marketplace="$missing_in_marketplace $skill"
+            fi
+          done
+
+          for skill in $marketplace_skills; do
+            if ! echo "$actual_skills" | grep -q "^$skill$"; then
+              missing_in_directory="$missing_in_directory $skill"
+            fi
+          done
+
+          if [ -n "$missing_in_marketplace" ]; then
+            echo "ERROR: Skills in directory but not in marketplace.json:$missing_in_marketplace"
+            exit 1
+          fi
+
+          if [ -n "$missing_in_directory" ]; then
+            echo "ERROR: Skills in marketplace.json but not in directory:$missing_in_directory"
+            exit 1
+          fi
+
+          echo "✓ All $(echo "$actual_skills" | wc -w | tr -d ' ') skills match"
+
+      - name: Check agents reference existing skills
+        run: |
+          echo "Checking agent skill references..."
+
+          errors=0
+
+          for agent_file in agents/*.md; do
+            if [ -f "$agent_file" ]; then
+              agent_name=$(basename "$agent_file")
+
+              # Extract skills array from frontmatter
+              skills_line=$(grep "^skills:" "$agent_file" | head -1 || echo "")
+
+              if [ -n "$skills_line" ]; then
+                # Parse skills from YAML array format [skill1, skill2]
+                skills=$(echo "$skills_line" | sed 's/skills: \[//' | sed 's/\]//' | sed 's/,//g')
+
+                for skill in $skills; do
+                  if [ -n "$skill" ] && [ ! -d "skills/$skill" ]; then
+                    echo "ERROR: $agent_name references non-existent skill: $skill"
+                    errors=$((errors + 1))
+                  fi
+                done
+              fi
+            fi
+          done
+
+          if [ $errors -gt 0 ]; then
+            echo "Found $errors invalid skill references"
+            exit 1
+          fi
+
+          echo "✓ All agent skill references valid"
+
+      - name: Check required SKILL.md files exist
+        run: |
+          echo "Checking each skill has SKILL.md..."
+
+          errors=""
+
+          for skill_dir in skills/bosun-*/; do
+            if [ -d "$skill_dir" ]; then
+              skill_name=$(basename "$skill_dir")
+              if [ ! -f "${skill_dir}SKILL.md" ]; then
+                errors="$errors\n  $skill_name missing SKILL.md"
+              fi
+            fi
+          done
+
+          if [ -n "$errors" ]; then
+            echo "ERROR: Missing SKILL.md files:"
+            echo -e "$errors"
+            exit 1
+          fi
+
+          skill_count=$(find skills -maxdepth 1 -type d -name 'bosun-*' | wc -l | tr -d ' ')
+          echo "✓ All $skill_count skills have SKILL.md"
+
+      - name: Check version consistency
+        run: |
+          echo "Checking version consistency..."
+
+          # Get version from marketplace.json
+          marketplace_version=$(jq -r '.version' marketplace.json)
+
+          # Get version from plugin.json
+          plugin_version=$(jq -r '.version' .claude-plugin/plugin.json)
+
+          if [ "$marketplace_version" != "$plugin_version" ]; then
+            echo "ERROR: Version mismatch"
+            echo "  marketplace.json: $marketplace_version"
+            echo "  plugin.json: $plugin_version"
+            exit 1
+          fi
+
+          echo "✓ Versions match: $marketplace_version"
+
+      - name: Summary
+        run: |
+          echo ""
+          echo "=== Consistency Check Summary ==="
+          echo "Skills:     $(find skills -maxdepth 1 -type d -name 'bosun-*' | wc -l | tr -d ' ')"
+          echo "Agents:     $(find agents -name '*.md' | wc -l | tr -d ' ')"
+          echo "Commands:   $(find commands -name '*.md' | wc -l | tr -d ' ')"
+          echo "Version:    $(jq -r '.version' marketplace.json)"
+          echo "================================"
