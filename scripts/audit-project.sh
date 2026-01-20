@@ -23,17 +23,17 @@ FAIL_COUNT=0
 
 check_pass() {
     log_success "$1"
-    ((PASS_COUNT++))
+    PASS_COUNT=$((PASS_COUNT + 1))
 }
 
 check_warn() {
     log_warning "$1"
-    ((WARN_COUNT++))
+    WARN_COUNT=$((WARN_COUNT + 1))
 }
 
 check_fail() {
     log_error "$1"
-    ((FAIL_COUNT++))
+    FAIL_COUNT=$((FAIL_COUNT + 1))
 }
 
 show_help() {

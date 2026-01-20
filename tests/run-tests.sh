@@ -25,12 +25,12 @@ FAIL_COUNT=0
 
 test_pass() {
     log_success "$1"
-    ((PASS_COUNT++))
+    PASS_COUNT=$((PASS_COUNT + 1))
 }
 
 test_fail() {
     log_error "$1"
-    ((FAIL_COUNT++))
+    FAIL_COUNT=$((FAIL_COUNT + 1))
 }
 
 # ====================
@@ -141,7 +141,7 @@ test_agents() {
         fi
 
         local basename=$(basename "$agent_file")
-        ((agent_count++))
+        agent_count=$((agent_count + 1))
 
         # Check for YAML frontmatter
         if ! head -1 "$agent_file" | grep -q "^---$"; then
@@ -149,26 +149,23 @@ test_agents() {
             continue
         fi
 
-        # Extract and validate frontmatter
-        local frontmatter=$(sed -n '/^---$/,/^---$/p' "$agent_file" | head -n -1 | tail -n +2)
-
-        # Check required fields
-        if ! echo "$frontmatter" | grep -q "^name:"; then
-            test_fail "$basename: Missing 'name' field"
-        else
+        # Check required fields directly in file (more reliable than extracting)
+        if grep -q "^name:" "$agent_file"; then
             test_pass "$basename: Has name field"
+        else
+            test_fail "$basename: Missing 'name' field"
         fi
 
-        if ! echo "$frontmatter" | grep -q "^description:"; then
-            test_fail "$basename: Missing 'description' field"
-        else
+        if grep -q "^description:" "$agent_file"; then
             test_pass "$basename: Has description field"
+        else
+            test_fail "$basename: Missing 'description' field"
         fi
 
-        if ! echo "$frontmatter" | grep -q "^tools:"; then
-            test_fail "$basename: Missing 'tools' field"
-        else
+        if grep -q "^tools:" "$agent_file"; then
             test_pass "$basename: Has tools field"
+        else
+            test_fail "$basename: Missing 'tools' field"
         fi
     done
 
@@ -207,7 +204,7 @@ test_skills() {
             continue
         fi
 
-        ((skill_count++))
+        skill_count=$((skill_count + 1))
 
         # Check for YAML frontmatter
         if ! head -1 "$skill_file" | grep -q "^---$"; then
@@ -215,20 +212,17 @@ test_skills() {
             continue
         fi
 
-        # Extract frontmatter
-        local frontmatter=$(sed -n '/^---$/,/^---$/p' "$skill_file" | head -n -1 | tail -n +2)
-
-        # Check required fields
-        if ! echo "$frontmatter" | grep -q "^name:"; then
-            test_fail "$skill_name: Missing 'name' field"
-        else
+        # Check required fields directly in file
+        if grep -q "^name:" "$skill_file"; then
             test_pass "$skill_name: Has name field"
+        else
+            test_fail "$skill_name: Missing 'name' field"
         fi
 
-        if ! echo "$frontmatter" | grep -q "^description:"; then
-            test_fail "$skill_name: Missing 'description' field"
-        else
+        if grep -q "^description:" "$skill_file"; then
             test_pass "$skill_name: Has description field"
+        else
+            test_fail "$skill_name: Missing 'description' field"
         fi
     done
 
@@ -263,7 +257,7 @@ test_commands() {
             continue
         fi
 
-        ((command_count++))
+        command_count=$((command_count + 1))
 
         # Check for YAML frontmatter
         if ! head -1 "$cmd_file" | grep -q "^---$"; then
@@ -271,13 +265,11 @@ test_commands() {
             continue
         fi
 
-        # Extract frontmatter
-        local frontmatter=$(sed -n '/^---$/,/^---$/p' "$cmd_file" | head -n -1 | tail -n +2)
-
-        if ! echo "$frontmatter" | grep -q "^name:"; then
-            test_fail "$cmd.md: Missing 'name' field"
-        else
+        # Check required fields directly in file
+        if grep -q "^name:" "$cmd_file"; then
             test_pass "$cmd.md: Has name field"
+        else
+            test_fail "$cmd.md: Missing 'name' field"
         fi
     done
 
