@@ -225,6 +225,44 @@ The audit command is designed to chain with other Bosun commands:
 /status         → shows findings summary
 ```
 
+## Error Handling
+
+### Agent Failures
+
+If an agent fails or times out during audit:
+
+| Scenario | Behavior | Recovery |
+|----------|----------|----------|
+| Agent timeout | Partial findings saved, warning shown | Re-run with narrower scope |
+| Agent crash | Other agents continue, error logged | Re-run failed scope only |
+| All agents fail | No findings.json created | Check error messages, retry |
+
+**Partial Success**: If some agents complete and others fail, Bosun saves the successful findings. The metadata will indicate which agents completed.
+
+### Common Errors
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| "Cannot create .bosun directory" | Permission denied | Check directory permissions |
+| "Agent timeout" | Codebase too large | Use path filtering: `/audit security ./src` |
+| "Invalid scope" | Typo in scope name | Use valid scope: full, security, quality, etc. |
+
+### Interrupted Audits
+
+If `/audit` is interrupted (Ctrl+C, crash):
+1. Any partial `findings.json` may be incomplete
+2. Safe to delete and re-run: `rm .bosun/findings.json && /audit`
+3. Audits are idempotent - re-running is always safe
+
+### Large Codebases
+
+For very large projects, auditing may be slow. Strategies:
+1. Use scoped audits: `/audit security` instead of `/audit full`
+2. Filter by path: `/audit quality ./src/critical-module`
+3. Audit incrementally by directory
+
+See [Error Handling Guide](../docs/error-handling.md) for comprehensive troubleshooting.
+
 ## Implementation Notes
 
 When implementing this command:

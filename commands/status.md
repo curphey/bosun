@@ -227,6 +227,64 @@ When implementing this command:
    - Show critical/high findings prominently
    - Suggest quick actions
 
+## Error Handling
+
+### No Findings File
+
+```
+/status
+
+No findings file found.
+Run `/audit` to analyze your project.
+```
+
+**Cause**: No audit has been run, or `.bosun/findings.json` was deleted.
+
+**Solution**: Run `/audit` to generate findings.
+
+### Corrupted Findings
+
+```
+/status
+
+Error: Invalid JSON in .bosun/findings.json
+```
+
+**Cause**: The findings file is corrupted or malformed.
+
+**Solutions**:
+1. Validate JSON: `jq . .bosun/findings.json`
+2. Check git for previous version: `git show HEAD:.bosun/findings.json`
+3. Delete and re-audit: `rm .bosun/findings.json && /audit`
+
+### Stale Findings
+
+```
+/status
+
+Warning: Findings are from 7 days ago (2024-01-08T10:30:00Z)
+Code may have changed since last audit.
+```
+
+**Recommendation**: Run `/audit` for fresh results if significant changes have been made.
+
+### Scope Filtering Issues
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| "No findings match scope" | No findings in category | Use different scope or no scope |
+| "Invalid scope" | Typo in scope name | Use: security, quality, docs, architecture, devops |
+
+### Read-Only Command
+
+The `/status` command is read-only and cannot fail in ways that affect your project. It only reads `.bosun/findings.json` and displays information.
+
+If status shows unexpected data:
+1. Check the findings file directly: `cat .bosun/findings.json | jq .summary`
+2. Re-run audit if data seems wrong: `/audit`
+
+See [Error Handling Guide](../docs/error-handling.md) for comprehensive troubleshooting.
+
 ## Chaining
 
 ```

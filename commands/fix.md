@@ -283,6 +283,81 @@ When implementing this command:
    - Store session permissions
    - Store persistent permissions (if `!` chosen)
 
+## Error Handling
+
+### No Findings
+
+| Scenario | Cause | Solution |
+|----------|-------|----------|
+| "No findings.json found" | Audit not run | Run `/audit` first |
+| "No open findings" | All findings already fixed | Run `/audit` for fresh scan |
+| "No findings match scope" | Scope filter too narrow | Use broader scope or no scope |
+
+### Fix Failures
+
+**File Permission Errors**:
+```
+Error: Cannot write to src/config.js - Permission denied
+```
+- Check file permissions: `ls -la src/config.js`
+- Fix permissions: `chmod u+w src/config.js`
+- Re-run `/fix`
+
+**File Modified Externally**:
+```
+Warning: src/config.js has been modified since audit
+```
+- File changed after audit but before fix
+- Options: Continue (may conflict), Skip, Re-audit
+
+**Validation Failure**:
+See "Validation Failure Handling" section above for recovery options.
+
+### Interrupted Fixes
+
+If `/fix` is interrupted mid-operation:
+
+1. **Check git status**: `git status` to see partial changes
+2. **Review changes**: `git diff` to inspect modifications
+3. **Options**:
+   - Commit good changes: `git add -A && git commit -m "partial fixes"`
+   - Revert all: `git checkout .`
+   - Continue: Re-run `/fix` (already-fixed findings are skipped)
+
+**Recovery**: The findings.json tracks which fixes were applied. Re-running `/fix` will skip already-fixed findings and continue with remaining ones.
+
+### Rollback
+
+To undo fixes:
+
+```bash
+# Undo all uncommitted changes
+git checkout .
+
+# Undo last committed fix
+git revert HEAD
+
+# Reset findings status (mark as open again)
+# Edit .bosun/findings.json and change "status": "fixed" to "status": "open"
+```
+
+### Permission Denied Scenarios
+
+| Prompt Response | What Happens |
+|-----------------|--------------|
+| `n` (no) | Fix skipped, finding stays "open" |
+| `y` (yes) | Fix applied to this finding only |
+| `a` (all session) | Fix applied, similar fixes auto-approved this session |
+| `!` (persistent) | Fix applied, similar fixes always auto-approved |
+
+To revoke persistent permissions:
+```bash
+# Edit or delete permissions file
+rm .bosun/permissions.json
+```
+
+See [Error Handling Guide](../docs/error-handling.md) for comprehensive troubleshooting.
+
 ## Chaining
 
 ```

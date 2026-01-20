@@ -249,6 +249,75 @@ When implementing this command:
    - Mark fixed items
    - Track sprint metadata
 
+## Error Handling
+
+### No Findings
+
+| Scenario | Cause | Solution |
+|----------|-------|----------|
+| "No findings.json found" | Audit not run | Run `/audit` first |
+| "No open findings" | All findings fixed | Run `/audit` for fresh scan |
+| "Cannot calculate priorities" | Invalid findings data | Check findings.json format |
+
+### Sprint Execution Failures
+
+**Agent Failure During Sprint**:
+```
+Sprint 1: SEC-001 fix failed
+Error: Agent timeout while processing
+```
+
+Recovery:
+1. Completed fixes within the sprint are preserved
+2. Failed finding remains "open"
+3. Continue with remaining findings: `/improve --execute`
+4. Or retry failed finding: `/fix SEC-001`
+
+**Validation Failure**:
+```
+Sprint 1: QUA-001 fix applied but validation failed
+- Tests failing: 2 assertions
+```
+
+Options:
+- `[r]` Rollback this fix and continue sprint
+- `[c]` Continue anyway (mark as needs-review)
+- `[s]` Skip remaining sprint, review manually
+
+### Interrupted Execution
+
+If `/improve --execute` is interrupted:
+
+1. **Check progress**: Run `/status` to see what was fixed
+2. **Review changes**: `git diff` to inspect modifications
+3. **Continue**: Re-run `/improve --execute` - already-fixed findings are skipped
+4. **Rollback if needed**: `git checkout .` to revert uncommitted changes
+
+### Dependency Issues
+
+**Circular Dependencies**:
+```
+Warning: Circular dependency detected between SEC-001 and ARC-002
+```
+- Findings will be scheduled in same sprint
+- Manual review may be needed
+
+**Unresolvable Dependencies**:
+```
+Warning: QUA-005 depends on SEC-001 which is "wontfix"
+```
+- Dependent finding scheduled anyway
+- Consider reviewing the dependency
+
+### Focus Mode Issues
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| "No findings in category" | Category has no open findings | Use different focus or no focus |
+| "Invalid category" | Typo in category name | Use: security, quality, docs, architecture, devops |
+
+See [Error Handling Guide](../docs/error-handling.md) for comprehensive troubleshooting.
+
 ## Chaining
 
 ```

@@ -155,3 +155,62 @@ cd /path/to/test-project
 2. Review diffs: `./scripts/sync-upstream.sh --diff {source}`
 3. Manually update relevant skills with improvements
 4. Mark synced: `./scripts/sync-upstream.sh --mark {source}`
+
+## Troubleshooting
+
+### Quick Diagnostics
+
+```bash
+# Check Bosun state
+ls -la .bosun/
+
+# Validate findings JSON
+jq . .bosun/findings.json
+
+# Check findings summary
+jq '.summary' .bosun/findings.json
+
+# List open findings
+jq '[.findings[] | select(.status == "open")] | length' .bosun/findings.json
+```
+
+### Common Issues
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| "No findings to display" | No audit run | Run `/audit` first |
+| "findings.json not found" | File deleted or never created | Run `/audit` |
+| "Invalid JSON" | Corrupted findings file | Delete and re-audit |
+| Agent timeout | Large codebase | Use scoped audit: `/audit security ./src` |
+| Fix permission denied | File permissions | Check `ls -la <file>` |
+
+### Recovery Commands
+
+```bash
+# Reset Bosun state completely
+rm -rf .bosun/
+
+# Reset findings only
+rm .bosun/findings.json
+
+# Revert uncommitted fixes
+git checkout .
+
+# Revert last committed fix
+git revert HEAD
+```
+
+### Error Handling Documentation
+
+For comprehensive error handling and recovery procedures, see:
+- `docs/error-handling.md` - Full troubleshooting guide
+- Each command doc (`commands/*.md`) has an "Error Handling" section
+
+### Reporting Issues
+
+If issues persist:
+1. Check existing issues: https://github.com/curphey/bosun/issues
+2. Create a new issue with:
+   - Command that failed
+   - Error message or unexpected behavior
+   - Steps to reproduce
