@@ -4,14 +4,21 @@
   "version": "1.0.0",
   "skills": [
     "skills/bosun-architect",
-    "skills/bosun-golang",
-    "skills/bosun-typescript",
-    "skills/bosun-python",
-    "skills/bosun-security",
+    "skills/bosun-csharp",
+    "skills/bosun-devops",
     "skills/bosun-docs-writer",
-    "skills/bosun-seo-llm",
+    "skills/bosun-golang",
+    "skills/bosun-java",
+    "skills/bosun-javascript",
+    "skills/bosun-performance",
     "skills/bosun-project-auditor",
+    "skills/bosun-python",
+    "skills/bosun-rust",
+    "skills/bosun-security",
+    "skills/bosun-seo-llm",
+    "skills/bosun-testing",
     "skills/bosun-threat-model",
+    "skills/bosun-typescript",
     "skills/bosun-ux-ui"
   ]
 }

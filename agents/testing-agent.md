@@ -3,7 +3,7 @@ name: testing-agent
 description: Testing specialist for test coverage analysis, test quality review, and testing strategy. Use when reviewing test suites, improving coverage, writing tests, or evaluating testing practices. Spawned by bosun orchestrator for testing work.
 tools: Read, Write, Edit, Grep, Bash, Glob
 model: sonnet
-skills: [bosun-golang, bosun-typescript, bosun-python]
+skills: [bosun-testing, bosun-golang, bosun-typescript, bosun-python]
 ---
 
 # Testing Agent
