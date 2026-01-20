@@ -1,0 +1,213 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate Plugin
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install -g ajv-cli jsonlint
+
+      - name: Validate plugin.json
+        run: jsonlint -q .claude-plugin/plugin.json
+
+      - name: Validate findings schema
+        run: |
+          jsonlint -q schemas/findings.schema.json
+          # Validate schema is valid JSON Schema
+          ajv compile -s schemas/findings.schema.json
+
+      - name: Validate upstream-sources.json
+        run: |
+          if [ -f references/upstream-sources.json ]; then
+            jsonlint -q references/upstream-sources.json
+          fi
+
+  lint-markdown:
+    name: Lint Markdown
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install markdownlint
+        run: npm install -g markdownlint-cli
+
+      - name: Lint markdown files
+        run: |
+          # Lint with relaxed rules for documentation
+          markdownlint '**/*.md' \
+            --ignore node_modules \
+            --ignore .cache \
+            --disable MD013 MD033 MD041 MD024 MD012 || true
+          echo "Markdown linting complete (warnings only)"
+
+  lint-shell:
+    name: Lint Shell Scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Run ShellCheck
+        run: |
+          find scripts -name "*.sh" -type f -exec shellcheck {} \;
+
+  validate-frontmatter:
+    name: Validate YAML Frontmatter
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install yaml parser
+        run: npm install -g js-yaml
+
+      - name: Validate agent frontmatter
+        run: |
+          echo "Validating agent frontmatter..."
+          for file in agents/*.md; do
+            if [ -f "$file" ]; then
+              echo "Checking $file"
+              # Extract YAML frontmatter and validate
+              sed -n '/^---$/,/^---$/p' "$file" | head -n -1 | tail -n +2 | js-yaml > /dev/null
+              if [ $? -ne 0 ]; then
+                echo "Invalid YAML in $file"
+                exit 1
+              fi
+
+              # Check required fields
+              if ! grep -q "^name:" "$file"; then
+                echo "Missing 'name' in $file"
+                exit 1
+              fi
+              if ! grep -q "^description:" "$file"; then
+                echo "Missing 'description' in $file"
+                exit 1
+              fi
+              if ! grep -q "^tools:" "$file"; then
+                echo "Missing 'tools' in $file"
+                exit 1
+              fi
+            fi
+          done
+
+      - name: Validate skill frontmatter
+        run: |
+          echo "Validating skill frontmatter..."
+          for file in skills/*/SKILL.md; do
+            if [ -f "$file" ]; then
+              echo "Checking $file"
+              sed -n '/^---$/,/^---$/p' "$file" | head -n -1 | tail -n +2 | js-yaml > /dev/null
+              if [ $? -ne 0 ]; then
+                echo "Invalid YAML in $file"
+                exit 1
+              fi
+
+              if ! grep -q "^name:" "$file"; then
+                echo "Missing 'name' in $file"
+                exit 1
+              fi
+            fi
+          done
+
+      - name: Validate command frontmatter
+        run: |
+          echo "Validating command frontmatter..."
+          for file in commands/*.md; do
+            if [ -f "$file" ]; then
+              echo "Checking $file"
+              sed -n '/^---$/,/^---$/p' "$file" | head -n -1 | tail -n +2 | js-yaml > /dev/null
+              if [ $? -ne 0 ]; then
+                echo "Invalid YAML in $file"
+                exit 1
+              fi
+
+              if ! grep -q "^name:" "$file"; then
+                echo "Missing 'name' in $file"
+                exit 1
+              fi
+            fi
+          done
+
+  structure-check:
+    name: Check Plugin Structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify required files exist
+        run: |
+          echo "Checking required files..."
+
+          required_files=(
+            ".claude-plugin/plugin.json"
+            "CLAUDE.md"
+            "README.md"
+            "schemas/findings.schema.json"
+          )
+
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "Missing required file: $file"
+              exit 1
+            fi
+            echo "✓ $file"
+          done
+
+      - name: Verify required directories exist
+        run: |
+          echo "Checking required directories..."
+
+          required_dirs=(
+            "agents"
+            "skills"
+            "commands"
+            "scripts"
+          )
+
+          for dir in "${required_dirs[@]}"; do
+            if [ ! -d "$dir" ]; then
+              echo "Missing required directory: $dir"
+              exit 1
+            fi
+            echo "✓ $dir/"
+          done
+
+      - name: Count plugin components
+        run: |
+          echo ""
+          echo "Plugin Component Summary:"
+          echo "========================="
+          echo "Agents:   $(find agents -name '*.md' | wc -l | tr -d ' ')"
+          echo "Skills:   $(find skills -name 'SKILL.md' | wc -l | tr -d ' ')"
+          echo "Commands: $(find commands -name '*.md' | wc -l | tr -d ' ')"
+          echo "Scripts:  $(find scripts -name '*.sh' | wc -l | tr -d ' ')"
