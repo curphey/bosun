@@ -1,0 +1,128 @@
+{
+  "version": "1.0.0",
+  "metadata": {
+    "project": "test-project",
+    "auditedAt": "2025-01-20T10:00:00Z",
+    "scope": "full",
+    "agents": ["security-agent", "quality-agent", "docs-agent"]
+  },
+  "summary": {
+    "total": 5,
+    "bySeverity": {
+      "critical": 1,
+      "high": 1,
+      "medium": 2,
+      "low": 1,
+      "info": 0
+    },
+    "byStatus": {
+      "open": 5,
+      "fixed": 0,
+      "wontfix": 0,
+      "deferred": 0
+    },
+    "byCategory": {
+      "security": 2,
+      "quality": 2,
+      "docs": 1
+    }
+  },
+  "findings": [
+    {
+      "id": "SEC-001",
+      "category": "security",
+      "severity": "critical",
+      "title": "Hardcoded API key in configuration",
+      "description": "API key is hardcoded in the source code instead of using environment variables",
+      "location": {
+        "file": "src/config.js",
+        "line": 15,
+        "column": 1
+      },
+      "evidence": "const API_KEY = 'sk_live_...'",
+      "suggestedFix": {
+        "description": "Move API key to environment variable",
+        "automated": true,
+        "effort": "trivial"
+      },
+      "interactionTier": "confirm",
+      "status": "open",
+      "references": [
+        "https://owasp.org/www-project-web-security-testing-guide/"
+      ]
+    },
+    {
+      "id": "SEC-002",
+      "category": "security",
+      "severity": "high",
+      "title": "SQL injection vulnerability",
+      "description": "User input is directly concatenated into SQL query",
+      "location": {
+        "file": "src/db/users.js",
+        "line": 42
+      },
+      "evidence": "const query = `SELECT * FROM users WHERE id = ${userId}`",
+      "suggestedFix": {
+        "description": "Use parameterized queries",
+        "automated": true,
+        "effort": "minor"
+      },
+      "interactionTier": "approve",
+      "status": "open"
+    },
+    {
+      "id": "QUA-001",
+      "category": "quality",
+      "severity": "medium",
+      "title": "O(n²) algorithm complexity",
+      "description": "Nested loops create quadratic time complexity",
+      "location": {
+        "file": "src/search.js",
+        "line": 88
+      },
+      "suggestedFix": {
+        "description": "Use hash map for O(n) lookup",
+        "automated": false,
+        "effort": "moderate"
+      },
+      "interactionTier": "approve",
+      "status": "open"
+    },
+    {
+      "id": "QUA-002",
+      "category": "quality",
+      "severity": "low",
+      "title": "Unused import",
+      "description": "Module is imported but never used",
+      "location": {
+        "file": "src/utils.js",
+        "line": 3
+      },
+      "suggestedFix": {
+        "description": "Remove unused import",
+        "automated": true,
+        "effort": "trivial"
+      },
+      "interactionTier": "auto",
+      "status": "open"
+    },
+    {
+      "id": "DOC-001",
+      "category": "docs",
+      "severity": "medium",
+      "title": "Missing API documentation",
+      "description": "Public API functions lack JSDoc comments",
+      "location": {
+        "file": "src/api/index.js",
+        "line": 1
+      },
+      "suggestedFix": {
+        "description": "Add JSDoc comments to exported functions",
+        "automated": false,
+        "effort": "moderate"
+      },
+      "interactionTier": "confirm",
+      "status": "open"
+    }
+  ]
+}
