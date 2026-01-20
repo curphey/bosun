@@ -113,8 +113,9 @@ Skills are knowledge packages that agents reference for domain expertise:
 
 | Skill | Languages/Frameworks |
 |-------|---------------------|
-| `bosun-golang` | Go idioms, error handling, concurrency |
+| `bosun-javascript` | ES6+, Node.js, modules, browser/server |
 | `bosun-typescript` | TypeScript strict mode, ESLint, patterns |
+| `bosun-golang` | Go idioms, error handling, concurrency |
 | `bosun-python` | PEP 8, type hints, pytest, async |
 | `bosun-rust` | Ownership, lifetimes, error handling |
 | `bosun-java` | Modern Java, Spring Boot, testing |
@@ -298,8 +299,9 @@ bosun/
 │   ├── bosun-devops/
 │   ├── bosun-testing/
 │   ├── bosun-performance/
-│   ├── bosun-golang/
+│   ├── bosun-javascript/
 │   ├── bosun-typescript/
+│   ├── bosun-golang/
 │   ├── bosun-python/
 │   ├── bosun-rust/
 │   ├── bosun-java/
