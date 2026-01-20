@@ -1,6 +1,6 @@
 {
   "name": "bosun",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "Ship's officer for your codebase — keeping everything shipshape. Orchestrates specialized agents for security, quality, and architecture reviews.",
   "author": {
     "name": "Mark Curphey"
