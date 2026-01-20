@@ -1,0 +1,81 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in Bosun
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please fill out the details below to help us investigate.
+
+  - type: input
+    id: version
+    attributes:
+      label: Bosun Version
+      description: Which version of Bosun are you using?
+      placeholder: "e.g., 0.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: skill
+    attributes:
+      label: Affected Skill
+      description: Which Bosun skill is affected?
+      options:
+        - bosun-architect
+        - bosun-golang
+        - bosun-typescript
+        - bosun-python
+        - bosun-security
+        - bosun-docs-writer
+        - bosun-seo-llm
+        - bosun-project-auditor
+        - bosun-threat-model
+        - bosun-ux-ui
+        - Scripts (sync-upstream.sh, etc.)
+        - Other / Multiple
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What happened? What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this?
+      placeholder: |
+        1. Run Claude Code with Bosun installed
+        2. Invoke skill '...'
+        3. See unexpected behavior
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Critical (skill completely broken)
+        - High (major functionality affected)
+        - Medium (workaround exists)
+        - Low (minor inconvenience)
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Claude Code version, OS, any relevant context
+      render: shell
+      placeholder: |
+        Claude Code: 1.x.x
+        OS: macOS 14 / Ubuntu 22.04 / etc.

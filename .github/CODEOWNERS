@@ -1,0 +1,17 @@
+# Bosun CODEOWNERS
+# These owners will be requested for review on PRs touching their areas
+
+# Default owner for everything
+* @curphey
+
+# Skills require careful review
+/skills/ @curphey
+
+# Scripts and automation
+/scripts/ @curphey
+
+# Plugin configuration
+/marketplace.json @curphey
+
+# GitHub configuration (protect this file)
+/.github/ @curphey
