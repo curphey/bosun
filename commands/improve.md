@@ -249,6 +249,224 @@ When implementing this command:
    - Mark fixed items
    - Track sprint metadata
 
+## Algorithm Reference
+
+### Constants
+
+```javascript
+// Severity weights (higher = more urgent)
+const SEVERITY_WEIGHTS = {
+  critical: 100,
+  high: 75,
+  medium: 50,
+  low: 25,
+  info: 10
+};
+
+// Effort multipliers (higher = easier to fix = prioritize)
+const EFFORT_MULTIPLIERS = {
+  trivial: 1.0,    // Minutes
+  minor: 0.9,      // < 1 hour
+  moderate: 0.7,   // 1-4 hours
+  major: 0.5,      // 4-8 hours
+  significant: 0.3 // > 1 day
+};
+
+// Category multipliers (adjust based on project priorities)
+const CATEGORY_MULTIPLIERS = {
+  security: 1.5,      // Security issues are urgent
+  architecture: 1.2,  // Arch debt compounds
+  devops: 1.1,        // Ops issues affect everyone
+  quality: 1.0,       // Baseline
+  performance: 1.0,   // Baseline
+  testing: 0.9,       // Important but less urgent
+  docs: 0.8,          // Lowest urgency
+  'ux-ui': 0.9        // UX issues
+};
+
+// Sprint effort bands
+const SPRINT_EFFORT_BANDS = [
+  ['trivial', 'minor'],           // Sprint 1: Quick wins
+  ['minor', 'moderate'],          // Sprint 2: Medium effort
+  ['moderate', 'major'],          // Sprint 3: Significant work
+  ['major', 'significant']        // Sprint 4+: Large refactors
+];
+```
+
+### Priority Score Calculation
+
+```javascript
+function calculatePriorityScore(finding, focusCategory = null) {
+  const severityWeight = SEVERITY_WEIGHTS[finding.severity] || 50;
+  const effortMultiplier = EFFORT_MULTIPLIERS[finding.suggestedFix?.effort] || 0.7;
+
+  let categoryMultiplier = CATEGORY_MULTIPLIERS[finding.category] || 1.0;
+
+  // Boost focused category
+  if (focusCategory && finding.category === focusCategory) {
+    categoryMultiplier = 2.0;
+  }
+
+  return Math.round(severityWeight * effortMultiplier * categoryMultiplier);
+}
+```
+
+### Dependency Resolution (Topological Sort)
+
+```javascript
+function orderByDependencies(findings) {
+  // Build dependency graph
+  const graph = new Map();
+  const inDegree = new Map();
+
+  findings.forEach(f => {
+    graph.set(f.id, []);
+    inDegree.set(f.id, 0);
+  });
+
+  // Add edges for dependencies
+  findings.forEach(f => {
+    if (f.dependsOn) {
+      f.dependsOn.forEach(depId => {
+        if (graph.has(depId)) {
+          graph.get(depId).push(f.id);
+          inDegree.set(f.id, inDegree.get(f.id) + 1);
+        }
+      });
+    }
+  });
+
+  // Kahn's algorithm for topological sort
+  const queue = [];
+  const result = [];
+
+  inDegree.forEach((degree, id) => {
+    if (degree === 0) queue.push(id);
+  });
+
+  while (queue.length > 0) {
+    const id = queue.shift();
+    result.push(findings.find(f => f.id === id));
+
+    graph.get(id).forEach(neighbor => {
+      inDegree.set(neighbor, inDegree.get(neighbor) - 1);
+      if (inDegree.get(neighbor) === 0) {
+        queue.push(neighbor);
+      }
+    });
+  }
+
+  // Handle cycles (remaining items)
+  findings.forEach(f => {
+    if (!result.find(r => r.id === f.id)) {
+      result.push(f);
+    }
+  });
+
+  return result;
+}
+```
+
+### Sprint Grouping
+
+```javascript
+function groupIntoSprints(scoredFindings) {
+  const sprints = [];
+
+  for (const [index, effortBand] of SPRINT_EFFORT_BANDS.entries()) {
+    const sprintFindings = scoredFindings.filter(f => {
+      const effort = f.suggestedFix?.effort || 'moderate';
+      return effortBand.includes(effort);
+    });
+
+    if (sprintFindings.length > 0) {
+      sprints.push({
+        number: index + 1,
+        name: getSprintName(index),
+        effort: effortBand.join('-'),
+        findings: sprintFindings.sort((a, b) => b.score - a.score),
+        impact: calculateImpact(sprintFindings)
+      });
+    }
+  }
+
+  return sprints;
+}
+
+function getSprintName(index) {
+  const names = [
+    'Quick Wins',
+    'Core Improvements',
+    'Technical Debt',
+    'Major Refactoring'
+  ];
+  return names[index] || `Sprint ${index + 1}`;
+}
+
+function calculateImpact(findings) {
+  const counts = { critical: 0, high: 0, medium: 0, low: 0, info: 0 };
+  findings.forEach(f => counts[f.severity]++);
+  return counts;
+}
+```
+
+### Full Algorithm Flow
+
+```javascript
+async function generateImprovementPlan(options = {}) {
+  // 1. Load findings
+  const findings = await loadFindings('.bosun/findings.json');
+
+  // 2. Filter to open findings only
+  let openFindings = findings.filter(f => f.status === 'open');
+
+  // 3. Apply focus filter if specified
+  if (options.focus) {
+    openFindings = openFindings.filter(f => f.category === options.focus);
+  }
+
+  // 4. Calculate priority scores
+  const scoredFindings = openFindings.map(f => ({
+    ...f,
+    score: calculatePriorityScore(f, options.focus)
+  }));
+
+  // 5. Order by dependencies
+  const orderedFindings = orderByDependencies(scoredFindings);
+
+  // 6. Group into sprints
+  const sprints = groupIntoSprints(orderedFindings);
+
+  // 7. Generate recommendations
+  const recommendations = generateRecommendations(sprints);
+
+  return {
+    totalOpen: openFindings.length,
+    sprints,
+    recommendations
+  };
+}
+```
+
+### Agent Selection for Execution
+
+```javascript
+function selectAgentForFinding(finding) {
+  const categoryToAgent = {
+    security: 'security-agent',
+    quality: 'quality-agent',
+    docs: 'docs-agent',
+    architecture: 'architecture-agent',
+    devops: 'devops-agent',
+    'ux-ui': 'ux-ui-agent',
+    testing: 'testing-agent',
+    performance: 'performance-agent'
+  };
+
+  return categoryToAgent[finding.category] || 'quality-agent';
+}
+```
+
 ## Error Handling
 
 ### No Findings
