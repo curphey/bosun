@@ -74,16 +74,41 @@ Based on analysis, decide which agents to spawn:
 
 ### 3. Spawn Agents
 
-Spawn agents in parallel for efficiency:
+Spawn agents in parallel for efficiency.
+
+**CRITICAL: Parallel Dispatch Protocol**
+
+To run agents in parallel, you MUST invoke multiple Task tools in a SINGLE message. Do NOT wait for one agent to complete before spawning the next.
+
+For a full audit, spawn all agents simultaneously:
 
 ```
-For a full audit:
-1. Spawn security-agent (background)
-2. Spawn quality-agent (background)
-3. Spawn docs-agent (background)
-4. Wait for all to complete
-5. Aggregate findings
+In ONE response, invoke:
+- Task: security-agent (run_in_background: true)
+- Task: quality-agent (run_in_background: true)
+- Task: docs-agent (run_in_background: true)
+
+Then use TaskOutput to collect results from each.
 ```
+
+**Example Task invocation for each agent:**
+
+```
+Task tool parameters:
+- subagent_type: "general-purpose"
+- description: "Security audit"
+- prompt: "You are security-agent. Load the bosun-security skill. Audit the project at [path] for security vulnerabilities. Return findings in JSON format with fields: category, severity, title, description, location (file, line), suggestedFix, interactionTier."
+- run_in_background: true
+```
+
+**Agent prompts must include:**
+1. Agent identity (e.g., "You are security-agent")
+2. Skill to load (e.g., "Load bosun-security skill")
+3. Scope/path to audit
+4. Output format requirement (JSON findings schema)
+
+**Collecting results:**
+After spawning background agents, use `TaskOutput` with each task_id to retrieve findings when complete.
 
 ### 4. Aggregate Findings
 
