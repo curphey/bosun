@@ -137,18 +137,17 @@
     }
   ],
   "summary": {
-    "total": 15,
+    "total": 14,
     "bySeverity": {
       "critical": 0,
       "high": 2,
-      "medium": 9,
+      "medium": 8,
       "low": 4
     },
     "byCategory": {
       "quality": 10,
       "performance": 1,
-      "devops": 3,
-      "security": 1
+      "devops": 3
     }
   }
 }
