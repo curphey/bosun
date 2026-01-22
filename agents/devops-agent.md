@@ -3,7 +3,7 @@ name: devops-agent
 description: DevOps specialist for CI/CD, infrastructure as code, deployment, and observability. Use when reviewing pipelines, configuring deployments, setting up monitoring, or improving operational practices. Spawned by bosun orchestrator for devops work.
 tools: Read, Write, Edit, Grep, Bash, Glob
 model: sonnet
-skills: [bosun-devops]
+skills: [bosun-devops, bosun-aws, bosun-gcp, bosun-azure]
 ---
 
 # DevOps Agent
