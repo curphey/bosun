@@ -1,0 +1,156 @@
+{
+  "description": "Expected findings for legacy-mess test fixture",
+  "purpose": "Validates Bosun identifies architectural and maintainability issues in inherited legacy code",
+  "findings": [
+    {
+      "id": "ARC-001",
+      "category": "architecture",
+      "severity": "critical",
+      "file": "god-object.ts",
+      "title": "God object anti-pattern",
+      "description": "AppManager class (580+ lines) handles users, orders, products, notifications, payments, reporting, feature flags, and search. Should be split into focused services.",
+      "suggestedRefactoring": [
+        "UserService",
+        "OrderService",
+        "ProductService",
+        "NotificationService",
+        "PaymentService",
+        "ReportService",
+        "SearchService"
+      ]
+    },
+    {
+      "id": "ARC-002",
+      "category": "architecture",
+      "severity": "high",
+      "file": "god-object.ts",
+      "title": "Singleton pattern limits testability",
+      "description": "AppManager uses singleton pattern with private constructor. This makes unit testing extremely difficult and creates hidden global state.",
+      "lines": [52, 54]
+    },
+    {
+      "id": "ARC-003",
+      "category": "architecture",
+      "severity": "high",
+      "file": "god-object.ts",
+      "title": "Mixed concerns in business logic",
+      "description": "Business operations directly trigger notifications, analytics, and caching. These cross-cutting concerns should use events or middleware, not inline calls.",
+      "examples": [
+        "createUser() sends welcome email and tracks analytics",
+        "createOrder() sends confirmation and updates inventory",
+        "updateOrderStatus() has complex notification branching"
+      ]
+    },
+    {
+      "id": "ARC-004",
+      "category": "architecture",
+      "severity": "high",
+      "file": "circular-deps/",
+      "title": "Circular dependency chain",
+      "description": "user.ts -> order.ts -> product.ts -> order.ts creates a circular import chain. notification.ts -> user.ts creates another cycle. This causes initialization order issues and tight coupling.",
+      "affectedFiles": [
+        "circular-deps/user.ts",
+        "circular-deps/order.ts",
+        "circular-deps/product.ts",
+        "circular-deps/notification.ts"
+      ]
+    },
+    {
+      "id": "ARC-005",
+      "category": "architecture",
+      "severity": "medium",
+      "file": "circular-deps/index.ts",
+      "title": "Barrel export obscures dependencies",
+      "description": "Re-exporting everything from index.ts makes it harder to trace actual dependencies and can cause issues with tree-shaking and circular imports."
+    },
+    {
+      "id": "QUA-001",
+      "category": "quality",
+      "severity": "high",
+      "file": "magic-numbers.js",
+      "title": "Unexplained magic numbers throughout",
+      "description": "Business logic contains dozens of unexplained numeric constants. Pricing discounts (0.85, 0.92, 0.97), risk scoring weights (30, 15, 25, 50), shipping rates (0.45, 0.35, 0.012) have no documentation explaining their origin or meaning.",
+      "lines": [18, 20, 22, 27, 29, 31, 33, 43, 51, 53, 55, 61, 65, 67, 69, 93, 96, 99, 102]
+    },
+    {
+      "id": "QUA-002",
+      "category": "quality",
+      "severity": "medium",
+      "file": "magic-numbers.js",
+      "title": "Hardcoded business rules",
+      "description": "Business hours (9-5), work days (Mon-Fri), password requirements, rate limits are all hardcoded. These should be configurable or at minimum documented constants."
+    },
+    {
+      "id": "QUA-003",
+      "category": "quality",
+      "severity": "medium",
+      "file": "magic-numbers.js",
+      "title": "Inconsistent configuration patterns",
+      "description": "Some config is in CONFIG object, some in CACHE_TTL, some in RATE_LIMITS, some inline in functions. Should use a consistent configuration approach."
+    },
+    {
+      "id": "QUA-004",
+      "category": "quality",
+      "severity": "medium",
+      "file": "god-object.ts",
+      "title": "Inconsistent caching strategy",
+      "description": "Some methods use memory cache (Map), some use distributed cache, some use both with different invalidation strategies. Caching logic should be consistent and centralized."
+    },
+    {
+      "id": "QUA-005",
+      "category": "quality",
+      "severity": "low",
+      "file": "god-object.ts",
+      "title": "Hardcoded email addresses",
+      "description": "ops@company.com is hardcoded for low stock alerts. Should be configurable.",
+      "lines": [375]
+    },
+    {
+      "id": "TST-001",
+      "category": "testing",
+      "severity": "critical",
+      "file": "god-object.ts",
+      "title": "Untestable singleton",
+      "description": "The singleton pattern with private constructor and static getInstance() makes it impossible to mock or reset state between tests."
+    },
+    {
+      "id": "TST-002",
+      "category": "testing",
+      "severity": "high",
+      "file": null,
+      "title": "No test files present",
+      "description": "Complex business logic in god-object.ts and magic-numbers.js has no corresponding tests. Critical paths like payment processing, order management, and risk scoring are untested."
+    },
+    {
+      "id": "DOC-001",
+      "category": "docs",
+      "severity": "high",
+      "file": "magic-numbers.js",
+      "title": "Business logic undocumented",
+      "description": "Pricing tiers, discount rates, risk scoring algorithm, shipping calculations have no documentation explaining the business rules they implement."
+    },
+    {
+      "id": "DOC-002",
+      "category": "docs",
+      "severity": "medium",
+      "file": "god-object.ts",
+      "title": "Inline TODOs and questions in comments",
+      "description": "Comments contain questions ('why is this here?', 'scheduling in a god object??') indicating the original developers were uncertain about the design."
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "bySeverity": {
+      "critical": 2,
+      "high": 7,
+      "medium": 4,
+      "low": 1
+    },
+    "byCategory": {
+      "architecture": 5,
+      "quality": 5,
+      "testing": 2,
+      "docs": 2
+    }
+  }
+}

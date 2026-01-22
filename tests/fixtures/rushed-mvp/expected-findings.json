@@ -1,0 +1,157 @@
+{
+  "description": "Expected findings for rushed-mvp test fixture",
+  "purpose": "Validates Bosun detects common issues in quickly-shipped code",
+  "findings": [
+    {
+      "id": "QUA-001",
+      "category": "quality",
+      "severity": "high",
+      "file": "no-error-handling.ts",
+      "title": "Missing error handling on async operations",
+      "description": "Multiple async functions lack try/catch blocks. Network failures, database errors, and file system issues will crash the application.",
+      "lines": [14, 27, 33, 40]
+    },
+    {
+      "id": "QUA-002",
+      "category": "quality",
+      "severity": "medium",
+      "file": "no-error-handling.ts",
+      "title": "Unhandled promise rejections",
+      "description": "prefetchUsers() fires promises without awaiting or catching rejections. Errors will be silently swallowed or cause unhandled rejection warnings.",
+      "lines": [21]
+    },
+    {
+      "id": "QUA-003",
+      "category": "quality",
+      "severity": "medium",
+      "file": "no-error-handling.ts",
+      "title": "No validation on external data",
+      "description": "importUsers() trusts external JSON without validation. Malformed data will cause runtime errors or data corruption.",
+      "lines": [58]
+    },
+    {
+      "id": "PRF-001",
+      "category": "performance",
+      "severity": "critical",
+      "file": "n-plus-one.py",
+      "title": "N+1 query pattern",
+      "description": "get_orders_with_customers() executes 1 + N queries. With 50k orders, this means 50,001 database queries instead of 1-2 with a JOIN.",
+      "lines": [26]
+    },
+    {
+      "id": "PRF-002",
+      "category": "performance",
+      "severity": "critical",
+      "file": "n-plus-one.py",
+      "title": "Nested N+1 query pattern (N*M+1)",
+      "description": "get_full_order_report() has N+1 inside a loop, resulting in O(N*M) queries. This is exponentially worse than a simple N+1.",
+      "lines": [56]
+    },
+    {
+      "id": "PRF-003",
+      "category": "performance",
+      "severity": "high",
+      "file": "n-plus-one.py",
+      "title": "In-memory pagination",
+      "description": "get_all_orders_paginated() fetches entire table then slices in Python. Should use LIMIT/OFFSET in SQL.",
+      "lines": [83]
+    },
+    {
+      "id": "PRF-004",
+      "category": "performance",
+      "severity": "medium",
+      "file": "n-plus-one.py",
+      "title": "Unbatched updates in loop",
+      "description": "update_order_statuses() executes N individual UPDATE statements. Should batch into single query with IN clause.",
+      "lines": [94]
+    },
+    {
+      "id": "QUA-004",
+      "category": "quality",
+      "severity": "high",
+      "file": "copy-paste-code.go",
+      "title": "Duplicated validation logic",
+      "description": "Card number validation is copy-pasted 3 times. Expiry validation copied 3 times. Amount validation copied 4 times. Extract to shared functions.",
+      "lines": [28, 68, 104, 136, 148]
+    },
+    {
+      "id": "QUA-005",
+      "category": "quality",
+      "severity": "medium",
+      "file": "copy-paste-code.go",
+      "title": "Magic numbers without explanation",
+      "description": "CalculateFees() contains unexplained numeric constants (0.029, 0.30, 0.015, etc). Should be named constants with documentation.",
+      "lines": [162]
+    },
+    {
+      "id": "QUA-006",
+      "category": "quality",
+      "severity": "low",
+      "file": "copy-paste-code.go",
+      "title": "Configuration values hardcoded",
+      "description": "Retry count (3) and timeout (30s) are hardcoded. Should be configurable or at minimum named constants.",
+      "lines": [177]
+    },
+    {
+      "id": "DOC-001",
+      "category": "docs",
+      "severity": "high",
+      "file": "README.md",
+      "title": "README lacks essential information",
+      "description": "README is missing: installation steps, prerequisites, configuration, API documentation, and examples. 'Ask John' is not a contribution guide.",
+      "lines": [1]
+    },
+    {
+      "id": "DOC-002",
+      "category": "docs",
+      "severity": "medium",
+      "file": "README.md",
+      "title": "TODO placeholders in documentation",
+      "description": "API section contains only 'TODO'. Either document the API or remove the section.",
+      "lines": [11]
+    },
+    {
+      "id": "TST-001",
+      "category": "testing",
+      "severity": "high",
+      "file": null,
+      "title": "No test files present",
+      "description": "Project has no test files. Critical paths (payment processing, user operations, order queries) are completely untested.",
+      "lines": null
+    },
+    {
+      "id": "SEC-001",
+      "category": "security",
+      "severity": "high",
+      "file": "no-error-handling.ts",
+      "title": "SQL injection vulnerability",
+      "description": "getUserFromDb() interpolates user input directly into SQL query. Use parameterized queries.",
+      "lines": [28]
+    },
+    {
+      "id": "SEC-002",
+      "category": "security",
+      "severity": "high",
+      "file": "n-plus-one.py",
+      "title": "SQL injection in multiple queries",
+      "description": "String interpolation used for SQL queries throughout. All db.query() calls with f-strings are vulnerable.",
+      "lines": [27, 38, 40, 60, 62, 70, 86, 91, 95]
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "bySeverity": {
+      "critical": 2,
+      "high": 7,
+      "medium": 5,
+      "low": 1
+    },
+    "byCategory": {
+      "quality": 6,
+      "performance": 4,
+      "docs": 2,
+      "testing": 1,
+      "security": 2
+    }
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "description": "Expected findings for almost-good test fixture",
+  "purpose": "Validates Bosun identifies polish issues that separate good code from great code",
+  "findings": [
+    {
+      "id": "QUA-001",
+      "category": "quality",
+      "severity": "medium",
+      "file": "api-handlers.ts",
+      "title": "Inconsistent code style",
+      "description": "Mixed coding conventions: some functions use async/await, others use promise chains. Naming varies between camelCase, snake_case, and PascalCase. Brace styles and spacing inconsistent.",
+      "examples": [
+        "getUser() uses async/await, camelCase",
+        "get_orders() uses promise chains, snake_case",
+        "Delete_User() uses PascalCase with underscore"
+      ]
+    },
+    {
+      "id": "QUA-002",
+      "category": "quality",
+      "severity": "medium",
+      "file": "api-handlers.ts",
+      "title": "Inconsistent error response format",
+      "description": "Error responses use different shapes: { error: '' }, { Error: '' }, { error: '', code: '' }, { message: '' }. Should standardize on one format.",
+      "lines": [17, 27, 39, 86, 98, 109]
+    },
+    {
+      "id": "QUA-003",
+      "category": "quality",
+      "severity": "medium",
+      "file": "api-handlers.ts",
+      "title": "Inconsistent success response format",
+      "description": "Some endpoints return raw objects, others wrap in { data: ... }. Should standardize API response envelope.",
+      "lines": [99, 110]
+    },
+    {
+      "id": "QUA-004",
+      "category": "quality",
+      "severity": "high",
+      "file": "partial-types.ts",
+      "title": "Excessive use of 'any' type",
+      "description": "TypeScript 'any' used as escape hatch throughout. Order interface has any[] items, any total, any metadata. Functions like processOrder(), handleWebhook() are essentially untyped.",
+      "lines": [33, 34, 35, 36, 58, 67, 110, 113, 127, 132]
+    },
+    {
+      "id": "QUA-005",
+      "category": "quality",
+      "severity": "medium",
+      "file": "partial-types.ts",
+      "title": "Inconsistent null vs undefined handling",
+      "description": "getUser() returns null, getProduct() returns undefined, getOrder() has no return annotation. Should standardize on one approach.",
+      "lines": [82, 88, 93]
+    },
+    {
+      "id": "QUA-006",
+      "category": "quality",
+      "severity": "low",
+      "file": "partial-types.ts",
+      "title": "@ts-ignore and @ts-expect-error suppress type errors",
+      "description": "Using TypeScript escape hatches instead of fixing underlying type issues. These hide real problems.",
+      "lines": [145, 151]
+    },
+    {
+      "id": "QUA-007",
+      "category": "quality",
+      "severity": "medium",
+      "file": "almost-there.ts",
+      "title": "Inconsistent logging",
+      "description": "Mix of logger.info/debug/error and console.log/warn. Should use structured logger consistently throughout.",
+      "lines": [14, 16, 18, 24]
+    },
+    {
+      "id": "QUA-008",
+      "category": "quality",
+      "severity": "low",
+      "file": "almost-there.ts",
+      "title": "Unhelpful error messages",
+      "description": "Some validation errors are specific ('must be at least 8 characters'), others are vague ('Invalid email', 'Bad password'). Users can't fix what they don't understand.",
+      "lines": [54, 66]
+    },
+    {
+      "id": "PRF-001",
+      "category": "performance",
+      "severity": "medium",
+      "file": "almost-there.ts",
+      "title": "Sequential async calls could be parallel",
+      "description": "loadDashboardData() awaits 4 independent calls sequentially. Using Promise.all() would be faster.",
+      "lines": [72, 73, 74, 75]
+    },
+    {
+      "id": "QUA-009",
+      "category": "quality",
+      "severity": "low",
+      "file": "almost-there.ts",
+      "title": "HTML template embedded in business logic",
+      "description": "sendWelcomeEmail() has inline HTML. Should use template files or template engine.",
+      "lines": [87]
+    },
+    {
+      "id": "QUA-010",
+      "category": "quality",
+      "severity": "medium",
+      "file": "almost-there.ts",
+      "title": "Hardcoded configuration values",
+      "description": "Database port, name, maxConnections, Redis port, API limits are hardcoded. Should be environment variables.",
+      "lines": [126, 127, 128, 132, 135, 136]
+    },
+    {
+      "id": "DEV-001",
+      "category": "devops",
+      "severity": "high",
+      "file": "package.json",
+      "title": "Outdated dependencies with known vulnerabilities",
+      "description": "Multiple packages are significantly outdated: axios 0.21.1 (CVE-2021-3749), lodash 4.17.20 (prototype pollution), moment 2.29.1 (deprecated). Run npm audit.",
+      "packages": [
+        "axios@0.21.1 - has security vulnerabilities",
+        "lodash@4.17.20 - multiple CVEs patched in later versions",
+        "moment@2.29.1 - deprecated, use date-fns or dayjs"
+      ]
+    },
+    {
+      "id": "DEV-002",
+      "category": "devops",
+      "severity": "medium",
+      "file": "package.json",
+      "title": "Node.js version too permissive",
+      "description": "engines.node allows >=12.0.0 but Node 12 and 14 are end-of-life. Should require >=18.0.0 or >=20.0.0.",
+      "lines": [31]
+    },
+    {
+      "id": "DEV-003",
+      "category": "devops",
+      "severity": "low",
+      "file": "package.json",
+      "title": "TypeScript and tooling outdated",
+      "description": "TypeScript 4.1.3, ESLint 7.x are outdated. Current stable: TypeScript 5.x, ESLint 8.x. Missing: prettier, husky, lint-staged for code quality gates."
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "bySeverity": {
+      "critical": 0,
+      "high": 2,
+      "medium": 9,
+      "low": 4
+    },
+    "byCategory": {
+      "quality": 10,
+      "performance": 1,
+      "devops": 3,
+      "security": 1
+    }
+  }
+}
