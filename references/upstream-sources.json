@@ -1,26 +1,44 @@
-[
-  {
-    "name": "superpowers",
-    "repo": "obra/superpowers",
-    "branch": "main",
-    "paths": ["skills/"],
-    "last_synced_commit": null,
-    "maps_to": ["bosun-architect"]
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Upstream sources tracked for inspiration. Bosun skills are independently curated - not auto-synced or wrapped from upstream.",
+  "curation_policy": {
+    "approach": "pull-based",
+    "note": "Skills are curated from best-in-class sources into owned, independently maintained knowledge. Upstream repos are sources of ideas, not dependencies.",
+    "sync_frequency": "as-needed"
   },
-  {
-    "name": "voltagent-subagents",
-    "repo": "VoltAgent/awesome-claude-code-subagents",
-    "branch": "main",
-    "paths": ["subagents/"],
-    "last_synced_commit": null,
-    "maps_to": ["bosun-golang", "bosun-typescript", "bosun-python", "bosun-security"]
-  },
-  {
-    "name": "claude-design-engineer",
-    "repo": "Dammyjay93/claude-design-engineer",
-    "branch": "main",
-    "paths": [".claude/"],
-    "last_synced_commit": null,
-    "maps_to": ["bosun-ux-ui"]
-  }
-]
+  "sources": [
+    {
+      "name": "superpowers",
+      "repo": "obra/superpowers",
+      "branch": "main",
+      "paths": ["skills/"],
+      "last_reviewed": "2025-01-15",
+      "last_synced_commit": null,
+      "status": "curated",
+      "maps_to": ["bosun-architect"],
+      "notes": "Architecture patterns and workflow design inspiration. Skills independently written based on reviewed concepts."
+    },
+    {
+      "name": "voltagent-subagents",
+      "repo": "VoltAgent/awesome-claude-code-subagents",
+      "branch": "main",
+      "paths": ["subagents/"],
+      "last_reviewed": "2025-01-15",
+      "last_synced_commit": null,
+      "status": "curated",
+      "maps_to": ["bosun-golang", "bosun-typescript", "bosun-python", "bosun-security"],
+      "notes": "Language specialist patterns and security concepts. Skills independently written with Bosun-specific enhancements."
+    },
+    {
+      "name": "claude-design-engineer",
+      "repo": "Dammyjay93/claude-design-engineer",
+      "branch": "main",
+      "paths": [".claude/"],
+      "last_reviewed": "2025-01-15",
+      "last_synced_commit": null,
+      "status": "curated",
+      "maps_to": ["bosun-ux-ui"],
+      "notes": "UX/UI and accessibility patterns. Skills independently written with WCAG compliance focus."
+    }
+  ]
+}

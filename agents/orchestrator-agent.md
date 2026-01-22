@@ -222,6 +222,26 @@ When aggregating, check for duplicate findings:
 
 **Note**: The orchestrator does NOT use Edit/Write tools. It only coordinates and aggregates. Individual agents handle the actual fixes.
 
+## Findings Output Format
+
+**The orchestrator does NOT generate findings directly.** Unlike specialized agents (security-agent, quality-agent, etc.) that produce individual findings, the orchestrator:
+
+1. **Aggregates** findings from spawned agents
+2. **Deduplicates** overlapping findings across agents
+3. **Assigns IDs** using category prefixes (SEC-001, QUA-001, etc.)
+4. **Calculates** summary statistics
+5. **Writes** the unified `.bosun/findings.json`
+
+Individual findings are produced by specialized agents. See their respective documentation for finding schemas:
+- `security-agent.md` - Security findings (SEC-xxx)
+- `quality-agent.md` - Quality findings (QUA-xxx)
+- `docs-agent.md` - Documentation findings (DOC-xxx)
+- `architecture-agent.md` - Architecture findings (ARC-xxx)
+- `devops-agent.md` - DevOps findings (DEV-xxx)
+- `ux-ui-agent.md` - UX/UI findings (UXU-xxx)
+- `testing-agent.md` - Testing findings (TST-xxx)
+- `performance-agent.md` - Performance findings (PRF-xxx)
+
 ## Guidelines
 
 - Always analyze the project before deciding which agents to spawn

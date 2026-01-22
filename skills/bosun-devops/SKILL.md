@@ -463,74 +463,11 @@ spec:
 | External Secrets | External vault | Medium | Production |
 | HashiCorp Vault | Full encryption | High | Enterprise |
 
-## GitOps Workflow
-
-```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│   Git Repo  │───▶│   ArgoCD    │───▶│  Kubernetes │
-│  (Source)   │    │  (Sync)     │    │  (Target)   │
-└─────────────┘    └─────────────┘    └─────────────┘
-       │                  │
-       │    Reconciliation Loop
-       │                  │
-       └──────────────────┘
-```
-
-### ArgoCD Application
-
-```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: myapp
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/org/manifests
-    targetRevision: HEAD
-    path: apps/myapp
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: myapp
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-```
-
-## Quick Reference
-
-### Security Scanning Tools
-
-| Tool | Purpose | Command |
-|------|---------|---------|
-| Trivy | Container vulnerabilities | `trivy image myapp:latest` |
-| tfsec | Terraform security | `tfsec .` |
-| checkov | IaC policy | `checkov -d .` |
-| kubesec | K8s manifests | `kubesec scan pod.yaml` |
-| kube-bench | CIS benchmarks | `kube-bench run` |
-| Falco | Runtime security | Runtime monitoring |
-
-### Common Port Numbers
-
-| Service | Port |
-|---------|------|
-| HTTP | 80 |
-| HTTPS | 443 |
-| SSH | 22 |
-| PostgreSQL | 5432 |
-| MySQL | 3306 |
-| Redis | 6379 |
-| MongoDB | 27017 |
-| Prometheus | 9090 |
-| Grafana | 3000 |
-
 ## References
 
 See `references/` directory for detailed documentation:
+- `quick-reference.md` - Security scanning tools, common ports, CLI commands
+- `gitops.md` - GitOps patterns, ArgoCD, Flux configurations
 - `docker/` - Dockerfile patterns and security
 - `iac-best-practices/` - Terraform, K8s, Helm, CloudFormation guides
 - `iac-policies/` - Security policies for IaC tools
