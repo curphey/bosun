@@ -1,6 +1,6 @@
 ---
 name: bosun-java
-description: "Java development process and modern practices review. Use when writing or reviewing Java code. Guides Spring Boot patterns, modern Java features, and enterprise best practices."
+description: "Java development process and modern practices review. Use when writing Java code, reviewing Java PRs, working with Spring Boot applications, implementing design patterns, or setting up project structure. Also use when code uses mutable state everywhere, null checks are scattered, Optional is misused, field injection is used, or old Java patterns persist. Essential for records, sealed classes, pattern matching, JUnit 5, Mockito, and modern Java (17+) features."
 ---
 
 # Java Skill
@@ -10,22 +10,6 @@ description: "Java development process and modern practices review. Use when wri
 Modern Java is expressive and powerful. This skill guides writing clean, maintainable Java that leverages modern language features and frameworks properly.
 
 **Core principle:** Favor immutability and composition. Modern Java (17+) provides the tools—records, sealed classes, pattern matching—use them.
-
-## When to Use
-
-Use this skill when you're about to:
-- Write new Java code
-- Review Java for best practices
-- Work with Spring Boot applications
-- Implement design patterns
-- Set up project structure
-
-**Use this ESPECIALLY when:**
-- Code uses mutable state everywhere
-- Null checks are scattered throughout
-- Optional is misused (`.get()`, `.isPresent()`)
-- Field injection is used instead of constructor
-- Old Java patterns persist (pre-Java 8)
 
 ## The Java Development Process
 

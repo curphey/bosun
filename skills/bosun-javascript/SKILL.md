@@ -1,6 +1,6 @@
 ---
 name: bosun-javascript
-description: "JavaScript development process and code review. Use when writing or reviewing JavaScript code. Guides modern JS best practices and common pitfall avoidance."
+description: "JavaScript development process and code review. Use when writing JavaScript code, reviewing JavaScript PRs, debugging unexpected behavior, configuring ESLint and Prettier, or setting up testing. Also use when code uses `==` instead of `===`, variables are reassigned frequently, async code isn't awaited, error handling is missing, or module systems are mixed. Essential for ES6+ features, async/await patterns, nullish coalescing, and common JavaScript gotchas."
 ---
 
 # JavaScript Skill
@@ -10,22 +10,6 @@ description: "JavaScript development process and code review. Use when writing o
 JavaScript's flexibility is both its strength and weakness. This skill guides writing predictable, maintainable JavaScript that avoids common pitfalls.
 
 **Core principle:** Explicit is better than implicit. JavaScript's type coercion and dynamic nature require discipline to write reliably.
-
-## When to Use
-
-Use this skill when you're about to:
-- Write new JavaScript code
-- Review JavaScript for quality
-- Debug unexpected behavior
-- Configure linting and formatting
-- Set up testing
-
-**Use this ESPECIALLY when:**
-- Code uses `==` instead of `===`
-- Variables are reassigned frequently
-- Async code isn't properly awaited
-- Error handling is missing
-- Code mixes module systems
 
 ## The JavaScript Development Process
 

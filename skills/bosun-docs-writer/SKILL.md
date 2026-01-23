@@ -1,6 +1,6 @@
 ---
 name: bosun-docs-writer
-description: "Documentation review and writing process. Use when creating or reviewing documentation. Guides systematic documentation that serves readers, not writers."
+description: "Documentation review and writing process. Use when writing or reviewing README files, API documentation, changelogs, or code comments. Also use when documentation is longer than the code it explains, readers need to read everything to find anything, comments explain what code does instead of why, or README doesn't show how to get started quickly. Essential for documentation PRs and technical writing reviews."
 ---
 
 # Documentation Skill
@@ -10,21 +10,6 @@ description: "Documentation review and writing process. Use when creating or rev
 Documentation exists to help readers, not to showcase what the writer knows. This skill guides writing clear, useful documentation that people actually read.
 
 **Core principle:** Write for the reader who needs to get something done. Answer their questions before they ask.
-
-## When to Use
-
-Use this skill when you're about to:
-- Write or review README files
-- Create API documentation
-- Maintain changelogs
-- Write code comments
-- Review documentation PRs
-
-**Use this ESPECIALLY when:**
-- Documentation is longer than the code it explains
-- Readers need to read everything to find anything
-- Comments explain what code does, not why
-- README doesn't show how to get started in 30 seconds
 
 ## The Documentation Process
 

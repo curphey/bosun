@@ -1,6 +1,6 @@
 ---
 name: bosun-aws
-description: "AWS infrastructure security review process. Use when reviewing IAM policies, S3 buckets, Lambda, CloudFormation, or any AWS resources. Guides systematic security assessment of AWS deployments."
+description: "AWS infrastructure security review process. Use when reviewing IAM policies and roles, auditing S3 bucket configurations, securing Lambda functions, reviewing CloudFormation/CDK/Terraform, or configuring VPC and security groups. Also use when IAM policies use wildcards, S3 buckets might be public, Lambda has broad permissions, security groups allow 0.0.0.0/0, or secrets appear in environment variables. Essential for KMS encryption, Secrets Manager, least privilege, and AWS security scanning with Prowler or Checkov."
 ---
 
 # AWS Skill
@@ -10,22 +10,6 @@ description: "AWS infrastructure security review process. Use when reviewing IAM
 AWS's shared responsibility model means security is YOUR job, not Amazon's. This skill guides systematic review of AWS infrastructure for security misconfigurations—the #1 cause of cloud breaches.
 
 **Core principle:** Default deny everything. AWS resources should have no access unless explicitly granted, no network exposure unless required, and no permissions beyond the minimum needed.
-
-## When to Use
-
-Use this skill when you're about to:
-- Review IAM policies and roles
-- Audit S3 bucket configurations
-- Secure Lambda functions
-- Review CloudFormation/CDK/Terraform
-- Configure VPC and security groups
-
-**Use this ESPECIALLY when:**
-- IAM policies use `*` for actions or resources
-- S3 buckets might be public
-- Lambda functions have broad permissions
-- Security groups allow 0.0.0.0/0
-- Secrets appear in environment variables
 
 ## The AWS Security Review Process
 

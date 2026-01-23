@@ -1,6 +1,6 @@
 ---
 name: bosun-export-findings
-description: "Export Bosun findings to various formats. Use when exporting audit findings, generating reports from findings.json, creating CSV exports, or formatting findings for stakeholders. Guides transformation of findings into actionable outputs."
+description: "Export Bosun findings to various formats. Use when exporting audit findings for stakeholders, generating reports from findings.json, creating CSV exports for tracking, or formatting findings for documentation. Also use when sharing findings outside Claude, creating executive summaries, generating HTML reports, or integrating findings with external systems. Guides transformation of findings into actionable outputs for different audiences."
 ---
 
 # Export Findings
@@ -10,15 +10,6 @@ description: "Export Bosun findings to various formats. Use when exporting audit
 Findings are only useful if they reach the right people in the right format. This skill guides export of Bosun findings to various formats for different audiences and integrations.
 
 **Core principle:** Match the format to the audience. Developers want details, executives want summaries.
-
-## When to Use
-
-Use this skill when you're about to:
-- Export findings for stakeholders
-- Generate a report from findings.json
-- Create a CSV for tracking
-- Format findings for documentation
-- Share findings outside Claude
 
 ## The Export Process
 

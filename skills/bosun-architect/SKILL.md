@@ -1,6 +1,6 @@
 ---
 name: bosun-architect
-description: "Architecture review and design process. Use when designing systems, reviewing structure, or making architectural decisions. Guides systematic evaluation of design trade-offs before implementation."
+description: "Architecture review and design process. Use when designing new systems or major features, reviewing code structure, making decisions about patterns or frameworks, creating or reviewing Architecture Decision Records (ADRs), or evaluating technical debt. Also use when changes affect multiple components, decisions are hard to reverse (database schema, API contracts), choosing between competing patterns, or when complexity is increasing without clear benefit. Essential for SOLID principles, design patterns, API design, and microservices vs monolith decisions."
 ---
 
 # Architecture Review Skill
@@ -10,22 +10,6 @@ description: "Architecture review and design process. Use when designing systems
 Architecture decisions are expensive to change later. This skill guides systematic architectural review and design before committing to implementation.
 
 **Core principle:** Understand trade-offs BEFORE building. The cheapest architecture change is the one made before code is written.
-
-## When to Use
-
-Use this skill when you're about to:
-- Design a new system or major feature
-- Review code structure and organization
-- Make decisions about patterns or frameworks
-- Create or review Architecture Decision Records (ADRs)
-- Evaluate technical debt and refactoring options
-
-**Use this ESPECIALLY when:**
-- Change affects multiple components or teams
-- Decision is hard to reverse (database schema, API contracts)
-- You're choosing between competing patterns
-- Someone says "let's just refactor later"
-- Complexity is increasing without clear benefit
 
 ## The Architecture Review Process
 

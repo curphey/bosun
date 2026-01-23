@@ -1,6 +1,6 @@
 ---
 name: bosun-project-auditor
-description: "Project health assessment process. Use when auditing project setup, evaluating technical debt, or assessing codebase health. Guides systematic evaluation of project infrastructure."
+description: "Project health assessment process. Use when auditing project setup, evaluating technical debt, assessing codebase health, or reviewing project configuration. Also use when joining a new project, builds are slow or flaky, experiencing 'works on my machine' problems, security scans find issues, or dependencies are years out of date. Essential for dependency audits, CI/CD reviews, and project infrastructure evaluation."
 ---
 
 # Project Auditor Skill
@@ -10,22 +10,6 @@ description: "Project health assessment process. Use when auditing project setup
 A healthy project is one where developers can ship confidently. This skill guides systematic assessment of project health—configuration, dependencies, CI/CD, and technical debt.
 
 **Core principle:** Audit to enable, not to blame. Find issues that slow the team down and prioritize fixes by impact.
-
-## When to Use
-
-Use this skill when you're about to:
-- Audit a new or inherited project
-- Assess technical debt
-- Review project configuration
-- Evaluate dependency health
-- Set up a new project properly
-
-**Use this ESPECIALLY when:**
-- Joining a new project
-- Builds are slow or flaky
-- "Works on my machine" problems occur
-- Security scan finds issues
-- Dependencies are years out of date
 
 ## The Audit Process
 

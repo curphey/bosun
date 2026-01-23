@@ -1,6 +1,6 @@
 ---
 name: bosun-testing
-description: "Test-first development process and test quality review. Use when writing code, reviewing tests, or diagnosing test issues. Guides systematic test creation before implementation."
+description: "Test-first development process and test quality review. Use when writing new code, reviewing PRs, diagnosing flaky or failing tests, or improving test coverage. Also use when fixing bugs (write failing test first), adding features (test defines 'done'), or when tests pass but code doesn't work. Essential for TDD, test pyramid strategy, mocking decisions, AAA pattern, table-driven tests, and handling flaky tests."
 ---
 
 # Testing Skill
@@ -10,21 +10,6 @@ description: "Test-first development process and test quality review. Use when w
 Tests written after code pass immediately—proving nothing. This skill guides test-first development and systematic test quality review.
 
 **Core principle:** Write the test FIRST. Watch it fail. Then write code to pass. If you didn't see it fail, you don't know it tests the right thing.
-
-## When to Use
-
-Use this skill when you're about to:
-- Write any new code (feature, bugfix, refactor)
-- Review a PR or code change
-- Diagnose flaky or failing tests
-- Improve test coverage
-
-**Use this ESPECIALLY when:**
-- Fixing a bug (write failing test first!)
-- Adding a feature (test defines "done")
-- Someone says "I'll add tests later"
-- Tests pass but code doesn't work
-- Tests are flaky or slow
 
 ## The Test-First Process
 

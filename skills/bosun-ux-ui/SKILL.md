@@ -1,6 +1,6 @@
 ---
 name: bosun-ux-ui
-description: "UX/UI review process and accessibility assessment. Use when reviewing UI implementations, evaluating usability, or implementing accessibility. Guides systematic WCAG compliance and usability heuristics."
+description: "UX/UI review process and accessibility assessment. Use when reviewing UI implementations, implementing WCAG accessibility, creating design system components, evaluating usability, or building responsive designs. Also use when images lack alt text, color is the only way to convey information, interactive elements aren't keyboard accessible, form inputs lack labels, or focus states are missing. Essential for accessibility audits, a11y compliance, and usability heuristic evaluations."
 ---
 
 # UX/UI Skill
@@ -10,22 +10,6 @@ description: "UX/UI review process and accessibility assessment. Use when review
 Good UX is invisible. Users should accomplish their goals without thinking about the interface. This skill guides systematic review of UI implementations for accessibility, usability, and consistency.
 
 **Core principle:** Accessibility is not optional. WCAG compliance is a legal requirement in many jurisdictions and benefits all users—not just those with disabilities.
-
-## When to Use
-
-Use this skill when you're about to:
-- Review UI implementations
-- Implement accessibility (WCAG)
-- Create design system components
-- Evaluate usability
-- Build responsive designs
-
-**Use this ESPECIALLY when:**
-- No alt text on images
-- Color is the only way to convey information
-- Interactive elements aren't keyboard accessible
-- Form inputs lack labels
-- Focus states are missing or hidden
 
 ## The UX/UI Review Process
 

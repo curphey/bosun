@@ -1,6 +1,6 @@
 ---
 name: bosun-threat-model
-description: "Threat modeling methodology and risk assessment process. Use when performing STRIDE analysis, creating attack trees, or assessing risk. Guides systematic threat identification before code review."
+description: "Threat modeling methodology and risk assessment process. Use when designing new features, reviewing architecture for security, performing STRIDE analysis, creating attack trees, or assessing risk with CVSS/DREAD. Also use when authentication/authorization is added, data flows cross trust boundaries, third-party integrations are introduced, sensitive data handling changes, or analyzing security incidents. Essential for data flow diagrams and security design reviews."
 ---
 
 # Threat Model Skill
@@ -10,22 +10,6 @@ description: "Threat modeling methodology and risk assessment process. Use when 
 Threat modeling finds security issues before code is written. This skill guides systematic identification of threats through structured analysis—because finding vulnerabilities in design is 100x cheaper than finding them in production.
 
 **Core principle:** Think like an attacker, document like an engineer. Threat modeling isn't about paranoia—it's about systematic analysis of what could go wrong.
-
-## When to Use
-
-Use this skill when you're about to:
-- Design a new feature or system
-- Review architecture for security
-- Perform STRIDE threat analysis
-- Create attack trees
-- Assess risk (CVSS, DREAD)
-
-**Use this ESPECIALLY when:**
-- New authentication or authorization is added
-- Data flows cross trust boundaries
-- Third-party integrations are introduced
-- Sensitive data handling changes
-- A security incident requires root cause analysis
 
 ## The Threat Modeling Process
 

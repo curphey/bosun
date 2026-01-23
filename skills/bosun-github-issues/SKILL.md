@@ -1,6 +1,6 @@
 ---
 name: bosun-github-issues
-description: "GitHub issues management and best practices. Use when auditing issue quality, creating issue templates, adding acceptance criteria, improving issue workflows, or coaching teams on issue management. Guides systematic improvement of issue hygiene."
+description: "GitHub issues management and best practices. Use when auditing issue quality, creating issue templates, adding acceptance criteria, improving issue workflows, or coaching teams on issue hygiene. Also use for setting up labels, reviewing stale issues, writing user stories, creating bug reports, or when issues lack clear titles, descriptions, or definitions of done. Essential for repository maintainers and project managers."
 ---
 
 # GitHub Issues Management
@@ -10,16 +10,6 @@ description: "GitHub issues management and best practices. Use when auditing iss
 Good issues drive good software. Bad issues waste everyone's time. This skill guides systematic improvement of GitHub issue management - from individual issue quality to repository-wide workflows.
 
 **Core principle:** Every issue should be actionable. If someone can't start working from the issue alone, it's not ready.
-
-## When to Use
-
-Use this skill when you're about to:
-- Audit issue quality in a repository
-- Create or improve issue templates
-- Add acceptance criteria to issues
-- Set up labels and workflows
-- Review stale or abandoned issues
-- Coach a team on issue best practices
 
 ## The Issue Management Process
 

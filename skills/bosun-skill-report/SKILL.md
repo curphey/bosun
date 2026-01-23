@@ -1,6 +1,6 @@
 ---
 name: bosun-skill-report
-description: "Skill coverage and health reporting for Bosun. Use when generating skill reports, analyzing skill coverage, reviewing skill health metrics, or auditing reference completeness. Guides systematic analysis of skills and their relationships."
+description: "Skill coverage and health reporting for Bosun. Use when generating skill reports, analyzing skill coverage gaps, reviewing skill health metrics, or auditing reference completeness. Also use when planning skill improvements, reporting on plugin status, checking agent-to-skill mappings, identifying orphaned skills, or measuring skill quality over time. Essential for plugin maintainers and Bosun development planning."
 ---
 
 # Skill Report
@@ -10,15 +10,6 @@ description: "Skill coverage and health reporting for Bosun. Use when generating
 Understanding skill coverage helps prioritize improvements. This skill guides generation of comprehensive reports on Bosun's skills - their health, coverage, and relationships.
 
 **Core principle:** Measure what matters. Good metrics drive good decisions.
-
-## When to Use
-
-Use this skill when you're about to:
-- Generate a skill health report
-- Analyze skill coverage gaps
-- Review reference completeness
-- Plan skill improvements
-- Report on plugin status
 
 ## The Reporting Process
 

@@ -1,6 +1,6 @@
 ---
 name: bosun-golang
-description: "Go development process and idiomatic code review. Use when writing or reviewing Go code. Guides systematic Go best practices including error handling and concurrency."
+description: "Go development process and idiomatic code review. Use when writing Go code, reviewing Go PRs, implementing concurrency with goroutines/channels, debugging Go race conditions, or fixing Go error handling. Also use for Go project setup, module management, interface design, context usage, and when errors are being ignored, goroutines lack coordination, or code feels 'clever' instead of clear. Essential for Go API design and fighting borrow-checker-like constraints."
 ---
 
 # Go Skill
@@ -10,22 +10,6 @@ description: "Go development process and idiomatic code review. Use when writing
 Go's simplicity is intentional. This skill guides writing idiomatic Go that embraces the language's philosophy: clear is better than clever.
 
 **Core principle:** Don't fight the language. Go's constraints (explicit error handling, no generics abuse, simple concurrency) lead to better code.
-
-## When to Use
-
-Use this skill when you're about to:
-- Write new Go code
-- Review Go for idiomatic patterns
-- Implement concurrency
-- Design APIs and interfaces
-- Debug Go applications
-
-**Use this ESPECIALLY when:**
-- Errors are being ignored or swallowed
-- Goroutines are spawned without coordination
-- Interfaces are too large
-- Code feels "clever" instead of clear
-- Someone is fighting Go's conventions
 
 ## The Go Development Process
 

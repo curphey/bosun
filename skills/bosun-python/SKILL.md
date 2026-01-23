@@ -1,6 +1,6 @@
 ---
 name: bosun-python
-description: "Python development process and code quality review. Use when writing or reviewing Python code. Guides systematic Pythonic development practices."
+description: "Python development process and code quality review. Use when writing Python code, reviewing Python PRs, adding type hints, debugging Python issues, or setting up Python project tooling with pyproject.toml. Also use when code is 'clever' but hard to read, type hints are missing, bare except clauses appear, mutable default arguments are used, or code could be more Pythonic. Essential for async/await patterns, dataclasses, comprehensions, context managers, and mypy configuration."
 ---
 
 # Python Skill
@@ -10,22 +10,6 @@ description: "Python development process and code quality review. Use when writi
 Python's readability is its strength. This skill guides writing idiomatic Python that's clear, maintainable, and follows community standards.
 
 **Core principle:** Explicit is better than implicit. Readability counts. If the implementation is hard to explain, it's a bad idea.
-
-## When to Use
-
-Use this skill when you're about to:
-- Write new Python code
-- Review Python for best practices
-- Add type hints to existing code
-- Debug Python issues
-- Set up Python project tooling
-
-**Use this ESPECIALLY when:**
-- Code is "clever" but hard to read
-- Type hints are missing or incomplete
-- Bare except clauses appear
-- Mutable default arguments are used
-- Code could be more Pythonic
 
 ## The Pythonic Development Process
 

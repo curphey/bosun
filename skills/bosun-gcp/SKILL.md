@@ -1,6 +1,6 @@
 ---
 name: bosun-gcp
-description: "GCP infrastructure security review process. Use when reviewing IAM policies, Cloud Storage, Cloud Functions, Cloud Run, or Terraform for GCP. Guides systematic security assessment of GCP deployments."
+description: "GCP infrastructure security review process. Use when reviewing IAM policies and service accounts, auditing Cloud Storage buckets, securing Cloud Functions and Cloud Run, reviewing Terraform for GCP, or configuring VPC and firewall rules. Also use when primitive roles (owner/editor/viewer) are used, `allUsers` appears in bindings, default service accounts are used, or Cloud SQL has public IP. Essential for Workload Identity, VPC Service Controls, organization policies, and GCP security scanning."
 ---
 
 # GCP Skill
@@ -10,22 +10,6 @@ description: "GCP infrastructure security review process. Use when reviewing IAM
 GCP's resource hierarchy provides powerful security controls, but defaults are often permissive. This skill guides systematic review of GCP infrastructure for security misconfigurations.
 
 **Core principle:** Never use primitive roles. GCP's predefined and custom roles exist for a reason. `roles/owner`, `roles/editor`, and `roles/viewer` are almost never appropriate.
-
-## When to Use
-
-Use this skill when you're about to:
-- Review GCP IAM policies and service accounts
-- Audit Cloud Storage bucket configurations
-- Secure Cloud Functions and Cloud Run
-- Review Terraform configurations for GCP
-- Configure VPC and firewall rules
-
-**Use this ESPECIALLY when:**
-- Primitive roles (owner/editor/viewer) are used
-- `allUsers` or `allAuthenticatedUsers` appear in bindings
-- Default service accounts are used
-- Firewall rules allow 0.0.0.0/0
-- Cloud SQL has public IP enabled
 
 ## The GCP Security Review Process
 

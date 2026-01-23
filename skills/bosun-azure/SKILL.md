@@ -1,6 +1,6 @@
 ---
 name: bosun-azure
-description: "Azure infrastructure security review process. Use when reviewing RBAC, Storage accounts, Azure Functions, App Service, or Bicep/ARM templates. Guides systematic security assessment of Azure deployments."
+description: "Azure infrastructure security review process. Use when reviewing RBAC and managed identities, auditing Storage account configurations, securing Azure Functions and App Service, reviewing Bicep/ARM templates or Terraform, or configuring VNet and NSGs. Also use when service principals use secrets, Storage allows public blob access, Azure SQL uses SQL auth instead of Azure AD, or NSG rules allow 0.0.0.0/0. Essential for Key Vault integration, Microsoft Defender, private endpoints, and Azure security scanning."
 ---
 
 # Azure Skill
@@ -10,22 +10,6 @@ description: "Azure infrastructure security review process. Use when reviewing R
 Azure provides strong security controls, but they must be explicitly configured. This skill guides systematic review of Azure infrastructure for security misconfigurations.
 
 **Core principle:** Use managed identities, not service principal secrets. Azure AD authentication with managed identities eliminates credential management and reduces attack surface.
-
-## When to Use
-
-Use this skill when you're about to:
-- Review Azure RBAC and managed identities
-- Audit Storage account configurations
-- Secure Azure Functions and App Service
-- Review Bicep/ARM templates or Terraform
-- Configure VNet and network security groups
-
-**Use this ESPECIALLY when:**
-- Service principals use secrets instead of managed identities
-- Storage accounts allow public blob access
-- Azure SQL uses SQL authentication instead of Azure AD
-- NSG rules allow 0.0.0.0/0
-- Secrets appear in application settings
 
 ## The Azure Security Review Process
 

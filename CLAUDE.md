@@ -152,6 +152,20 @@ bosun/
 - Commands: `{verb}` (e.g., `audit`)
 - Scripts: See "Script Language Strategy" section for naming conventions
 
+### Reference File Naming
+Reference files in `skills/*/references/` should use **topic-based naming**:
+
+| Pattern | Example | Use For |
+|---------|---------|---------|
+| `{topic}.md` | `owasp-top-10.md` | Single topic reference |
+| `{topic}-patterns.md` | `async-patterns.md` | Pattern collections |
+| `{topic}-guide.md` | `migration-guide.md` | How-to guides |
+| `{topic}-checklist.md` | `wcag-checklist.md` | Verification lists |
+
+**Avoid:** Generic names like `{skill}-research.md` - these don't describe content.
+
+Files must be cited in the skill's References section to be discoverable.
+
 ## Git Workflow
 
 ### Branches

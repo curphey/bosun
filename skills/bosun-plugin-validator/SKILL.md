@@ -1,6 +1,6 @@
 ---
 name: bosun-plugin-validator
-description: "Full plugin validation process for Bosun. Use when validating the entire plugin, checking plugin health, auditing agents and skills together, or preparing for release. Guides systematic validation of manifest, agents, skills, and commands."
+description: "Full plugin validation process for Bosun. Use when validating the entire plugin, checking plugin health, auditing agents and skills together, or preparing for release. Also use when checking cross-references between components, validating after major changes, onboarding to the Bosun codebase, or ensuring manifest, agents, skills, and commands work together. Essential before publishing or version bumps."
 ---
 
 # Plugin Validator
@@ -10,15 +10,6 @@ description: "Full plugin validation process for Bosun. Use when validating the 
 A valid plugin is a working plugin. This skill guides systematic validation of the entire Bosun plugin - manifest, agents, skills, and commands - and their cross-references.
 
 **Core principle:** Validate the whole, not just the parts. Components must work together.
-
-## When to Use
-
-Use this skill when you're about to:
-- Prepare Bosun for release
-- Audit the full plugin health
-- Check cross-references between components
-- Validate after major changes
-- Onboard to the Bosun codebase
 
 ## The Validation Process
 

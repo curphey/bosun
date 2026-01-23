@@ -1,6 +1,6 @@
 ---
 name: bosun-seo-llm
-description: "SEO and LLM optimization review process. Use when optimizing content for search engines and AI systems, implementing structured data, or improving discoverability. Guides systematic content optimization."
+description: "SEO and LLM optimization review process. Use when optimizing web content for search engines, implementing Schema.org structured data, making content LLM-friendly, or improving meta tags and descriptions. Also use when pages lack meta descriptions, no structured data is present, headings don't form logical hierarchy, content is hard to extract programmatically, or important content is hidden in JavaScript. Essential for sitemap setup, robots.txt configuration, and content discoverability."
 ---
 
 # SEO/LLM Skill
@@ -10,22 +10,6 @@ description: "SEO and LLM optimization review process. Use when optimizing conte
 Search engines and LLMs are your content's primary distributors. This skill guides systematic optimization of content for both traditional search and AI understanding.
 
 **Core principle:** Write for humans first, structure for machines second. If content isn't useful to humans, no amount of optimization helps. But structure helps machines surface good content.
-
-## When to Use
-
-Use this skill when you're about to:
-- Optimize web content for search engines
-- Implement structured data (Schema.org)
-- Make content LLM-friendly
-- Improve meta tags and descriptions
-- Set up sitemaps and robots.txt
-
-**Use this ESPECIALLY when:**
-- Pages lack meta descriptions
-- No structured data is present
-- Content is hard to extract programmatically
-- Headings don't form a logical hierarchy
-- Important content is hidden in JavaScript
 
 ## The SEO/LLM Optimization Process
 

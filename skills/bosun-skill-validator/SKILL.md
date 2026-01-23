@@ -1,6 +1,6 @@
 ---
 name: bosun-skill-validator
-description: "Skill validation process for Bosun plugin skills. Use when validating skills, checking skill quality, reviewing skill structure, or auditing skill references. Guides systematic validation of SKILL.md files against Bosun conventions."
+description: "Skill validation process for Bosun plugin skills. Use when validating skills, checking skill quality, reviewing skill structure, or auditing skill references. Also use when creating a new Bosun skill, checking frontmatter format, validating referenced files exist, ensuring skills follow naming conventions, or auditing all skills before release. Essential for skill authors and plugin quality assurance."
 ---
 
 # Skill Validator
@@ -10,15 +10,6 @@ description: "Skill validation process for Bosun plugin skills. Use when validat
 Skills are Bosun's knowledge packages. Invalid skills break the plugin. This skill guides systematic validation of Bosun skills before they ship.
 
 **Core principle:** Validate early, validate often. A malformed skill wastes everyone's time.
-
-## When to Use
-
-Use this skill when you're about to:
-- Create a new Bosun skill
-- Review an existing skill for quality
-- Audit all skills in the plugin
-- Check if referenced files exist
-- Validate skill frontmatter
 
 ## The Validation Process
 

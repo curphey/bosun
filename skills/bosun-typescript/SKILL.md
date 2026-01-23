@@ -1,6 +1,6 @@
 ---
 name: bosun-typescript
-description: "TypeScript development process and type safety review. Use when writing or reviewing TypeScript code. Guides systematic type-safe development practices."
+description: "TypeScript development process and type safety review. Use when writing TypeScript code, reviewing TypeScript PRs for type safety, configuring tsconfig.json or ESLint, debugging type errors, or migrating JavaScript to TypeScript. Also use when encountering `any` types, type assertions (`as Type`), runtime type checking, `@ts-ignore` comments, or when types feel 'too complex'. Essential for discriminated unions, generics, conditional types, and strict mode configuration."
 ---
 
 # TypeScript Skill
@@ -10,22 +10,6 @@ description: "TypeScript development process and type safety review. Use when wr
 TypeScript's value comes from catching errors at compile time, not runtime. This skill guides systematic use of TypeScript's type system for safer, more maintainable code.
 
 **Core principle:** If TypeScript can't verify it, neither can you. Use the type system to make invalid states unrepresentable.
-
-## When to Use
-
-Use this skill when you're about to:
-- Write new TypeScript code
-- Review TypeScript for type safety
-- Configure TypeScript or ESLint
-- Debug type errors
-- Refactor JavaScript to TypeScript
-
-**Use this ESPECIALLY when:**
-- Using `any` type (find a better type)
-- Type assertions (`as Type`) appear
-- Runtime type checking exists (TypeScript should handle it)
-- Someone says "the types are too complex"
-- Code has `// @ts-ignore` comments
 
 ## The Type-Safe Development Process
 

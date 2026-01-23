@@ -1,6 +1,6 @@
 ---
 name: bosun-devops
-description: "DevOps and infrastructure review process. Use when reviewing Dockerfiles, CI/CD pipelines, Kubernetes configs, or IaC. Guides systematic infrastructure security and reliability review."
+description: "DevOps and infrastructure review process. Use when reviewing Dockerfiles, analyzing Kubernetes manifests, evaluating Terraform or CloudFormation, reviewing CI/CD pipelines, or setting up monitoring. Also use when containers run as root, CI/CD uses unpinned action versions, secrets appear in configs, no resource limits are set, or security scanning is missing. Essential for container security, GitOps, Helm charts, and infrastructure scanning with Trivy, Checkov, or tfsec."
 ---
 
 # DevOps Skill
@@ -10,22 +10,6 @@ description: "DevOps and infrastructure review process. Use when reviewing Docke
 Infrastructure mistakes are expensive to fix in production. This skill guides systematic review of DevOps configurations for security, reliability, and maintainability.
 
 **Core principle:** Infrastructure as code should be reviewed like application code. Security misconfigurations are the #1 cloud breach cause.
-
-## When to Use
-
-Use this skill when you're about to:
-- Review Dockerfiles or container configs
-- Analyze Kubernetes manifests
-- Evaluate Terraform or CloudFormation
-- Review CI/CD pipelines
-- Set up monitoring and alerting
-
-**Use this ESPECIALLY when:**
-- Containers run as root
-- CI/CD uses unpinned action versions
-- Secrets appear in configs or logs
-- No resource limits are set
-- Security scanning is missing
 
 ## The DevOps Review Process
 

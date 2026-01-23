@@ -1,6 +1,6 @@
 ---
 name: bosun-security
-description: "Security review process and vulnerability prevention. Use when reviewing code for security issues, implementing auth, or handling secrets. Guides systematic security analysis before approving any code."
+description: "Security review process and vulnerability prevention. Use when reviewing code for security issues, implementing authentication or authorization, handling user input or secrets, adding API endpoints, or approving code that touches security boundaries. Also use for OWASP Top 10 analysis, secret scanning, dependency auditing, or when code handles forms, file uploads, sessions, tokens, database queries, or shell commands. Essential when someone says 'it's just a small change.'"
 ---
 
 # Security Review Skill
@@ -10,22 +10,6 @@ description: "Security review process and vulnerability prevention. Use when rev
 Security issues are cheap to prevent, expensive to fix after deployment. This skill guides systematic security review before code ships.
 
 **Core principle:** Every code change is a potential security change. Review security implications BEFORE approving.
-
-## When to Use
-
-Use this skill when you're about to:
-- Review any PR or code change
-- Implement authentication or authorization
-- Handle user input, secrets, or sensitive data
-- Add new API endpoints or external integrations
-- Approve code that touches security boundaries
-
-**Use this ESPECIALLY when:**
-- Code handles user input (forms, APIs, file uploads)
-- Code touches authentication, sessions, or tokens
-- Code includes database queries or shell commands
-- Code manages secrets, keys, or credentials
-- Someone says "it's just a small change"
 
 ## The Security Review Process
 

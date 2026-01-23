@@ -1,6 +1,6 @@
 ---
 name: bosun-rust
-description: "Rust development process and idiomatic code review. Use when writing or reviewing Rust code. Guides ownership patterns, error handling, and safe concurrency."
+description: "Rust development process and idiomatic code review. Use when writing Rust code, reviewing Rust PRs, debugging ownership or lifetime issues, implementing error handling with thiserror/anyhow, or writing concurrent code. Also use when code uses `.unwrap()` liberally, Clone is used to satisfy the borrow checker, or lifetimes are explicit when they could be elided. Essential for async/await patterns, trait design, iterators, and clippy configuration."
 ---
 
 # Rust Skill
@@ -10,22 +10,6 @@ description: "Rust development process and idiomatic code review. Use when writi
 Rust's ownership system is your ally, not your enemy. This skill guides writing idiomatic Rust that works with the compiler, not against it.
 
 **Core principle:** If it compiles, it's probably correct. Rust's strictness is a feature. Don't fight the borrow checker—understand what it's telling you.
-
-## When to Use
-
-Use this skill when you're about to:
-- Write new Rust code
-- Review Rust for idiomatic patterns
-- Debug ownership or lifetime issues
-- Implement error handling
-- Write concurrent code
-
-**Use this ESPECIALLY when:**
-- Code uses `.unwrap()` liberally
-- Lifetimes are explicit when they don't need to be
-- Clone is used to "make the compiler happy"
-- Error handling is inconsistent
-- Someone is fighting the borrow checker
 
 ## The Rust Development Process
 

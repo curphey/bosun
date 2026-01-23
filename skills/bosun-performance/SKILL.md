@@ -1,6 +1,6 @@
 ---
 name: bosun-performance
-description: "Performance analysis and optimization process. Use when code is slow, reviewing for efficiency, or optimizing bottlenecks. Guides systematic performance investigation before optimization."
+description: "Performance analysis and optimization process. Use when code is slow, operations timeout, reviewing for efficiency, optimizing bottlenecks, or designing for high-load scenarios. Also use when users report slowness, someone says 'this should be faster', adding caching, or when code has nested loops. Essential for Big O analysis, N+1 query detection, database indexing, frontend Core Web Vitals, and profiling with language-specific tools."
 ---
 
 # Performance Skill
@@ -10,21 +10,6 @@ description: "Performance analysis and optimization process. Use when code is sl
 Premature optimization is the root of all evil. This skill guides systematic performance analysis—measure first, then optimize.
 
 **Core principle:** Never optimize without profiling. Guessing at bottlenecks wastes time and often makes things worse.
-
-## When to Use
-
-Use this skill when you're about to:
-- Investigate slow code or operations
-- Review code for performance issues
-- Optimize existing functionality
-- Design for high-load scenarios
-
-**Use this ESPECIALLY when:**
-- Users report slowness
-- Operations timeout
-- Someone says "this should be faster"
-- You're about to add caching "to improve performance"
-- Code has nested loops over collections
 
 ## The Performance Process
 

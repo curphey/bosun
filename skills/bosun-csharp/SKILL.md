@@ -1,6 +1,6 @@
 ---
 name: bosun-csharp
-description: "C# development process and modern practices review. Use when writing or reviewing C# code. Guides ASP.NET Core patterns, modern C# features, and .NET best practices."
+description: "C# development process and modern practices review. Use when writing C# code, reviewing C# PRs, working with ASP.NET Core applications, implementing async patterns, or setting up project structure. Also use when nullable reference types are disabled, code uses `.Result` or `.Wait()`, records aren't used for DTOs, dependency injection is misused, or LINQ is inefficient. Essential for Entity Framework Core, minimal APIs, pattern matching, and modern C# (10+) features."
 ---
 
 # C# Skill
@@ -10,22 +10,6 @@ description: "C# development process and modern practices review. Use when writi
 Modern C# is expressive and safe. This skill guides writing clean, maintainable C# that leverages nullable reference types, records, and async patterns properly.
 
 **Core principle:** Embrace null safety and immutability. C# 10+ gives you records, nullable reference types, and pattern matching—use them to make invalid states unrepresentable.
-
-## When to Use
-
-Use this skill when you're about to:
-- Write new C# code
-- Review C# for best practices
-- Work with ASP.NET Core applications
-- Implement async patterns
-- Set up project structure
-
-**Use this ESPECIALLY when:**
-- Nullable reference types are disabled
-- Code uses `.Result` or `.Wait()` on tasks
-- Records aren't used for data transfer
-- Dependency injection is misused
-- LINQ is used inefficiently
 
 ## The C# Development Process
 
