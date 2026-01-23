@@ -72,7 +72,7 @@ bosun/
 ├── commands/                 # User-triggered workflows
 │   └── audit.md              # /audit command
 ├── scripts/                  # Shell utilities
-├── references/               # Source research docs
+├── references/               # Upstream source tracking metadata
 └── assets/templates/         # Project templates
 ```
 
