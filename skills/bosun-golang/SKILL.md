@@ -1,140 +1,270 @@
 ---
 name: bosun-golang
-description: Go language best practices and idioms. Use when writing, reviewing, or debugging Go code. Provides effective Go patterns, error handling, concurrency, and testing guidance.
+description: "Go development process and idiomatic code review. Use when writing or reviewing Go code. Guides systematic Go best practices including error handling and concurrency."
 tags: [go, golang, concurrency, testing, error-handling]
 ---
 
-# Bosun Go Skill
+# Go Skill
 
-Go language knowledge base for idiomatic Go development.
+## Overview
+
+Go's simplicity is intentional. This skill guides writing idiomatic Go that embraces the language's philosophy: clear is better than clever.
+
+**Core principle:** Don't fight the language. Go's constraints (explicit error handling, no generics abuse, simple concurrency) lead to better code.
 
 ## When to Use
 
-- Writing new Go code
-- Reviewing Go code for best practices
-- Debugging Go applications
-- Setting up Go project structure
-- Implementing concurrency patterns
+Use this skill when you're about to:
+- Write new Go code
+- Review Go for idiomatic patterns
+- Implement concurrency
+- Design APIs and interfaces
+- Debug Go applications
 
-## When NOT to Use
+**Use this ESPECIALLY when:**
+- Errors are being ignored or swallowed
+- Goroutines are spawned without coordination
+- Interfaces are too large
+- Code feels "clever" instead of clear
+- Someone is fighting Go's conventions
 
-- Other languages (use appropriate language skill)
-- Security review (use bosun-security first)
-- Architecture decisions (use bosun-architect)
+## The Go Development Process
 
-## Effective Go Principles
+### Phase 1: Design Idiomatically
 
-### Error Handling
+**Before writing implementation:**
+
+1. **Think in Interfaces**
+   - What behavior does this need?
+   - Keep interfaces small (1-3 methods)
+   - Accept interfaces, return structs
+
+2. **Plan Error Handling**
+   - What can fail?
+   - How should errors propagate?
+   - What context should errors include?
+
+3. **Consider Concurrency**
+   - Is concurrency needed?
+   - Who owns the goroutine lifecycle?
+   - How will it be cancelled?
+
+### Phase 2: Implement Simply
+
+**Write Go, not Java-in-Go:**
+
+1. **Handle Errors Immediately**
+   ```go
+   // ✅ Handle and wrap errors
+   result, err := doSomething()
+   if err != nil {
+       return fmt.Errorf("doSomething failed: %w", err)
+   }
+
+   // ❌ Never ignore errors
+   result, _ := doSomething()
+   ```
+
+2. **Use Context for Cancellation**
+   ```go
+   func doWork(ctx context.Context) error {
+       select {
+       case <-ctx.Done():
+           return ctx.Err()
+       case result := <-processAsync():
+           return handleResult(result)
+       }
+   }
+   ```
+
+3. **Keep Functions Short**
+   - If it needs comments to explain, break it up
+   - Early returns reduce nesting
+   - One level of abstraction per function
+
+### Phase 3: Review for Idioms
+
+**Before approving:**
+
+1. **Check Error Handling**
+   - All errors checked?
+   - Errors wrapped with context?
+   - No panic for normal errors?
+
+2. **Check Concurrency**
+   - Goroutines have clear ownership?
+   - Channels closed by sender?
+   - Context used for cancellation?
+
+3. **Check Interfaces**
+   - Interfaces are small?
+   - Interfaces defined where used, not implemented?
+
+## Red Flags - STOP and Fix
+
+### Error Handling Red Flags
 
 ```go
-// GOOD: Check errors immediately
-result, err := doSomething()
+// Ignored error
+result, _ := something()
+
+// Panic for recoverable errors
 if err != nil {
-    return fmt.Errorf("doSomething failed: %w", err)
+    panic(err)
 }
 
-// BAD: Ignoring errors
-result, _ := doSomething()
+// Error without context
+return err  // Which operation failed?
+
+// Checking error string content
+if err.Error() == "not found" {
 ```
 
-### Naming Conventions
-
-| Type | Convention | Example |
-|------|------------|---------|
-| Package | lowercase, short | `http`, `json` |
-| Exported | PascalCase | `UserService` |
-| Unexported | camelCase | `getUserByID` |
-| Interfaces | -er suffix | `Reader`, `Writer` |
-| Acronyms | ALL CAPS | `HTTPServer`, `userID` |
-
-### Interface Design
+### Concurrency Red Flags
 
 ```go
-// GOOD: Small, focused interfaces
-type Reader interface {
-    Read(p []byte) (n int, err error)
-}
+// Goroutine without lifecycle management
+go doSomething()  // Who waits? Who cancels?
 
-// BAD: Large interfaces
-type FileSystem interface {
-    Read() // ...20 more methods
-}
+// Shared state without synchronization
+counter++  // In a goroutine
+
+// Channel without close
+for v := range ch {  // Will block forever if not closed
+
+// Sleep instead of proper synchronization
+time.Sleep(time.Second)  // Race condition waiting to happen
 ```
 
-### Concurrency Patterns
+### Design Red Flags
+
+```
+- Interface with > 5 methods (too big)
+- Package with > 10 files (break it up)
+- Function > 50 lines (simplify)
+- Nested if > 3 levels (use early returns)
+- init() functions (explicit initialization preferred)
+- Global variables (dependency injection instead)
+```
+
+## Common Rationalizations - Don't Accept These
+
+| Excuse | Reality |
+|--------|---------|
+| "The error can't happen" | It will. Handle it. |
+| "I'll add error handling later" | Later never comes. Handle now. |
+| "Channels are complicated" | Use sync primitives if simpler. |
+| "I need a big interface" | Break it into smaller ones. |
+| "Go is too verbose" | Explicit is better. Embrace it. |
+| "I need generics for this" | Do you? Concrete types often clearer. |
+
+## Go Quality Checklist
+
+Before approving Go code:
+
+- [ ] **Errors handled**: All errors checked and wrapped
+- [ ] **No panics**: Only for unrecoverable errors
+- [ ] **Context used**: Cancellation and timeouts proper
+- [ ] **Goroutines managed**: Clear ownership and lifecycle
+- [ ] **Interfaces small**: 1-3 methods each
+- [ ] **Tests table-driven**: Comprehensive test cases
+- [ ] **Linter clean**: golangci-lint passes
+
+## Quick Go Patterns
+
+### Error Wrapping
 
 ```go
-// Worker pool pattern
-func worker(jobs <-chan Job, results chan<- Result) {
-    for job := range jobs {
-        results <- process(job)
-    }
+// ✅ Wrap with context
+if err != nil {
+    return fmt.Errorf("failed to fetch user %s: %w", userID, err)
 }
 
-// Context for cancellation
-func doWork(ctx context.Context) error {
-    select {
-    case <-ctx.Done():
-        return ctx.Err()
-    case result := <-work():
-        return nil
-    }
+// Check wrapped errors
+if errors.Is(err, ErrNotFound) {
+    // Handle not found
+}
+
+var pathErr *os.PathError
+if errors.As(err, &pathErr) {
+    // Handle path error specifically
 }
 ```
 
-## Project Structure
-
-```
-myproject/
-├── cmd/
-│   └── myapp/
-│       └── main.go
-├── internal/
-│   ├── service/
-│   └── repository/
-├── pkg/           # Public libraries
-├── go.mod
-└── go.sum
-```
-
-## Testing
+### Small Interfaces
 
 ```go
-// Table-driven tests
-func TestAdd(t *testing.T) {
-    tests := []struct {
-        name     string
-        a, b     int
-        expected int
-    }{
-        {"positive", 1, 2, 3},
-        {"negative", -1, -2, -3},
-        {"zero", 0, 0, 0},
-    }
+// ✅ Interface where it's used
+type UserGetter interface {
+    GetUser(ctx context.Context, id string) (*User, error)
+}
 
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            got := Add(tt.a, tt.b)
-            if got != tt.expected {
-                t.Errorf("Add(%d, %d) = %d; want %d",
-                    tt.a, tt.b, got, tt.expected)
+func NewHandler(users UserGetter) *Handler {
+    return &Handler{users: users}
+}
+
+// ❌ Big interface at implementation
+type UserService interface {
+    GetUser(...)
+    CreateUser(...)
+    UpdateUser(...)
+    DeleteUser(...)
+    ListUsers(...)
+    // ... 10 more methods
+}
+```
+
+### Goroutine Lifecycle
+
+```go
+// ✅ Clear ownership with WaitGroup
+func processItems(ctx context.Context, items []Item) error {
+    var wg sync.WaitGroup
+    errCh := make(chan error, len(items))
+
+    for _, item := range items {
+        wg.Add(1)
+        go func(item Item) {
+            defer wg.Done()
+            if err := process(ctx, item); err != nil {
+                errCh <- err
             }
-        })
+        }(item)
     }
+
+    wg.Wait()
+    close(errCh)
+
+    // Collect errors
+    for err := range errCh {
+        return err  // Return first error
+    }
+    return nil
 }
 ```
 
-## Tools
+## Quick Commands
 
-| Tool | Purpose | Command |
-|------|---------|---------|
-| go fmt | Format code | `go fmt ./...` |
-| go vet | Static analysis | `go vet ./...` |
-| golangci-lint | Linting | `golangci-lint run` |
-| go test | Testing | `go test -race ./...` |
-| govulncheck | Security | `govulncheck ./...` |
+```bash
+# Format
+go fmt ./...
+
+# Vet
+go vet ./...
+
+# Full lint
+golangci-lint run
+
+# Test with race detector
+go test -race -cover ./...
+
+# Security scan
+govulncheck ./...
+```
 
 ## References
 
-See `references/` directory for detailed documentation:
-- `golang-research.md` - Comprehensive Go patterns
+Detailed patterns and examples in `references/`:
+- `effective-go.md` - Idiomatic Go patterns
+- `concurrency-patterns.md` - Goroutines, channels, sync
+- `error-handling.md` - Error wrapping and handling

@@ -1,314 +1,256 @@
 ---
 name: bosun-javascript
-description: JavaScript best practices and patterns. Use when writing, reviewing, or debugging JavaScript code. Provides ES6+ patterns, module systems, testing guidance, and Node.js/browser considerations.
-tags: [javascript, es6, nodejs, eslint, testing, react, vue]
+description: "JavaScript development process and code review. Use when writing or reviewing JavaScript code. Guides modern JS best practices and common pitfall avoidance."
+tags: [javascript, es6, nodejs, eslint, testing]
 ---
 
-# Bosun JavaScript Skill
+# JavaScript Skill
 
-JavaScript knowledge base for modern JS development.
+## Overview
+
+JavaScript's flexibility is both its strength and weakness. This skill guides writing predictable, maintainable JavaScript that avoids common pitfalls.
+
+**Core principle:** Explicit is better than implicit. JavaScript's type coercion and dynamic nature require discipline to write reliably.
 
 ## When to Use
 
-- Writing new JavaScript code
-- Reviewing JavaScript for quality and patterns
-- Working with ES6+ features
-- Configuring ESLint and Prettier
-- Setting up testing with Jest/Vitest/Mocha
-- Working with Node.js or browser code
+Use this skill when you're about to:
+- Write new JavaScript code
+- Review JavaScript for quality
+- Debug unexpected behavior
+- Configure linting and formatting
+- Set up testing
 
-## When NOT to Use
+**Use this ESPECIALLY when:**
+- Code uses `==` instead of `===`
+- Variables are reassigned frequently
+- Async code isn't properly awaited
+- Error handling is missing
+- Code mixes module systems
 
-- TypeScript projects (use bosun-typescript)
-- Security review (use bosun-security first)
-- Architecture decisions (use bosun-architect)
+## The JavaScript Development Process
 
-## Module Systems
+### Phase 1: Choose Patterns
 
-### ES Modules (Preferred)
+**Before writing implementation:**
+
+1. **Module System**
+   - Use ES modules (`import`/`export`) for new code
+   - CommonJS only for Node.js legacy compatibility
+   - Don't mix in the same file
+
+2. **Async Strategy**
+   - Use async/await over .then() chains
+   - Handle all promise rejections
+   - Consider Promise.all for parallel operations
+
+3. **Error Handling**
+   - Define custom error types
+   - Always catch specific errors
+   - Re-throw unexpected errors
+
+### Phase 2: Write Defensively
+
+**Avoid JavaScript's pitfalls:**
+
+1. **Use Strict Comparisons**
+   ```javascript
+   // ✅ Always use ===
+   if (value === null) { }
+
+   // ❌ Type coercion surprises
+   if (value == null) { }  // Only OK for null/undefined check
+   ```
+
+2. **Prefer const/let**
+   ```javascript
+   // ✅ Immutable by default
+   const config = { api: 'https://...' };
+
+   // ✅ let for reassignment
+   let count = 0;
+
+   // ❌ Never use var
+   var x = 1;  // Hoisting bugs
+   ```
+
+3. **Handle Nullish Values**
+   ```javascript
+   // ✅ Nullish coalescing for defaults
+   const name = user.name ?? 'Anonymous';
+
+   // ❌ || has falsy trap (0, '', false)
+   const count = data.count || 10;  // 0 becomes 10!
+   ```
+
+### Phase 3: Review for Quality
+
+**Before approving:**
+
+1. **Check Async Handling**
+   - All promises awaited or caught?
+   - No floating promises?
+   - Error boundaries in place?
+
+2. **Check Immutability**
+   - Arguments not mutated?
+   - Objects cloned before modification?
+   - const used where possible?
+
+3. **Check Iteration**
+   - for...of for arrays (not for...in)?
+   - Appropriate array method used?
+   - No mutation in map/filter?
+
+## Red Flags - STOP and Fix
+
+### Type Coercion Red Flags
 
 ```javascript
-// Named exports
-export const API_URL = 'https://api.example.com';
-export function fetchUser(id) { ... }
+// Loose equality (surprises)
+if (x == y) { }
 
-// Default export
-export default class UserService { ... }
+// Falsy trap with ||
+const value = input || default;  // 0, '', false become default
 
-// Imports
-import UserService, { API_URL, fetchUser } from './user-service.js';
+// typeof null bug
+typeof null === 'object'  // true! Check explicitly
+
+// Array type check
+typeof [] === 'object'  // true! Use Array.isArray()
 ```
 
-### CommonJS (Node.js Legacy)
+### Async Red Flags
 
 ```javascript
-// Exports
-module.exports = { fetchUser, API_URL };
-// or
-exports.fetchUser = fetchUser;
+// Floating promise (unhandled rejection)
+doAsyncThing();
 
-// Imports
-const { fetchUser, API_URL } = require('./user-service');
+// forEach with async (doesn't wait)
+items.forEach(async (item) => {
+  await process(item);  // Doesn't wait!
+});
+
+// Missing error handling
+const data = await fetch(url);  // What if it fails?
 ```
 
-### Package.json Configuration
+### Mutation Red Flags
 
-```json
-{
-  "type": "module",  // Enable ES modules
-  "exports": {
-    ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
-    }
-  }
+```javascript
+// Mutating function arguments
+function process(options) {
+  options.processed = true;  // Mutates caller's object!
 }
-```
 
-## ES6+ Patterns
+// Mutating in map
+items.map(item => {
+  item.processed = true;  // Mutates original!
+  return item;
+});
 
-### Destructuring
-
-```javascript
-// Objects
-const { name, email, role = 'user' } = user;
-
-// Arrays
-const [first, second, ...rest] = items;
-
-// Function parameters
-function createUser({ name, email, role = 'user' }) {
-  return { id: generateId(), name, email, role };
-}
-```
-
-### Spread and Rest
-
-```javascript
-// Shallow clone
+// Shallow copy trap
 const copy = { ...original };
-const merged = { ...defaults, ...options };
-
-// Array operations
-const combined = [...arr1, ...arr2];
-const [head, ...tail] = items;
+copy.nested.value = 1;  // Also mutates original.nested!
 ```
 
-### Optional Chaining and Nullish Coalescing
+## Common Rationalizations - Don't Accept These
+
+| Excuse | Reality |
+|--------|---------|
+| "== is fine if you know the types" | You don't always. Use ===. |
+| "var is the same as let" | Hoisting causes bugs. Use let/const. |
+| "I'll add error handling later" | Later never comes. Handle now. |
+| "It's just a quick script" | Scripts become production. Write properly. |
+| "The framework handles it" | Frameworks don't catch everything. Be explicit. |
+
+## JavaScript Checklist
+
+Before approving JavaScript code:
+
+- [ ] **Strict equality**: Using === not ==
+- [ ] **const/let**: No var usage
+- [ ] **Async handled**: All promises awaited or caught
+- [ ] **No mutation**: Arguments and arrays not mutated
+- [ ] **Nullish**: Using ?? not || for defaults
+- [ ] **Error handling**: Errors caught and handled
+- [ ] **Linting**: ESLint configured and passing
+
+## Quick Patterns
+
+### Safe Defaults
 
 ```javascript
-// Optional chaining
-const city = user?.address?.city;
-const result = obj.method?.();
+// ✅ Nullish coalescing
+const count = data.count ?? 0;
+const name = user?.name ?? 'Anonymous';
 
-// Nullish coalescing (null/undefined only)
-const name = user.name ?? 'Anonymous';
+// ✅ Default parameters
+function greet(name = 'World') {
+  return `Hello, ${name}!`;
+}
 
-// Avoid || for defaults (falsy trap)
-const count = data.count ?? 0;  // GOOD: 0 is preserved
-const count = data.count || 0;  // BAD: 0 becomes 0 (works but misleading)
+// ✅ Destructuring with defaults
+const { timeout = 5000, retries = 3 } = options;
 ```
 
 ### Async/Await
 
 ```javascript
-// Prefer async/await over .then() chains
-async function fetchUsers() {
+// ✅ Proper error handling
+async function fetchUser(id) {
   try {
-    const response = await fetch('/api/users');
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const response = await fetch(`/api/users/${id}`);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
     return await response.json();
   } catch (error) {
-    console.error('Failed to fetch users:', error);
+    console.error('Failed to fetch user:', error);
     throw error;
   }
 }
 
-// Parallel execution
+// ✅ Parallel execution
 const [users, posts] = await Promise.all([
   fetchUsers(),
-  fetchPosts()
+  fetchPosts(),
 ]);
 ```
 
-### Classes
+### Immutable Updates
 
 ```javascript
-class UserService {
-  #apiUrl;  // Private field
+// ✅ Shallow clone
+const updated = { ...original, status: 'active' };
 
-  constructor(apiUrl) {
-    this.#apiUrl = apiUrl;
-  }
-
-  async getUser(id) {
-    const response = await fetch(`${this.#apiUrl}/users/${id}`);
-    return response.json();
-  }
-
-  static create(config) {
-    return new UserService(config.apiUrl);
-  }
-}
+// ✅ Array without mutation
+const added = [...items, newItem];
+const removed = items.filter(i => i.id !== id);
+const modified = items.map(i =>
+  i.id === id ? { ...i, status: 'done' } : i
+);
 ```
 
-## ESLint Configuration
+## Quick Commands
 
-```javascript
-// eslint.config.js (Flat config - ESLint 9+)
-import js from '@eslint/js';
+```bash
+# Linting
+npx eslint . --fix
 
-export default [
-  js.configs.recommended,
-  {
-    rules: {
-      'no-unused-vars': 'error',
-      'no-console': 'warn',
-      'eqeqeq': ['error', 'always'],
-      'curly': 'error',
-      'prefer-const': 'error',
-      'no-var': 'error',
-    },
-  },
-];
-```
+# Formatting
+npx prettier --write .
 
-```javascript
-// .eslintrc.js (Legacy config)
-module.exports = {
-  env: {
-    browser: true,
-    node: true,
-    es2022: true,
-  },
-  extends: ['eslint:recommended'],
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-  },
-  rules: {
-    'no-unused-vars': 'error',
-    'eqeqeq': ['error', 'always'],
-    'prefer-const': 'error',
-    'no-var': 'error',
-  },
-};
-```
+# Testing
+npm test
 
-## Testing Patterns
-
-```javascript
-// Jest/Vitest
-describe('UserService', () => {
-  let service;
-
-  beforeEach(() => {
-    service = new UserService('https://api.example.com');
-  });
-
-  it('should fetch a user by id', async () => {
-    const user = await service.getUser('123');
-
-    expect(user).toEqual({
-      id: '123',
-      name: expect.any(String),
-    });
-  });
-
-  it('should throw on network error', async () => {
-    await expect(service.getUser('invalid'))
-      .rejects.toThrow();
-  });
-});
-```
-
-## Error Handling
-
-```javascript
-// Custom errors
-class ValidationError extends Error {
-  constructor(message, field) {
-    super(message);
-    this.name = 'ValidationError';
-    this.field = field;
-  }
-}
-
-// Error handling pattern
-async function processRequest(data) {
-  try {
-    validate(data);
-    return await saveToDatabase(data);
-  } catch (error) {
-    if (error instanceof ValidationError) {
-      return { error: error.message, field: error.field };
-    }
-    // Re-throw unexpected errors
-    throw error;
-  }
-}
-```
-
-## Project Structure
-
-```
-src/
-├── components/        # UI components (React/Vue)
-├── lib/              # Shared utilities
-├── services/         # API and business logic
-├── hooks/            # Framework hooks
-├── constants/        # Configuration constants
-└── index.js          # Entry point
-```
-
-## Browser vs Node.js
-
-| Feature | Browser | Node.js |
-|---------|---------|---------|
-| Modules | `<script type="module">` | `"type": "module"` in package.json |
-| Globals | `window`, `document` | `process`, `global`, `__dirname` |
-| APIs | DOM, Fetch, localStorage | fs, path, http, crypto |
-| Environment | `import.meta.url` | `process.env`, `import.meta.url` |
-
-## Tools
-
-| Tool | Purpose | Command |
-|------|---------|---------|
-| ESLint | Linting | `eslint .` |
-| Prettier | Formatting | `prettier --write .` |
-| Jest/Vitest | Testing | `npm test` |
-| npm audit | Security | `npm audit` |
-| Node.js | Runtime | `node --experimental-vm-modules` |
-
-## Common Pitfalls
-
-### Avoid These
-
-```javascript
-// BAD: == allows type coercion
-if (value == null) { }
-// GOOD: === is strict
-if (value === null || value === undefined) { }
-// BETTER: nullish check
-if (value == null) { }  // Only case where == is OK
-
-// BAD: for...in on arrays
-for (const i in array) { }
-// GOOD: for...of for arrays
-for (const item of array) { }
-
-// BAD: modifying function arguments
-function process(options) {
-  options.processed = true;  // Mutates caller's object!
-}
-// GOOD: clone first
-function process(options) {
-  const opts = { ...options, processed: true };
-}
+# Security
+npm audit
 ```
 
 ## References
 
-See `references/` directory for detailed documentation:
-- `javascript-research.md` - Comprehensive JavaScript patterns
-- `node-security.md` - Node.js security best practices
+Detailed patterns and examples in `references/`:
+- `es6-patterns.md` - Modern JavaScript features
+- `async-patterns.md` - Promise and async/await patterns
+- `common-mistakes.md` - JavaScript gotchas and fixes

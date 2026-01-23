@@ -1,157 +1,328 @@
 ---
 name: bosun-seo-llm
-description: SEO and LLM optimization for web content. Use when optimizing content for search engines and AI systems, implementing structured data, or improving content discoverability. Provides SEO patterns and LLM-friendly content guidance.
+description: "SEO and LLM optimization review process. Use when optimizing content for search engines and AI systems, implementing structured data, or improving discoverability. Guides systematic content optimization."
 tags: [seo, llm, structured-data, schema, content-optimization]
 ---
 
-# Bosun SEO/LLM Skill
+# SEO/LLM Skill
 
-SEO and LLM optimization knowledge base for content discoverability.
+## Overview
+
+Search engines and LLMs are your content's primary distributors. This skill guides systematic optimization of content for both traditional search and AI understanding.
+
+**Core principle:** Write for humans first, structure for machines second. If content isn't useful to humans, no amount of optimization helps. But structure helps machines surface good content.
 
 ## When to Use
 
-- Optimizing web content for search engines
-- Implementing structured data (Schema.org)
-- Making content LLM-friendly
-- Improving meta tags and descriptions
-- Setting up sitemaps and robots.txt
+Use this skill when you're about to:
+- Optimize web content for search engines
+- Implement structured data (Schema.org)
+- Make content LLM-friendly
+- Improve meta tags and descriptions
+- Set up sitemaps and robots.txt
 
-## When NOT to Use
+**Use this ESPECIALLY when:**
+- Pages lack meta descriptions
+- No structured data is present
+- Content is hard to extract programmatically
+- Headings don't form a logical hierarchy
+- Important content is hidden in JavaScript
 
-- Backend implementation (use language skills)
-- Security review (use bosun-security)
-- UI design (use bosun-ux-ui)
+## The SEO/LLM Optimization Process
 
-## Essential Meta Tags
+### Phase 1: Check Technical Foundation
+
+**Technical SEO must work first:**
+
+1. **Crawlability**
+   - Can search engines access the content?
+   - Is robots.txt configured correctly?
+   - Are important pages in sitemap?
+
+2. **Indexability**
+   - Are pages being indexed?
+   - Any noindex tags unintentionally?
+   - Canonical URLs correct?
+
+3. **Performance**
+   - Core Web Vitals passing?
+   - Mobile-friendly?
+   - Fast enough for users?
+
+### Phase 2: Check Content Structure
+
+**Then verify content is understandable:**
+
+1. **Semantic HTML**
+   - One h1 per page?
+   - Logical heading hierarchy?
+   - Meaningful markup?
+
+2. **Structured Data**
+   - Schema.org for content type?
+   - Valid JSON-LD?
+   - Testing in Rich Results?
+
+3. **Meta Content**
+   - Unique, descriptive titles?
+   - Compelling meta descriptions?
+   - Open Graph for social?
+
+### Phase 3: Check LLM Readability
+
+**Finally, optimize for AI extraction:**
+
+1. **Clear Structure**
+   - Summary at the start?
+   - One idea per paragraph?
+   - Lists and tables for data?
+
+2. **Explicit Definitions**
+   - Terms defined on first use?
+   - Context provided?
+   - No assumed knowledge?
+
+3. **Extractable Content**
+   - Key facts easily identified?
+   - FAQs in proper format?
+   - No important content in images?
+
+## Red Flags - STOP and Fix
+
+### Technical SEO Red Flags
+
+```html
+<!-- ❌ CRITICAL: Blocking search engines -->
+<meta name="robots" content="noindex">  <!-- Intentional? -->
+
+<!-- ❌ CRITICAL: Missing canonical -->
+<!-- No canonical = duplicate content -->
+
+<!-- ❌ HIGH: No lang attribute -->
+<html>  <!-- Should be <html lang="en"> -->
+
+<!-- ❌ HIGH: Missing viewport -->
+<!-- Not mobile-friendly -->
+
+<!-- ❌ MEDIUM: HTTP not HTTPS -->
+<!-- Modern SEO requires HTTPS -->
+```
+
+### Content Structure Red Flags
+
+```html
+<!-- ❌ HIGH: Multiple h1 tags -->
+<h1>Main Title</h1>
+...
+<h1>Another Title</h1>  <!-- Should be h2 -->
+
+<!-- ❌ HIGH: Skipped heading levels -->
+<h1>Title</h1>
+<h3>Subtitle</h3>  <!-- Skipped h2! -->
+
+<!-- ❌ HIGH: Missing meta description -->
+<!-- No description = Google writes one -->
+
+<!-- ❌ MEDIUM: Generic title -->
+<title>Home</title>  <!-- Should describe content -->
+```
+
+### LLM Readability Red Flags
+
+```markdown
+<!-- ❌ HIGH: Wall of text -->
+[2000 words with no headings, lists, or structure]
+
+<!-- ❌ HIGH: Content in images -->
+<img src="pricing-table.png">  <!-- Text should be HTML -->
+
+<!-- ❌ HIGH: No summary -->
+[Long article with no intro or TL;DR]
+
+<!-- ❌ MEDIUM: Undefined jargon -->
+"Enable HMR for better DX"  <!-- Define acronyms! -->
+```
+
+## Common Rationalizations - Don't Accept These
+
+| Excuse | Reality |
+|--------|---------|
+| "SEO is manipulative" | Good SEO is good UX. Help users find content. |
+| "Schema is too complex" | JSON-LD is simple. Use generators if needed. |
+| "Meta descriptions are ignored" | They appear in search results. Write them. |
+| "LLMs don't matter" | AI search is growing fast. Optimize now. |
+| "Our content is niche" | Niche content needs SEO more, not less. |
+| "We'll add structure later" | Structure aids writing. Do it first. |
+
+## SEO/LLM Quality Checklist
+
+Before publishing content:
+
+**Technical:**
+- [ ] HTTPS enabled
+- [ ] Mobile-friendly (viewport, responsive)
+- [ ] Core Web Vitals passing
+- [ ] robots.txt allows crawling
+- [ ] XML sitemap includes page
+- [ ] Canonical URL set
+
+**Content Structure:**
+- [ ] Single h1 with primary keyword
+- [ ] Logical heading hierarchy (h1→h2→h3)
+- [ ] Meta title unique and descriptive (50-60 chars)
+- [ ] Meta description compelling (150-160 chars)
+- [ ] Open Graph tags for social sharing
+
+**Structured Data:**
+- [ ] Appropriate Schema.org type
+- [ ] JSON-LD valid (test in Rich Results)
+- [ ] Required properties present
+
+**LLM Readability:**
+- [ ] Summary/TL;DR at start
+- [ ] Short paragraphs (3-4 sentences)
+- [ ] Lists and tables for data
+- [ ] Terms defined on first use
+
+## Quick Patterns
+
+### Essential Meta Tags
 
 ```html
 <head>
-  <!-- Primary Meta Tags -->
-  <title>Page Title - Brand Name</title>
-  <meta name="description" content="Concise description (150-160 chars)">
+  <!-- Primary -->
+  <title>How to Write Accessible Forms | My Site</title>
+  <meta name="description" content="Learn to build accessible forms with proper labels, error handling, and ARIA attributes. Step-by-step guide with code examples.">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="canonical" href="https://example.com/accessible-forms">
 
-  <!-- Open Graph (Facebook, LinkedIn) -->
-  <meta property="og:title" content="Page Title">
-  <meta property="og:description" content="Description for social">
-  <meta property="og:image" content="https://example.com/image.jpg">
-  <meta property="og:url" content="https://example.com/page">
+  <!-- Open Graph -->
+  <meta property="og:title" content="How to Write Accessible Forms">
+  <meta property="og:description" content="Build forms that work for everyone.">
+  <meta property="og:image" content="https://example.com/images/forms.jpg">
+  <meta property="og:url" content="https://example.com/accessible-forms">
+  <meta property="og:type" content="article">
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Page Title">
-  <meta name="twitter:description" content="Description">
-
-  <!-- Canonical URL -->
-  <link rel="canonical" href="https://example.com/page">
+  <meta name="twitter:title" content="How to Write Accessible Forms">
+  <meta name="twitter:description" content="Build forms that work for everyone.">
 </head>
 ```
 
-## Structured Data (Schema.org)
+### Article Schema
 
-```json
+```html
+<script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Article",
-  "headline": "Article Title",
+  "headline": "How to Write Accessible Forms",
+  "description": "Learn to build accessible forms with proper labels, error handling, and ARIA attributes.",
   "author": {
     "@type": "Person",
-    "name": "Author Name"
+    "name": "Jane Developer"
   },
   "datePublished": "2024-01-15",
-  "description": "Article description",
-  "image": "https://example.com/image.jpg"
+  "dateModified": "2024-01-20",
+  "image": "https://example.com/images/forms.jpg",
+  "publisher": {
+    "@type": "Organization",
+    "name": "My Site",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://example.com/logo.png"
+    }
+  }
 }
+</script>
 ```
 
-### Common Schema Types
-
-| Type | Use Case |
-|------|----------|
-| Article | Blog posts, news |
-| Product | E-commerce items |
-| Organization | Company info |
-| FAQ | Question/answer content |
-| HowTo | Tutorial content |
-| BreadcrumbList | Navigation path |
-
-## LLM-Friendly Content
-
-### Structure for AI Understanding
-
-1. **Clear headings** - Use semantic H1-H6 hierarchy
-2. **Concise paragraphs** - One idea per paragraph
-3. **Lists and tables** - Structured data is easier to parse
-4. **Explicit definitions** - Define terms on first use
-5. **Summaries** - TL;DR at the start of long content
-
-### Content Patterns
+### LLM-Friendly Content Structure
 
 ```markdown
 # Topic Title
 
-**Summary:** One-paragraph overview of the entire content.
+**Summary:** One-paragraph overview answering the main question directly.
 
 ## What is [Topic]?
 
-Clear definition in the first sentence.
+Clear definition in the first sentence. Then expand with context.
 
 ## Key Concepts
 
 | Concept | Definition |
 |---------|------------|
-| Term 1 | Explanation |
-| Term 2 | Explanation |
+| Term 1 | Clear explanation |
+| Term 2 | Clear explanation |
 
 ## How to [Action]
 
-1. Step one
-2. Step two
-3. Step three
+1. First step with explanation
+2. Second step with explanation
+3. Third step with explanation
 
-## FAQ
+## Common Questions
 
 ### Question 1?
-Answer to question 1.
+Direct answer in the first sentence. Then elaborate.
 
 ### Question 2?
-Answer to question 2.
+Direct answer in the first sentence. Then elaborate.
 ```
 
-## Technical SEO
+### FAQ Schema
 
-### robots.txt
-
+```html
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is accessibility?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Accessibility means designing products that people with disabilities can use effectively."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does accessibility matter?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Accessibility is a legal requirement and improves usability for everyone."
+      }
+    }
+  ]
+}
+</script>
 ```
-User-agent: *
-Allow: /
-Disallow: /admin/
-Disallow: /api/
-Sitemap: https://example.com/sitemap.xml
+
+## Quick Commands
+
+```bash
+# Validate structured data
+npx structured-data-testing-tool <url>
+
+# Check Core Web Vitals
+npx lighthouse <url> --only-categories=performance
+
+# Validate HTML
+npx html-validate <file>
+
+# Check links
+npx linkinator <url>
+
+# Test in Google's tools
+# - Rich Results Test: https://search.google.com/test/rich-results
+# - Mobile-Friendly: https://search.google.com/test/mobile-friendly
 ```
-
-### Sitemap
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://example.com/</loc>
-    <lastmod>2024-01-15</lastmod>
-    <priority>1.0</priority>
-  </url>
-</urlset>
-```
-
-## Performance Impact on SEO
-
-- [ ] Core Web Vitals optimized (LCP, FID, CLS)
-- [ ] Images optimized and lazy-loaded
-- [ ] CSS/JS minified
-- [ ] Proper caching headers
-- [ ] Mobile-friendly design
 
 ## References
 
-See `references/` directory for detailed documentation:
-- `seo-llm-research.md` - Comprehensive SEO/LLM patterns
+Detailed patterns and examples in `references/`:
+- `schema-types.md` - Common Schema.org patterns
+- `meta-tags.md` - Complete meta tag reference
+- `content-structure.md` - LLM-friendly writing patterns

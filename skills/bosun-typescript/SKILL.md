@@ -1,155 +1,227 @@
 ---
 name: bosun-typescript
-description: TypeScript best practices and patterns. Use when writing, reviewing, or debugging TypeScript code. Provides strict typing, ESLint configuration, testing patterns, and framework guidance.
-tags: [typescript, javascript, eslint, testing, react, nodejs]
+description: "TypeScript development process and type safety review. Use when writing or reviewing TypeScript code. Guides systematic type-safe development practices."
+tags: [typescript, javascript, types, eslint, testing]
 ---
 
-# Bosun TypeScript Skill
+# TypeScript Skill
 
-TypeScript knowledge base for type-safe JavaScript development.
+## Overview
+
+TypeScript's value comes from catching errors at compile time, not runtime. This skill guides systematic use of TypeScript's type system for safer, more maintainable code.
+
+**Core principle:** If TypeScript can't verify it, neither can you. Use the type system to make invalid states unrepresentable.
 
 ## When to Use
 
-- Writing new TypeScript code
-- Reviewing TypeScript for type safety
-- Configuring ESLint and Prettier
-- Setting up testing with Jest/Vitest
-- Working with React or Node.js
+Use this skill when you're about to:
+- Write new TypeScript code
+- Review TypeScript for type safety
+- Configure TypeScript or ESLint
+- Debug type errors
+- Refactor JavaScript to TypeScript
 
-## When NOT to Use
+**Use this ESPECIALLY when:**
+- Using `any` type (find a better type)
+- Type assertions (`as Type`) appear
+- Runtime type checking exists (TypeScript should handle it)
+- Someone says "the types are too complex"
+- Code has `// @ts-ignore` comments
 
-- Other languages (use appropriate language skill)
-- Security review (use bosun-security first)
-- Architecture decisions (use bosun-architect)
+## The Type-Safe Development Process
 
-## Strict Mode Configuration
+### Phase 1: Design Types First
 
-```json
-// tsconfig.json
-{
-  "compilerOptions": {
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
-  }
+**Before writing implementation:**
+
+1. **Define Data Shapes**
+   - What data flows through this code?
+   - What are the possible states?
+   - What states are INVALID and shouldn't exist?
+
+2. **Use Discriminated Unions for States**
+   ```typescript
+   // Make invalid states unrepresentable
+   type RequestState =
+     | { status: 'idle' }
+     | { status: 'loading' }
+     | { status: 'success'; data: User }
+     | { status: 'error'; error: Error };
+   ```
+
+3. **Define Function Signatures**
+   - What goes in? What comes out?
+   - What errors can occur?
+   - See `references/advanced-types.md` for patterns
+
+### Phase 2: Implement with Strict Mode
+
+**Let the compiler guide you:**
+
+1. **Enable All Strict Flags**
+   ```json
+   {
+     "compilerOptions": {
+       "strict": true,
+       "noUncheckedIndexedAccess": true,
+       "noImplicitReturns": true
+     }
+   }
+   ```
+
+2. **Fix Errors, Don't Silence Them**
+   - Type error = bug waiting to happen
+   - `// @ts-ignore` is almost never the answer
+   - `any` defeats the purpose of TypeScript
+
+3. **Use Type Narrowing**
+   ```typescript
+   // Let TypeScript narrow types for you
+   if (result.status === 'success') {
+     console.log(result.data);  // TypeScript knows data exists
+   }
+   ```
+
+### Phase 3: Review for Type Safety
+
+**Before approving:**
+
+1. **Check for Type Escapes**
+   - Any use of `any`?
+   - Any type assertions (`as Type`)?
+   - Any `// @ts-ignore` or `// @ts-expect-error`?
+
+2. **Verify Null Handling**
+   - Are null/undefined cases handled?
+   - Does `strictNullChecks` catch issues?
+
+3. **Test Type Inference**
+   - Hover over variables - are types what you expect?
+   - Are generics inferring correctly?
+
+## Red Flags - STOP and Fix
+
+### Type Safety Red Flags
+
+```
+- any type (find the real type)
+- Type assertions: value as Type (use type guards)
+- // @ts-ignore (fix the underlying issue)
+- ! non-null assertion (handle the null case)
+- Object or {} as type (be specific)
+- Function type without parameters (define signature)
+```
+
+### Code Quality Red Flags
+
+```
+- Deeply nested generics (simplify with type aliases)
+- Types duplicated across files (centralize in types/)
+- Runtime type checking (let TypeScript do it)
+- Optional chaining everywhere (fix the types)
+- Type definitions longer than implementation (too complex)
+```
+
+### Configuration Red Flags
+
+```
+- strict: false (enable it)
+- skipLibCheck: true without good reason
+- any in function returns
+- Missing return types on public functions
+- No ESLint TypeScript rules
+```
+
+## Common Rationalizations - Don't Accept These
+
+| Excuse | Reality |
+|--------|---------|
+| "The type is too complex" | Simplify the design, not the types. |
+| "I'll fix the types later" | Later never comes. Fix now. |
+| "It works at runtime" | TypeScript catches bugs before runtime. |
+| "any is fine here" | any disables TypeScript. Find the real type. |
+| "The library has bad types" | Write better types or use unknown. |
+| "Strict mode is too annoying" | Those "annoyances" are bugs. |
+
+## Type Safety Checklist
+
+Before approving TypeScript code:
+
+- [ ] **No `any`**: All types are specific
+- [ ] **No assertions**: Using type guards instead of `as`
+- [ ] **Null handled**: Optional values properly checked
+- [ ] **Strict mode**: All strict flags enabled
+- [ ] **No ignores**: No `@ts-ignore` or `@ts-expect-error`
+- [ ] **Interfaces defined**: Data shapes are explicit
+- [ ] **Errors typed**: Error handling is type-safe
+
+## Quick Type Patterns
+
+### Prefer `unknown` over `any`
+
+```typescript
+// ❌ any bypasses all checking
+function parse(json: string): any { ... }
+
+// ✅ unknown requires narrowing
+function parse(json: string): unknown { ... }
+const data = parse(input);
+if (isUser(data)) {
+  console.log(data.name);  // Safe
 }
 ```
 
-## Type Patterns
-
-### Prefer Interfaces for Objects
+### Use Type Guards
 
 ```typescript
-// GOOD: Interface for object shapes
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+// ❌ Type assertion (unsafe)
+const user = response.data as User;
 
-// Use type for unions, intersections
-type Status = 'pending' | 'active' | 'archived';
-type AdminUser = User & { permissions: string[] };
-```
-
-### Avoid `any`
-
-```typescript
-// BAD
-function process(data: any) { ... }
-
-// GOOD: Use unknown + type guards
-function process(data: unknown) {
-  if (isUser(data)) {
-    // data is now typed as User
-  }
-}
-
+// ✅ Type guard (safe)
 function isUser(data: unknown): data is User {
   return typeof data === 'object' && data !== null && 'id' in data;
 }
+if (isUser(response.data)) {
+  const user = response.data;  // Typed correctly
+}
 ```
 
-### Utility Types
+### Use Discriminated Unions
 
 ```typescript
-// Partial - all properties optional
-type UpdateUser = Partial<User>;
+// ❌ Optional fields (any combination valid)
+interface Result {
+  data?: User;
+  error?: Error;
+  loading?: boolean;
+}
 
-// Pick - select properties
-type UserPreview = Pick<User, 'id' | 'name'>;
-
-// Omit - exclude properties
-type CreateUser = Omit<User, 'id'>;
-
-// Record - typed object
-type UserMap = Record<string, User>;
+// ✅ Discriminated union (only valid states)
+type Result =
+  | { status: 'loading' }
+  | { status: 'success'; data: User }
+  | { status: 'error'; error: Error };
 ```
 
-## ESLint Configuration
+## Quick Commands
 
-```javascript
-// .eslintrc.js
-module.exports = {
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking',
-  ],
-  rules: {
-    '@typescript-eslint/no-explicit-any': 'error',
-    '@typescript-eslint/explicit-function-return-type': 'warn',
-    '@typescript-eslint/no-unused-vars': 'error',
-  },
-};
+```bash
+# Type check without emitting
+npx tsc --noEmit
+
+# Type check with strict
+npx tsc --noEmit --strict
+
+# Find any types
+grep -r ": any" src/
+
+# ESLint with TypeScript
+npx eslint . --ext .ts,.tsx
 ```
-
-## Testing Patterns
-
-```typescript
-// Jest/Vitest test
-describe('UserService', () => {
-  it('should create a user', async () => {
-    const user = await userService.create({
-      name: 'Test',
-      email: 'test@example.com',
-    });
-
-    expect(user).toMatchObject({
-      name: 'Test',
-      email: 'test@example.com',
-    });
-    expect(user.id).toBeDefined();
-  });
-});
-```
-
-## Project Structure
-
-```
-src/
-├── components/        # React components
-├── hooks/            # Custom hooks
-├── services/         # Business logic
-├── types/            # Shared type definitions
-├── utils/            # Helper functions
-└── index.ts          # Entry point
-```
-
-## Tools
-
-| Tool | Purpose | Command |
-|------|---------|---------|
-| tsc | Type checking | `tsc --noEmit` |
-| ESLint | Linting | `eslint . --ext .ts,.tsx` |
-| Prettier | Formatting | `prettier --write .` |
-| Jest/Vitest | Testing | `npm test` |
-| npm audit | Security | `npm audit` |
 
 ## References
 
-See `references/` directory for detailed documentation:
-- `typescript-research.md` - Comprehensive TypeScript patterns
+Detailed patterns and examples in `references/`:
+- `advanced-types.md` - Generics, conditional types, mapped types
+- `typescript-config.md` - tsconfig.json best practices
+- `migration-guide.md` - JavaScript to TypeScript migration

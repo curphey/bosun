@@ -1,244 +1,219 @@
 ---
 name: bosun-testing
-description: Testing best practices, coverage strategies, and test quality patterns. Use when reviewing test suites, writing tests, improving coverage, or diagnosing flaky tests. Provides patterns for unit, integration, and end-to-end testing across languages.
-tags: [testing, coverage, unit-tests, integration-tests, e2e, test-quality, mocking]
+description: "Test-first development process and test quality review. Use when writing code, reviewing tests, or diagnosing test issues. Guides systematic test creation before implementation."
+tags: [testing, tdd, coverage, unit-tests, integration-tests, e2e]
 ---
 
-# Bosun Testing Skill
+# Testing Skill
 
-Testing knowledge base for test quality, coverage analysis, and testing strategy.
+## Overview
+
+Tests written after code pass immediately—proving nothing. This skill guides test-first development and systematic test quality review.
+
+**Core principle:** Write the test FIRST. Watch it fail. Then write code to pass. If you didn't see it fail, you don't know it tests the right thing.
 
 ## When to Use
 
-- Reviewing test suites for quality and coverage
-- Writing new tests (unit, integration, e2e)
-- Diagnosing flaky or slow tests
-- Setting up test infrastructure
-- Configuring coverage reporting
-- Designing testing strategies
+Use this skill when you're about to:
+- Write any new code (feature, bugfix, refactor)
+- Review a PR or code change
+- Diagnose flaky or failing tests
+- Improve test coverage
 
-## When NOT to Use
+**Use this ESPECIALLY when:**
+- Fixing a bug (write failing test first!)
+- Adding a feature (test defines "done")
+- Someone says "I'll add tests later"
+- Tests pass but code doesn't work
+- Tests are flaky or slow
 
-- Security testing (use bosun-security)
-- Performance testing/benchmarks (use bosun-performance)
-- Language-specific syntax (use language skills)
+## The Test-First Process
 
-## Testing Pyramid
+### Phase 1: Write Failing Test
+
+**Before writing ANY implementation code:**
+
+1. **Write One Minimal Test**
+   - Tests ONE behavior
+   - Clear name describing expected outcome
+   - See `references/test-pyramid.md` for structure
+
+2. **Watch It Fail**
+   - Run the test
+   - Confirm it fails for the expected reason (missing feature, not typo)
+   - If test passes immediately → test is wrong, fix it
+
+3. **Verify Failure Message**
+   - Does the error explain what's wrong?
+   - Would you understand this failure in 6 months?
+
+### Phase 2: Write Minimal Code
+
+**Only enough code to pass the test:**
+
+1. **Implement Minimally**
+   - Don't add features not tested
+   - Don't optimize
+   - Don't refactor yet
+
+2. **Watch Test Pass**
+   - Run the test
+   - Confirm it passes
+   - If it fails → fix code, not test
+
+3. **Check Other Tests**
+   - All existing tests still pass?
+   - If not → fix immediately before continuing
+
+### Phase 3: Refactor
+
+**Only after tests pass:**
+
+1. **Clean Up Code**
+   - Remove duplication
+   - Improve names
+   - Extract helpers
+
+2. **Keep Tests Green**
+   - Run tests after every change
+   - If tests fail → undo refactor, try again
+
+3. **Don't Add Behavior**
+   - Refactoring changes structure, not behavior
+   - New behavior requires new test first
+
+### Repeat
+
+Write next failing test. Repeat cycle.
+
+## Red Flags - STOP and Fix
+
+### You're Doing It Wrong If:
+
+```
+- Writing code before tests
+- Test passes immediately (you're testing existing behavior)
+- Adding "just one more feature" without a test
+- Debugging why test fails instead of why code is wrong
+- Tests require running the whole system
+- Can't describe what test is testing in plain English
+```
+
+### Test Quality Red Flags:
+
+```
+- No assertions (test always passes)
+- Assertions on mock behavior instead of real code
+- Test logic (if/else in tests)
+- Tests depend on each other (order matters)
+- Flaky tests (pass sometimes)
+- Slow tests (>100ms for unit tests)
+```
+
+### Coverage Red Flags:
+
+```
+- High coverage, but bugs still found
+- Tests only cover happy path
+- Tests don't cover error handling
+- Tests don't cover edge cases (null, empty, max values)
+```
+
+## Common Rationalizations - Don't Accept These
+
+| Excuse | Reality |
+|--------|---------|
+| "Too simple to test" | Simple code breaks. Test takes 30 seconds. |
+| "I'll write tests after" | Tests after pass immediately. Proves nothing. |
+| "I already manually tested" | Manual testing isn't repeatable. Automate it. |
+| "Tests slow me down" | Debugging slows you down more. TDD is faster. |
+| "It's hard to test" | Hard to test = hard to use. Improve the design. |
+| "We're moving fast" | Fast now, slow later. Tests enable speed. |
+| "I'll refactor later to make it testable" | Do it now. Later never comes. |
+
+## Test Quality Checklist
+
+Before approving any code:
+
+- [ ] **Test First**: Was the test written before the code?
+- [ ] **Failure Seen**: Did developer watch test fail first?
+- [ ] **One Behavior**: Does each test verify one thing?
+- [ ] **Clear Name**: Does test name describe expected behavior?
+- [ ] **No Logic**: Are tests simple (no if/else, loops)?
+- [ ] **Independent**: Do tests pass in any order?
+- [ ] **Fast**: Do unit tests run in <100ms each?
+- [ ] **Edge Cases**: Are boundaries and errors covered?
+
+## Test Structure
+
+### The AAA Pattern
+
+```javascript
+test('returns user when valid ID provided', async () => {
+  // Arrange - set up test data
+  const userId = 'user-123';
+  await createTestUser({ id: userId, name: 'Test' });
+
+  // Act - execute the code
+  const result = await getUser(userId);
+
+  // Assert - verify the outcome
+  expect(result.name).toBe('Test');
+});
+```
+
+### Naming Convention
+
+```
+Pattern: [unit] [behavior] when [condition]
+
+Examples:
+- "returns empty array when no users exist"
+- "throws NotFoundError when user not found"
+- "sends welcome email when user signs up"
+```
+
+## Test Pyramid
 
 ```
          /\
-        /  \      E2E Tests (few, slow, high confidence)
+        /  \      E2E (10%) - Critical user journeys only
        /----\
-      /      \    Integration Tests (some, medium speed)
+      /      \    Integration (20%) - API, DB, services
      /--------\
-    /          \  Unit Tests (many, fast, focused)
+    /          \  Unit (70%) - Business logic, pure functions
    /------------\
 ```
 
-**Recommended ratio:** 70% unit, 20% integration, 10% e2e
+### What to Test at Each Level
 
-## Core Testing Principles
+| Level | Test | Don't Test |
+|-------|------|------------|
+| **Unit** | Business logic, calculations, transformations | Frameworks, libraries, I/O |
+| **Integration** | API endpoints, database queries, service calls | UI, external services |
+| **E2E** | Critical user flows, auth, checkout | Everything (too slow) |
 
-### 1. Test Quality (F.I.R.S.T.)
-- **Fast** - Unit tests < 100ms each
-- **Isolated** - No shared state between tests
-- **Repeatable** - Same result every run
-- **Self-validating** - Pass/fail without manual inspection
-- **Timely** - Written alongside or before code
+## Quick Commands
 
-### 2. Test Structure (AAA Pattern)
-```
-Arrange  - Set up test data and conditions
-Act      - Execute the code under test
-Assert   - Verify the expected outcome
-```
+```bash
+# Run with coverage
+npm test -- --coverage
+pytest --cov=src
+go test -cover ./...
 
-### 3. What to Test
-- **Happy paths** - Expected successful flows
-- **Edge cases** - Boundaries, empty inputs, max values
-- **Error conditions** - Invalid inputs, failures
-- **Business logic** - Critical domain rules
+# Run specific test
+npm test -- -t "user"
+pytest -k "user"
+go test -run TestUser
 
-### 4. What NOT to Test
-- Framework code (it's already tested)
-- Simple getters/setters
-- Configuration files
-- Third-party libraries directly
-
-## Coverage Guidelines
-
-### Coverage Targets
-| Code Type | Target | Rationale |
-|-----------|--------|-----------|
-| Business logic | 90%+ | Critical, high risk |
-| API endpoints | 85%+ | External interface |
-| Utilities | 80%+ | Reused code |
-| UI components | 70%+ | Visual verification helps |
-| Generated code | 0% | Don't test generated code |
-
-### Coverage ≠ Quality
-High coverage doesn't guarantee good tests. Focus on:
-- Assertion quality (meaningful checks)
-- Edge case coverage
-- Mutation testing survival
-
-## Test Smells to Avoid
-
-### Structural Smells
-```javascript
-// BAD: Test depends on order
-test('creates user', () => { ... });
-test('gets user', () => { /* depends on previous test */ });
-
-// GOOD: Independent tests
-test('creates user', () => {
-  const user = createTestUser();
-  // assertions
-});
-```
-
-### Flaky Test Patterns
-```javascript
-// BAD: Time-dependent
-expect(new Date()).toBe(expectedDate);
-
-// GOOD: Frozen time
-jest.useFakeTimers().setSystemTime(new Date('2024-01-15'));
-expect(getDate()).toBe('2024-01-15');
-```
-
-```javascript
-// BAD: Race condition
-await someAsyncOperation();
-expect(result).toBe(expected); // May not be ready
-
-// GOOD: Wait for condition
-await waitFor(() => expect(result).toBe(expected));
-```
-
-### Test Code Smells
-| Smell | Problem | Fix |
-|-------|---------|-----|
-| No assertions | Test always passes | Add meaningful assertions |
-| Magic numbers | Hard to understand | Use named constants |
-| Test logic | Tests can have bugs | Keep tests simple |
-| Excessive mocking | Tests don't reflect reality | Mock only external dependencies |
-| Sleep/delays | Slow and flaky | Use async/await properly |
-| Commented tests | Hidden failures | Delete or fix |
-
-## Mocking Strategy
-
-### What to Mock
-- External services (APIs, databases in unit tests)
-- File system (when testing logic, not I/O)
-- Time/dates
-- Random values
-
-### What NOT to Mock
-- The code under test
-- Simple internal dependencies
-- Data structures
-
-### Mocking Hierarchy
-```
-Fake   > Stub   > Mock   > Spy
-(best)                   (worst overuse)
-```
-
-## Test Organization
-
-### File Structure
-```
-src/
-  services/
-    UserService.js
-tests/
-  unit/
-    services/
-      UserService.test.js
-  integration/
-    api/
-      users.test.js
-  e2e/
-    flows/
-      registration.test.js
-  fixtures/
-    users.json
-  helpers/
-    testUtils.js
-```
-
-### Naming Conventions
-```javascript
-// Pattern: describe what, when, then what
-test('returns user when valid ID provided', () => {});
-test('throws NotFoundError when user does not exist', () => {});
-test('creates user with hashed password', () => {});
-```
-
-## Coverage Tools
-
-| Language | Tool | Command |
-|----------|------|---------|
-| JavaScript | Jest | `npx jest --coverage` |
-| JavaScript | c8/nyc | `npx c8 npm test` |
-| TypeScript | Jest | `npx jest --coverage` |
-| Python | pytest-cov | `pytest --cov=src` |
-| Python | coverage.py | `coverage run -m pytest` |
-| Go | built-in | `go test -cover ./...` |
-| Rust | cargo-tarpaulin | `cargo tarpaulin` |
-| Java | JaCoCo | Via Maven/Gradle plugin |
-
-## Test Frameworks
-
-| Language | Unit | Integration | E2E |
-|----------|------|-------------|-----|
-| JavaScript | Jest, Vitest | Supertest | Playwright, Cypress |
-| TypeScript | Jest, Vitest | Supertest | Playwright, Cypress |
-| Python | pytest | pytest | pytest + Selenium |
-| Go | testing | testing | testing + testcontainers |
-| Rust | built-in | built-in | built-in |
-| Java | JUnit | JUnit + Testcontainers | Selenium |
-
-## Quick Reference
-
-### Assertion Best Practices
-```javascript
-// BAD: Boolean assertion
-expect(user.isActive).toBe(true);
-
-// GOOD: Specific assertion with message
-expect(user.isActive).toBeTruthy();
-// or even better, test behavior
-expect(user.canLogin()).toBe(true);
-```
-
-### Test Data
-```javascript
-// BAD: Hardcoded data
-const user = { id: 1, name: 'John', email: 'john@test.com' };
-
-// GOOD: Factory pattern
-const user = createUser({ name: 'John' }); // Factory fills defaults
-```
-
-### Async Testing
-```javascript
-// BAD: No await
-test('fetches user', () => {
-  const user = fetchUser(1); // Returns promise!
-  expect(user.name).toBe('John'); // Always passes (comparing promise)
-});
-
-// GOOD: Proper async
-test('fetches user', async () => {
-  const user = await fetchUser(1);
-  expect(user.name).toBe('John');
-});
+# Watch mode
+npm test -- --watch
+pytest-watch
 ```
 
 ## References
 
-See `references/` directory for detailed documentation:
-- `testing-patterns.md` - Comprehensive testing patterns by type
-- `framework-guides.md` - Framework-specific testing guides
+Detailed patterns and examples in `references/`:
+- `test-pyramid.md` - Test strategy and coverage guidelines
+- `mocking-guide.md` - When and how to mock
+- `flaky-tests.md` - Diagnosing and fixing flaky tests

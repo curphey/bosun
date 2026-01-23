@@ -1,94 +1,203 @@
 ---
 name: bosun-rust
-description: Rust language best practices and idioms. Use when writing, reviewing, or debugging Rust code. Provides ownership, lifetimes, error handling, and safety patterns.
+description: "Rust development process and idiomatic code review. Use when writing or reviewing Rust code. Guides ownership patterns, error handling, and safe concurrency."
 tags: [rust, ownership, lifetimes, safety, concurrency]
 ---
 
-# Bosun Rust Skill
+# Rust Skill
 
-Rust language knowledge base for safe, performant Rust development.
+## Overview
+
+Rust's ownership system is your ally, not your enemy. This skill guides writing idiomatic Rust that works with the compiler, not against it.
+
+**Core principle:** If it compiles, it's probably correct. Rust's strictness is a feature. Don't fight the borrow checker—understand what it's telling you.
 
 ## When to Use
 
-- Writing new Rust code
-- Reviewing Rust code for best practices
-- Understanding ownership and borrowing
-- Implementing error handling patterns
-- Working with async Rust
+Use this skill when you're about to:
+- Write new Rust code
+- Review Rust for idiomatic patterns
+- Debug ownership or lifetime issues
+- Implement error handling
+- Write concurrent code
 
-## When NOT to Use
+**Use this ESPECIALLY when:**
+- Code uses `.unwrap()` liberally
+- Lifetimes are explicit when they don't need to be
+- Clone is used to "make the compiler happy"
+- Error handling is inconsistent
+- Someone is fighting the borrow checker
 
-- Other languages (use appropriate language skill)
-- Security review (use bosun-security first)
-- Architecture decisions (use bosun-architect)
+## The Rust Development Process
 
-## Ownership and Borrowing
+### Phase 1: Design with Ownership
 
-### The Three Rules
+**Before writing implementation:**
 
-1. Each value has exactly one owner
-2. When the owner goes out of scope, the value is dropped
-3. You can have either one mutable reference OR many immutable references
+1. **Think About Data Ownership**
+   - Who owns this data?
+   - Who needs to read it?
+   - Who needs to mutate it?
+
+2. **Choose the Right Type**
+   - Owned: `String`, `Vec<T>`, `Box<T>`
+   - Borrowed: `&str`, `&[T]`, `&T`
+   - Mutable borrow: `&mut T`
+
+3. **Plan Error Handling**
+   - What can fail?
+   - Use `Result<T, E>` for recoverable errors
+   - Use `Option<T>` for absence of value
+
+### Phase 2: Implement Idiomatically
+
+**Write Rust, not C-in-Rust:**
+
+1. **Propagate Errors with `?`**
+   ```rust
+   // ✅ Idiomatic error propagation
+   fn read_config(path: &str) -> Result<Config, ConfigError> {
+       let content = std::fs::read_to_string(path)?;
+       let config: Config = toml::from_str(&content)?;
+       Ok(config)
+   }
+
+   // ❌ Manual error handling
+   fn read_config(path: &str) -> Result<Config, ConfigError> {
+       let content = match std::fs::read_to_string(path) {
+           Ok(c) => c,
+           Err(e) => return Err(e.into()),
+       };
+       // ... more verbose code
+   }
+   ```
+
+2. **Use Iterators, Not Loops**
+   ```rust
+   // ✅ Idiomatic
+   let sum: i32 = numbers.iter().filter(|&n| n > 0).sum();
+
+   // ❌ Imperative
+   let mut sum = 0;
+   for n in &numbers {
+       if n > 0 {
+           sum += n;
+       }
+   }
+   ```
+
+3. **Accept Borrowed, Return Owned**
+   ```rust
+   // ✅ Flexible API
+   fn greet(name: &str) -> String {
+       format!("Hello, {}!", name)
+   }
+
+   // ❌ Forces allocation on caller
+   fn greet(name: String) -> String {
+       format!("Hello, {}!", name)
+   }
+   ```
+
+### Phase 3: Review for Idioms
+
+**Before approving:**
+
+1. **Check Error Handling**
+   - No `.unwrap()` in production code?
+   - Errors wrapped with context?
+   - Custom error types where appropriate?
+
+2. **Check Ownership**
+   - Minimal cloning?
+   - Borrows instead of moves where possible?
+   - Lifetimes elided when possible?
+
+3. **Check Concurrency**
+   - `Send` and `Sync` bounds understood?
+   - No data races possible?
+   - Appropriate sync primitives?
+
+## Red Flags - STOP and Fix
+
+### Error Handling Red Flags
 
 ```rust
-// GOOD: Clear ownership
-fn process(data: String) {
-    println!("{}", data);
-} // data dropped here
+// Unwrap in production code
+let value = something.unwrap();  // Will panic!
 
-// GOOD: Borrowing for read access
-fn analyze(data: &str) -> usize {
-    data.len()
-}
+// Expect without meaningful message
+let value = something.expect("failed");  // Unhelpful
 
-// GOOD: Mutable borrowing
-fn modify(data: &mut Vec<i32>) {
-    data.push(42);
-}
+// Ignoring Result
+let _ = file.write_all(data);  // Silent failure!
+
+// String error types
+fn process() -> Result<(), String> {  // Use proper error types
 ```
 
-### Common Patterns
+### Ownership Red Flags
 
 ```rust
-// Clone when you need independent copies
-let original = String::from("hello");
-let copy = original.clone();
+// Clone to satisfy borrow checker
+let data = expensive.clone();  // Usually wrong approach
+process(data);
 
-// Use references for temporary access
-fn print_length(s: &str) {
-    println!("Length: {}", s.len());
+// Unnecessary lifetime annotations
+fn first<'a>(s: &'a str) -> &'a str {  // Elision works here
+    &s[..1]
 }
 
-// Return owned values from functions
-fn create_greeting(name: &str) -> String {
-    format!("Hello, {}!", name)
-}
+// Rc/RefCell for single-threaded ownership confusion
+let data = Rc::new(RefCell::new(vec![]));  // Smell: rethink design
+
+// Box<dyn Trait> when generics work
+fn process(handler: Box<dyn Handler>) {  // Prefer generics
 ```
 
-## Error Handling
-
-### Result and Option
+### Concurrency Red Flags
 
 ```rust
-// GOOD: Propagate errors with ?
-fn read_config(path: &str) -> Result<Config, ConfigError> {
-    let content = std::fs::read_to_string(path)?;
-    let config: Config = toml::from_str(&content)?;
-    Ok(config)
-}
+// Mutex without Arc in multithreaded context
+let mutex = Mutex::new(data);  // Can't share across threads
 
-// GOOD: Handle Option explicitly
-fn get_user(id: u64) -> Option<User> {
-    users.get(&id).cloned()
-}
+// Holding lock across await
+let guard = mutex.lock().await;
+async_operation().await;  // Lock held! Use async-aware mutex
 
-// BAD: Unwrap in production code
-let value = something.unwrap(); // Will panic!
+// Thread::spawn without join
+thread::spawn(|| work());  // Fire and forget = bug
 ```
 
-### Custom Error Types
+## Common Rationalizations - Don't Accept These
+
+| Excuse | Reality |
+|--------|---------|
+| "I'll remove the unwraps later" | You won't. Handle errors now. |
+| "Clone makes the compiler happy" | Clone hides design problems. Rethink ownership. |
+| "Lifetimes are too confusing" | Lifetimes ARE the design. Understand them. |
+| "It's just a script" | Scripts become production. Write it right. |
+| "unsafe is fine here" | unsafe requires proof of safety. Document it. |
+| "The borrow checker is wrong" | The borrow checker is right. Your model is wrong. |
+
+## Rust Quality Checklist
+
+Before approving Rust code:
+
+- [ ] **No unwrap**: `?` operator or proper error handling
+- [ ] **Errors contextual**: Using `anyhow` or `thiserror` properly
+- [ ] **Minimal cloning**: Borrows preferred where possible
+- [ ] **Idiomatic APIs**: Accept &str, return String; accept &[T], return Vec<T>
+- [ ] **Iterators used**: Not manual loops for transforms
+- [ ] **Clippy clean**: `cargo clippy -- -D warnings`
+- [ ] **Tests present**: Unit and integration tests
+
+## Quick Patterns
+
+### Error Handling
 
 ```rust
+// ✅ With thiserror
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -96,110 +205,98 @@ pub enum AppError {
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
 
-    #[error("Parse error: {0}")]
-    Parse(#[from] serde_json::Error),
+    #[error("Parse error at line {line}: {message}")]
+    Parse { line: usize, message: String },
 
     #[error("Not found: {0}")]
     NotFound(String),
 }
+
+// ✅ With anyhow for applications
+use anyhow::{Context, Result};
+
+fn load_config(path: &str) -> Result<Config> {
+    let content = std::fs::read_to_string(path)
+        .context("Failed to read config file")?;
+    let config: Config = toml::from_str(&content)
+        .context("Failed to parse config")?;
+    Ok(config)
+}
 ```
 
-## Naming Conventions
-
-| Type | Convention | Example |
-|------|------------|---------|
-| Crates | snake_case | `my_crate` |
-| Modules | snake_case | `file_utils` |
-| Types | PascalCase | `UserService` |
-| Functions | snake_case | `get_user_by_id` |
-| Constants | SCREAMING_SNAKE | `MAX_CONNECTIONS` |
-| Lifetimes | short lowercase | `'a`, `'de` |
-
-## Project Structure
-
-```
-myproject/
-├── Cargo.toml
-├── Cargo.lock
-├── src/
-│   ├── lib.rs          # Library root
-│   ├── main.rs         # Binary entry
-│   ├── config.rs
-│   └── utils/
-│       ├── mod.rs
-│       └── helpers.rs
-├── tests/              # Integration tests
-│   └── integration_test.rs
-├── benches/            # Benchmarks
-│   └── benchmark.rs
-└── examples/
-    └── basic.rs
-```
-
-## Testing
+### Ownership Patterns
 
 ```rust
-#[cfg(test)]
-mod tests {
-    use super::*;
+// ✅ Builder pattern
+#[derive(Default)]
+pub struct RequestBuilder {
+    url: Option<String>,
+    timeout: Option<Duration>,
+}
 
-    #[test]
-    fn test_addition() {
-        assert_eq!(add(2, 2), 4);
+impl RequestBuilder {
+    pub fn url(mut self, url: impl Into<String>) -> Self {
+        self.url = Some(url.into());
+        self
     }
 
-    #[test]
-    fn test_with_result() -> Result<(), Box<dyn std::error::Error>> {
-        let result = parse_config("valid.toml")?;
-        assert_eq!(result.name, "test");
-        Ok(())
-    }
-
-    #[test]
-    #[should_panic(expected = "division by zero")]
-    fn test_panic() {
-        divide(1, 0);
+    pub fn build(self) -> Result<Request, BuildError> {
+        Ok(Request {
+            url: self.url.ok_or(BuildError::MissingUrl)?,
+            timeout: self.timeout.unwrap_or(Duration::from_secs(30)),
+        })
     }
 }
 ```
 
-## Async Rust
+### Concurrent Patterns
 
 ```rust
-use tokio;
+// ✅ Shared state with Arc<Mutex<T>>
+use std::sync::{Arc, Mutex};
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let result = fetch_data("https://api.example.com").await?;
-    Ok(())
-}
+let counter = Arc::new(Mutex::new(0));
+let handles: Vec<_> = (0..10).map(|_| {
+    let counter = Arc::clone(&counter);
+    thread::spawn(move || {
+        let mut num = counter.lock().unwrap();
+        *num += 1;
+    })
+}).collect();
 
-async fn fetch_data(url: &str) -> Result<String, reqwest::Error> {
-    let response = reqwest::get(url).await?;
-    response.text().await
+for handle in handles {
+    handle.join().unwrap();
 }
 ```
 
-## Common Traits
+## Quick Commands
 
-| Trait | Purpose | When to Implement |
-|-------|---------|-------------------|
-| `Clone` | Deep copy | Types that need copying |
-| `Debug` | Debug formatting | Almost always |
-| `Default` | Default value | Types with sensible defaults |
-| `PartialEq` | Equality comparison | Comparable types |
-| `Serialize` | JSON/data serialization | Data structures |
+```bash
+# Format
+cargo fmt
 
-## Tools
+# Lint (strict)
+cargo clippy -- -D warnings
 
-| Tool | Purpose | Command |
-|------|---------|---------|
-| cargo fmt | Format code | `cargo fmt` |
-| cargo clippy | Linting | `cargo clippy -- -D warnings` |
-| cargo test | Testing | `cargo test` |
-| cargo audit | Security | `cargo audit` |
-| cargo doc | Documentation | `cargo doc --open` |
+# Test with output
+cargo test -- --nocapture
+
+# Check without building
+cargo check
+
+# Security audit
+cargo audit
+
+# Documentation
+cargo doc --open
+
+# Release build
+cargo build --release
+```
 
 ## References
 
-See `references/` directory for detailed documentation.
+Detailed patterns and examples in `references/`:
+- `ownership-patterns.md` - Ownership and borrowing deep dive
+- `error-handling.md` - Error handling patterns
+- `async-rust.md` - Async/await patterns

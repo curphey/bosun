@@ -1,77 +1,141 @@
 ---
 name: bosun-architect
-description: Software architecture patterns and design principles. Use when designing systems, making architectural decisions, reviewing code structure, or creating design documents. Provides SOLID, DDD, Clean Architecture, and API design guidance.
+description: "Architecture review and design process. Use when designing systems, reviewing structure, or making architectural decisions. Guides systematic evaluation of design trade-offs before implementation."
 tags: [architecture, design-patterns, solid, ddd, api-design]
 ---
 
-# Bosun Architect Skill
+# Architecture Review Skill
 
-Architecture knowledge base for system design and code structure decisions.
+## Overview
+
+Architecture decisions are expensive to change later. This skill guides systematic architectural review and design before committing to implementation.
+
+**Core principle:** Understand trade-offs BEFORE building. The cheapest architecture change is the one made before code is written.
 
 ## When to Use
 
-- Designing new systems or major features
-- Making architectural decisions
-- Reviewing code structure and organization
-- Creating Architecture Decision Records (ADRs)
-- Evaluating trade-offs between patterns
-- Designing APIs
+Use this skill when you're about to:
+- Design a new system or major feature
+- Review code structure and organization
+- Make decisions about patterns or frameworks
+- Create or review Architecture Decision Records (ADRs)
+- Evaluate technical debt and refactoring options
 
-## When NOT to Use
+**Use this ESPECIALLY when:**
+- Change affects multiple components or teams
+- Decision is hard to reverse (database schema, API contracts)
+- You're choosing between competing patterns
+- Someone says "let's just refactor later"
+- Complexity is increasing without clear benefit
 
-- Language-specific implementation (use language skills)
-- Security concerns (use bosun-security)
-- Documentation format (use bosun-docs-writer)
+## The Architecture Review Process
 
-## SOLID Principles
+### Phase 1: Requirements Understanding
 
-| Principle | Description | Violation Sign |
-|-----------|-------------|----------------|
-| **S**ingle Responsibility | One reason to change | Class does too much |
-| **O**pen/Closed | Open for extension, closed for modification | Changing existing code for new features |
-| **L**iskov Substitution | Subtypes substitutable for base types | Overrides that break contracts |
-| **I**nterface Segregation | Specific interfaces over general | Clients implement unused methods |
-| **D**ependency Inversion | Depend on abstractions | High-level modules import low-level |
+Before proposing ANY architecture:
 
-## Architecture Patterns
+1. **Clarify Functional Requirements**
+   - What must the system DO?
+   - What are the critical user flows?
+   - What data needs to be stored/processed?
 
-### When to Use Each
+2. **Identify Quality Attributes**
+   - Performance: What latency/throughput is acceptable?
+   - Scalability: What growth is expected?
+   - Availability: What uptime is required?
+   - Security: What data sensitivity levels?
 
-| Pattern | Best For | Avoid When |
-|---------|----------|------------|
-| **Monolith** | Small teams, simple domains | Scaling concerns |
-| **Microservices** | Large teams, complex domains | Simple applications |
-| **Hexagonal** | Testability, port/adapter isolation | Quick prototypes |
-| **Event-Driven** | Loose coupling, async workflows | Simple CRUD |
-| **CQRS** | Read/write optimization | Simple domains |
+3. **Understand Constraints**
+   - Team size and expertise
+   - Timeline and budget
+   - Existing systems to integrate with
+   - Regulatory or compliance requirements
 
-### Clean Architecture Layers
+### Phase 2: Design Exploration
 
+**NEVER propose a single solution. Always present options.**
+
+1. **Generate 2-3 Approaches**
+   - What's the simplest solution that could work?
+   - What's the "industry standard" approach?
+   - What's the most scalable/flexible option?
+
+2. **Evaluate Trade-offs**
+   For each approach, assess:
+   - Complexity: How hard to build and maintain?
+   - Flexibility: How easy to change later?
+   - Risk: What could go wrong?
+   - Cost: Development time, infrastructure, operations
+
+3. **Present with Recommendation**
+   - Lead with your recommended option
+   - Explain WHY you recommend it
+   - Be explicit about trade-offs you're accepting
+
+### Phase 3: Validation
+
+Before finalizing:
+
+1. **SOLID Check**
+   - Does the design follow SOLID principles?
+   - See `references/solid-principles.md` for patterns
+
+2. **Boundary Check**
+   - Are responsibilities clearly separated?
+   - Are interfaces well-defined?
+   - Can components be tested independently?
+
+3. **Future-Proofing Check**
+   - What's likely to change?
+   - Is the design flexible where it needs to be?
+   - Is it simple where change is unlikely?
+
+## Red Flags - STOP and Reconsider
+
+If you encounter ANY of these, pause and investigate:
+
+### Complexity Smells
 ```
-┌─────────────────────────────────────┐
-│           Frameworks & UI           │  ← External (Web, DB, etc.)
-├─────────────────────────────────────┤
-│        Interface Adapters           │  ← Controllers, Gateways
-├─────────────────────────────────────┤
-│          Application Logic          │  ← Use Cases
-├─────────────────────────────────────┤
-│           Domain Entities           │  ← Business Rules (innermost)
-└─────────────────────────────────────┘
-
-Dependencies point INWARD only
+- More than 3 levels of inheritance
+- Circular dependencies between modules
+- God classes (>500 lines, >10 methods)
+- "Manager", "Handler", "Processor" classes doing everything
+- Config files longer than the code they configure
 ```
 
-## API Design Principles
+### Design Smells
+```
+- Copy-paste code across multiple files
+- Switch statements on type fields
+- Null checks everywhere
+- Deep nesting (>3 levels)
+- Methods with >5 parameters
+```
 
-1. **Use nouns for resources**: `/users`, `/orders`
-2. **HTTP verbs for actions**: GET, POST, PUT, DELETE
-3. **Consistent naming**: plural nouns, kebab-case
-4. **Version your API**: `/api/v1/users`
-5. **Return appropriate status codes**
-6. **Paginate collections**
-7. **Use HATEOAS for discoverability**
+### Architecture Smells
+```
+- Every change requires modifying multiple services
+- Can't deploy one component without deploying others
+- Can't test without the full system running
+- Unclear ownership of functionality
+- Data duplicated across services without clear reason
+```
 
-## ADR Template
+## Common Rationalizations - Don't Accept These
+
+| Excuse | Reality |
+|--------|---------|
+| "We'll refactor later" | Later never comes. Design right now. |
+| "It's just a prototype" | Prototypes become production. Build properly. |
+| "We need flexibility" | YAGNI. Build for known requirements. |
+| "That's how [BigCo] does it" | You're not BigCo. Match complexity to needs. |
+| "Microservices are best practice" | For your scale? Monolith is often better. |
+| "We might need to scale" | Design for 10x current load, not 1000x. |
+| "It's more maintainable" | Simpler is more maintainable. Prove otherwise. |
+
+## Architecture Decision Record Template
+
+For significant decisions, document:
 
 ```markdown
 # ADR-001: [Decision Title]
@@ -80,39 +144,55 @@ Dependencies point INWARD only
 [Proposed | Accepted | Deprecated | Superseded]
 
 ## Context
-[What is the issue? Why does this decision need to be made?]
+What is the issue? What forces are at play?
+
+## Options Considered
+1. **Option A**: [Description]
+   - Pros: ...
+   - Cons: ...
+
+2. **Option B**: [Description]
+   - Pros: ...
+   - Cons: ...
 
 ## Decision
-[What is the change being proposed?]
+We chose Option [X] because [reasoning].
 
 ## Consequences
-[What are the positive and negative results?]
+- Positive: ...
+- Negative: ...
+- Risks: ...
 ```
 
-## Code Organization
+## Quick Architecture Checklist
 
-### Feature-Based (Recommended)
-```
-src/
-├── users/
-│   ├── user.controller.ts
-│   ├── user.service.ts
-│   ├── user.repository.ts
-│   └── user.entity.ts
-├── orders/
-│   └── ...
-```
+Before approving any architectural decision:
 
-### Layer-Based
-```
-src/
-├── controllers/
-├── services/
-├── repositories/
-├── entities/
-```
+- [ ] **Requirements**: Do we understand what we're building and why?
+- [ ] **Options**: Have we considered at least 2 approaches?
+- [ ] **Trade-offs**: Are we explicit about what we're sacrificing?
+- [ ] **Simplicity**: Is this the simplest solution that meets requirements?
+- [ ] **Boundaries**: Are responsibilities clearly separated?
+- [ ] **Testability**: Can components be tested in isolation?
+- [ ] **Reversibility**: How hard is this to change if we're wrong?
+
+## Pattern Selection Guide
+
+| Problem | Consider | Avoid When |
+|---------|----------|------------|
+| Complex object creation | Factory, Builder | Object is simple |
+| Need one instance | Singleton (sparingly) | Testing matters |
+| Incompatible interfaces | Adapter | Can modify source |
+| Add behavior dynamically | Decorator | Inheritance works |
+| Simplify complex system | Facade | Need fine control |
+| Swappable algorithms | Strategy | Only one algorithm |
+| React to state changes | Observer | Simple callbacks work |
+| Undo/redo, queuing | Command | Simple function calls work |
 
 ## References
 
-See `references/` directory for detailed documentation:
-- `architect-research.md` - Comprehensive architecture patterns
+Detailed patterns and examples in `references/`:
+- `solid-principles.md` - SOLID with anti-patterns and fixes
+- `design-patterns.md` - Common patterns and when to use them
+- `api-design.md` - REST API design principles
+- `architecture-patterns.md` - Monolith, microservices, hexagonal

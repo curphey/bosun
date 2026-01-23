@@ -1,116 +1,232 @@
 ---
 name: bosun-java
-description: Java language best practices and idioms. Use when writing, reviewing, or debugging Java code. Provides modern Java patterns, Spring Boot, testing, and architecture guidance.
+description: "Java development process and modern practices review. Use when writing or reviewing Java code. Guides Spring Boot patterns, modern Java features, and enterprise best practices."
 tags: [java, spring, jvm, testing, enterprise]
 ---
 
-# Bosun Java Skill
+# Java Skill
 
-Java language knowledge base for enterprise Java development.
+## Overview
+
+Modern Java is expressive and powerful. This skill guides writing clean, maintainable Java that leverages modern language features and frameworks properly.
+
+**Core principle:** Favor immutability and composition. Modern Java (17+) provides the tools—records, sealed classes, pattern matching—use them.
 
 ## When to Use
 
-- Writing new Java code
-- Reviewing Java code for best practices
-- Working with Spring Boot applications
-- Implementing design patterns
-- Setting up Maven/Gradle projects
+Use this skill when you're about to:
+- Write new Java code
+- Review Java for best practices
+- Work with Spring Boot applications
+- Implement design patterns
+- Set up project structure
 
-## When NOT to Use
+**Use this ESPECIALLY when:**
+- Code uses mutable state everywhere
+- Null checks are scattered throughout
+- Optional is misused (`.get()`, `.isPresent()`)
+- Field injection is used instead of constructor
+- Old Java patterns persist (pre-Java 8)
 
-- Other languages (use appropriate language skill)
-- Security review (use bosun-security first)
-- Architecture decisions (use bosun-architect)
+## The Java Development Process
 
-## Modern Java Practices (17+)
+### Phase 1: Choose Modern Patterns
 
-### Records (Immutable Data)
+**Before writing implementation:**
+
+1. **Use Records for Data**
+   - Immutable data classes
+   - Built-in equals, hashCode, toString
+   - No boilerplate
+
+2. **Handle Absence with Optional**
+   - Return type only, not parameters
+   - Chain operations, don't check `.isPresent()`
+
+3. **Design for Immutability**
+   - Final fields by default
+   - Defensive copies for collections
+   - Builder pattern for complex objects
+
+### Phase 2: Implement Cleanly
+
+**Write modern Java:**
+
+1. **Use Records for DTOs**
+   ```java
+   // ✅ Modern: Record
+   public record User(String name, String email, int age) {}
+
+   // ❌ Legacy: Mutable POJO
+   public class User {
+       private String name;
+       private String email;
+       // getters, setters, equals, hashCode, toString...
+   }
+   ```
+
+2. **Chain Optional Operations**
+   ```java
+   // ✅ Functional style
+   String email = findUser(id)
+       .map(User::email)
+       .orElse("unknown@example.com");
+
+   // ❌ Imperative style
+   Optional<User> user = findUser(id);
+   String email;
+   if (user.isPresent()) {
+       email = user.get().email();
+   } else {
+       email = "unknown@example.com";
+   }
+   ```
+
+3. **Use Pattern Matching**
+   ```java
+   // ✅ Switch expressions
+   String result = switch (status) {
+       case ACTIVE -> "Active";
+       case PENDING -> "Pending";
+       case INACTIVE -> "Inactive";
+   };
+
+   // ✅ Pattern matching for instanceof
+   if (shape instanceof Circle c) {
+       return Math.PI * c.radius() * c.radius();
+   }
+   ```
+
+### Phase 3: Review for Quality
+
+**Before approving:**
+
+1. **Check Immutability**
+   - Records used for data?
+   - Collections defensively copied?
+   - No unnecessary mutability?
+
+2. **Check Null Safety**
+   - Optional used appropriately?
+   - No null returns from methods?
+   - Null checks at boundaries only?
+
+3. **Check Spring Patterns**
+   - Constructor injection used?
+   - Transactions at service layer?
+   - No business logic in controllers?
+
+## Red Flags - STOP and Fix
+
+### Optional Red Flags
 
 ```java
-// GOOD: Use records for data classes
-public record User(String name, String email, int age) {}
+// Optional.get() without check
+String name = optional.get();  // NoSuchElementException!
 
-// Use with builder pattern
-public record Config(String host, int port, boolean ssl) {
-    public static Builder builder() {
-        return new Builder();
+// Optional as parameter
+void process(Optional<String> name) {  // Just use @Nullable
+
+// Optional of nullable
+Optional.of(nullableValue);  // NullPointerException!
+
+// isPresent() + get() pattern
+if (opt.isPresent()) {
+    return opt.get();  // Use orElse, map, etc.
+}
+```
+
+### Dependency Injection Red Flags
+
+```java
+// Field injection
+@Autowired
+private UserRepository userRepository;  // Hard to test!
+
+// Circular dependencies
+@Service class A { @Autowired B b; }
+@Service class B { @Autowired A a; }  // Design problem
+
+// @Autowired on setter
+@Autowired
+public void setRepository(Repo repo) {}  // Use constructor
+```
+
+### Design Red Flags
+
+```java
+// Mutable state in services
+@Service
+public class UserService {
+    private List<User> cache = new ArrayList<>();  // Shared mutable state!
+}
+
+// Null return values
+public User findById(Long id) {
+    return repo.findById(id).orElse(null);  // Return Optional instead
+}
+
+// Checked exceptions for flow control
+try {
+    return findUser(id);
+} catch (UserNotFoundException e) {
+    return createUser(id);  // Use Optional
+}
+```
+
+## Common Rationalizations - Don't Accept These
+
+| Excuse | Reality |
+|--------|---------|
+| "Optional is overhead" | JVM optimizes it. Correctness > micro-optimization. |
+| "Records are too limited" | That's the point. Use classes when you need mutability. |
+| "Field injection is cleaner" | It's untestable. Use constructor injection. |
+| "We need setters for frameworks" | Modern frameworks work with immutables. Update them. |
+| "Null is fine with documentation" | Documentation doesn't prevent NPEs. Use types. |
+| "It's just internal code" | Internal code becomes public API. Write it right. |
+
+## Java Quality Checklist
+
+Before approving Java code:
+
+- [ ] **Modern features**: Records, pattern matching, switch expressions
+- [ ] **Immutability**: Final fields, defensive copies
+- [ ] **Optional correct**: No `.get()`, no parameters, chained operations
+- [ ] **Constructor injection**: No `@Autowired` on fields
+- [ ] **No nulls**: Optional returns, validated inputs
+- [ ] **Tests present**: Unit and integration tests
+- [ ] **Linting clean**: SpotBugs, Checkstyle pass
+
+## Quick Patterns
+
+### Service Layer
+
+```java
+@Service
+@RequiredArgsConstructor  // Lombok generates constructor
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final EventPublisher eventPublisher;
+
+    @Transactional(readOnly = true)
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    @Transactional
+    public User create(CreateUserRequest request) {
+        User user = User.builder()
+            .name(request.name())
+            .email(request.email())
+            .build();
+
+        User saved = userRepository.save(user);
+        eventPublisher.publish(new UserCreatedEvent(saved));
+        return saved;
     }
 }
 ```
-
-### Pattern Matching
-
-```java
-// Switch expressions
-String result = switch (status) {
-    case ACTIVE -> "Active";
-    case PENDING -> "Pending";
-    case INACTIVE -> "Inactive";
-};
-
-// Pattern matching for instanceof
-if (obj instanceof String s) {
-    System.out.println(s.length());
-}
-
-// Sealed classes
-public sealed interface Shape permits Circle, Rectangle, Triangle {}
-```
-
-### Optional Handling
-
-```java
-// GOOD: Chain operations
-Optional<User> user = findUser(id);
-String email = user
-    .map(User::email)
-    .orElse("unknown@example.com");
-
-// GOOD: Throw on missing
-User user = findUser(id)
-    .orElseThrow(() -> new UserNotFoundException(id));
-
-// BAD: isPresent/get pattern
-if (optional.isPresent()) {
-    return optional.get(); // Don't do this
-}
-```
-
-## Naming Conventions
-
-| Type | Convention | Example |
-|------|------------|---------|
-| Classes | PascalCase | `UserService` |
-| Interfaces | PascalCase | `UserRepository` |
-| Methods | camelCase | `getUserById` |
-| Constants | SCREAMING_SNAKE | `MAX_CONNECTIONS` |
-| Packages | lowercase | `com.example.service` |
-
-## Project Structure (Maven)
-
-```
-myproject/
-├── pom.xml
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/example/
-│   │   │       ├── Application.java
-│   │   │       ├── controller/
-│   │   │       ├── service/
-│   │   │       ├── repository/
-│   │   │       ├── model/
-│   │   │       └── config/
-│   │   └── resources/
-│   │       ├── application.yml
-│   │       └── logback.xml
-│   └── test/
-│       └── java/
-│           └── com/example/
-└── target/
-```
-
-## Spring Boot Patterns
 
 ### Controller Layer
 
@@ -133,34 +249,6 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public User createUser(@Valid @RequestBody CreateUserRequest request) {
         return userService.create(request);
-    }
-}
-```
-
-### Service Layer
-
-```java
-@Service
-@Transactional
-@RequiredArgsConstructor
-public class UserService {
-
-    private final UserRepository userRepository;
-    private final EventPublisher eventPublisher;
-
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
-    }
-
-    public User create(CreateUserRequest request) {
-        User user = User.builder()
-            .name(request.name())
-            .email(request.email())
-            .build();
-
-        User saved = userRepository.save(user);
-        eventPublisher.publish(new UserCreatedEvent(saved));
-        return saved;
     }
 }
 ```
@@ -190,101 +278,32 @@ public class GlobalExceptionHandler {
 }
 ```
 
-## Testing
+## Quick Commands
 
-### Unit Tests (JUnit 5)
+```bash
+# Build
+mvn clean install
+./gradlew build
 
-```java
-@ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+# Test
+mvn test
+./gradlew test
 
-    @Mock
-    private UserRepository userRepository;
+# Static analysis
+mvn spotbugs:check
+mvn checkstyle:check
 
-    @InjectMocks
-    private UserService userService;
+# Coverage report
+mvn jacoco:report
 
-    @Test
-    void findById_existingUser_returnsUser() {
-        // Given
-        User user = new User(1L, "John", "john@example.com");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-
-        // When
-        Optional<User> result = userService.findById(1L);
-
-        // Then
-        assertThat(result).isPresent();
-        assertThat(result.get().name()).isEqualTo("John");
-    }
-
-    @Test
-    void findById_nonExistingUser_returnsEmpty() {
-        when(userRepository.findById(99L)).thenReturn(Optional.empty());
-
-        Optional<User> result = userService.findById(99L);
-
-        assertThat(result).isEmpty();
-    }
-}
+# Run application
+mvn spring-boot:run
+./gradlew bootRun
 ```
-
-### Integration Tests
-
-```java
-@SpringBootTest
-@AutoConfigureMockMvc
-@Testcontainers
-class UserControllerIT {
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15");
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Test
-    void createUser_validRequest_returnsCreated() throws Exception {
-        mockMvc.perform(post("/api/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {"name": "John", "email": "john@example.com"}
-                    """))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.name").value("John"));
-    }
-}
-```
-
-## Dependency Injection
-
-```java
-// GOOD: Constructor injection (preferred)
-@Service
-@RequiredArgsConstructor
-public class OrderService {
-    private final OrderRepository orderRepository;
-    private final PaymentService paymentService;
-}
-
-// BAD: Field injection
-@Service
-public class OrderService {
-    @Autowired // Don't do this
-    private OrderRepository orderRepository;
-}
-```
-
-## Tools
-
-| Tool | Purpose | Command |
-|------|---------|---------|
-| Maven | Build | `mvn clean install` |
-| Gradle | Build | `./gradlew build` |
-| SpotBugs | Static analysis | `mvn spotbugs:check` |
-| Checkstyle | Style check | `mvn checkstyle:check` |
-| JaCoCo | Coverage | `mvn jacoco:report` |
 
 ## References
 
-See `references/` directory for detailed documentation.
+Detailed patterns and examples in `references/`:
+- `modern-java.md` - Java 17+ features
+- `spring-patterns.md` - Spring Boot best practices
+- `testing-patterns.md` - JUnit 5 and Mockito patterns

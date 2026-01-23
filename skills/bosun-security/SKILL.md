@@ -1,102 +1,178 @@
 ---
 name: bosun-security
-description: Security best practices and vulnerability patterns. Use when reviewing code for security issues, implementing authentication, handling secrets, or scanning dependencies. Provides OWASP patterns, injection prevention, and security tool guidance.
+description: "Security review process and vulnerability prevention. Use when reviewing code for security issues, implementing auth, or handling secrets. Guides systematic security analysis before approving any code."
 tags: [security, vulnerabilities, owasp, authentication, secrets]
 ---
 
-# Bosun Security Skill
+# Security Review Skill
 
-Security knowledge base for vulnerability identification and secure coding practices.
+## Overview
+
+Security issues are cheap to prevent, expensive to fix after deployment. This skill guides systematic security review before code ships.
+
+**Core principle:** Every code change is a potential security change. Review security implications BEFORE approving.
 
 ## When to Use
 
-- Reviewing code for security vulnerabilities
-- Implementing authentication/authorization
-- Handling secrets and credentials
-- Scanning dependencies for vulnerabilities
-- Setting up security headers
-- Configuring SAST tools
+Use this skill when you're about to:
+- Review any PR or code change
+- Implement authentication or authorization
+- Handle user input, secrets, or sensitive data
+- Add new API endpoints or external integrations
+- Approve code that touches security boundaries
 
-## When NOT to Use
+**Use this ESPECIALLY when:**
+- Code handles user input (forms, APIs, file uploads)
+- Code touches authentication, sessions, or tokens
+- Code includes database queries or shell commands
+- Code manages secrets, keys, or credentials
+- Someone says "it's just a small change"
 
-- General code quality (use bosun-architect)
-- Threat modeling methodology (use bosun-threat-model)
-- Language-specific patterns (use language skills)
+## The Security Review Process
 
-## Core Security Principles
+### Phase 1: Threat Surface Identification
 
-### 1. Secret Management
-- **Never** hardcode secrets in code or configs
-- Use environment variables or secret managers
-- Configure `.gitignore` for sensitive files
-- Run pre-commit secret scanning (Gitleaks, TruffleHog)
+Before reviewing code details, identify what's at risk:
 
-### 2. Injection Prevention
-- **Always** use parameterized queries for SQL
-- **Never** concatenate user input into queries/commands
-- Apply context-appropriate output encoding for XSS
-- Use `execFile` over `exec` for command execution
+1. **Data Classification**
+   - What sensitive data does this code touch?
+   - PII, credentials, financial data, health records?
+   - What's the impact if this data leaks?
 
-### 3. Authentication
-- Short-lived access tokens (15-60 min)
-- Store tokens in HttpOnly cookies, not localStorage
-- Implement proper session management
-- Use OAuth 2.0 / OpenID Connect for third-party auth
+2. **Trust Boundaries**
+   - Where does untrusted input enter?
+   - User input, API responses, file contents, environment variables?
+   - What assumes data is "safe"?
 
-### 4. Security Headers
-- `Strict-Transport-Security` (HSTS)
-- `Content-Security-Policy` (CSP)
-- `X-Content-Type-Options: nosniff`
-- `X-Frame-Options: DENY`
+3. **Attack Surface**
+   - What new endpoints or interfaces are added?
+   - What existing security controls might be bypassed?
 
-### 5. Dependency Security
-- Run `npm audit` / `pip-audit` / `govulncheck` regularly
-- Enable Dependabot or Renovate
-- Review and update vulnerable dependencies promptly
+### Phase 2: Vulnerability Scanning
 
-## Quick Reference
+Check for common vulnerability patterns:
 
-### Secret Patterns to Detect
+1. **Injection Points** (CRITICAL - check first)
+   - SQL queries with string concatenation
+   - Shell command execution with user input
+   - HTML rendering with unescaped content
+   - See `references/owasp-top-10.md` for patterns
+
+2. **Authentication/Authorization**
+   - Missing auth checks on endpoints
+   - Broken access control (can user A access user B's data?)
+   - Weak session management
+   - See `references/auth-patterns.md` for secure patterns
+
+3. **Secrets Management**
+   - Hardcoded credentials, API keys, tokens
+   - Secrets in logs or error messages
+   - Secrets committed to git history
+   - See `references/secrets-guide.md` for detection patterns
+
+4. **Data Exposure**
+   - Sensitive data in responses (passwords, tokens, PII)
+   - Verbose error messages revealing internals
+   - Debug endpoints left enabled
+
+### Phase 3: Verification
+
+Before approving:
+
+1. **Test Security Controls**
+   - Do auth checks actually prevent unauthorized access?
+   - Does input validation reject malicious input?
+   - Are rate limits effective?
+
+2. **Review Dependencies**
+   - Any new dependencies with known vulnerabilities?
+   - Run `npm audit` / `pip-audit` / `govulncheck`
+
+3. **Check Configuration**
+   - Security headers configured?
+   - HTTPS enforced?
+   - Secure cookie flags set?
+
+## Red Flags - STOP and Investigate
+
+If you see ANY of these, STOP and investigate before proceeding:
+
+### Critical - Block Immediately
 ```
-API_KEY=
-SECRET=
-PASSWORD=
-PRIVATE_KEY=
-aws_access_key_id
------BEGIN.*PRIVATE KEY-----
+- String concatenation in SQL: f"SELECT * FROM users WHERE id = '{id}'"
+- eval() or exec() with any external input
+- innerHTML with user-controlled content
+- Hardcoded secrets: API_KEY = "sk-live-..."
+- Missing authentication on sensitive endpoints
+- Shell commands with user input: os.system(f"ls {path}")
 ```
 
-### Secure vs Insecure Patterns
-
-```python
-# INSECURE: SQL injection
-query = f"SELECT * FROM users WHERE id = '{user_id}'"
-
-# SECURE: Parameterized query
-query = "SELECT * FROM users WHERE id = %s"
-cursor.execute(query, (user_id,))
+### High Risk - Require Justification
+```
+- Disabling security features: verify=False, --no-verify
+- Broad CORS: Access-Control-Allow-Origin: *
+- Elevated privileges: running as root, admin endpoints
+- Cryptographic operations (easy to get wrong)
+- Custom auth implementations (use standard libraries)
 ```
 
-```javascript
-// INSECURE: XSS
-element.innerHTML = userInput;
-
-// SECURE: Safe assignment
-element.textContent = userInput;
+### Suspicious Patterns - Question Intent
+```
+- Base64 "encoding" treated as encryption
+- MD5/SHA1 for passwords (use bcrypt/argon2)
+- JWT with 'none' algorithm or long expiry
+- Catching and silencing all exceptions
+- Comments like "TODO: add auth later"
 ```
 
-## Security Tools
+## Common Rationalizations - Don't Accept These
 
-| Tool | Language | Purpose |
-|------|----------|---------|
-| Semgrep | Multi | SAST, pattern matching |
-| Bandit | Python | Security linter |
-| Gosec | Go | Security linter |
-| npm audit | Node.js | Dependency scanning |
-| pip-audit | Python | Dependency scanning |
-| govulncheck | Go | Dependency scanning |
+| Excuse | Reality |
+|--------|---------|
+| "It's internal only" | Internal apps get compromised. Apply same standards. |
+| "We'll add security later" | Later never comes. Security debt compounds. |
+| "It's behind a firewall" | Defense in depth. Assume firewall fails. |
+| "Only admins use this" | Admin credentials get stolen. Validate anyway. |
+| "The framework handles it" | Frameworks have defaults. Verify they're secure. |
+| "It's just for testing" | Test code ships to production. It happens. |
+| "We trust this input" | Trust is a vulnerability. Validate everything. |
+
+## Security Checklist
+
+Before approving ANY code change:
+
+- [ ] **Injection**: No string concatenation in queries/commands
+- [ ] **Auth**: All sensitive endpoints require authentication
+- [ ] **AuthZ**: Users can only access their own data
+- [ ] **Secrets**: No hardcoded credentials, keys in env vars
+- [ ] **Input**: All user input validated and sanitized
+- [ ] **Output**: Sensitive data not leaked in responses/logs
+- [ ] **Dependencies**: No known vulnerabilities (`npm audit` clean)
+- [ ] **Headers**: Security headers configured (CSP, HSTS, etc.)
+
+## Quick Reference Commands
+
+```bash
+# Secret scanning
+gitleaks detect --source .
+trufflehog filesystem .
+
+# Dependency audit
+npm audit                    # Node.js
+pip-audit                    # Python
+govulncheck ./...           # Go
+cargo audit                  # Rust
+
+# SAST scanning
+semgrep --config auto .
+bandit -r src/              # Python
+gosec ./...                 # Go
+```
 
 ## References
 
-See `references/` directory for detailed documentation:
-- `security-research.md` - Comprehensive security patterns and tools
+Detailed patterns and examples in `references/`:
+- `owasp-top-10.md` - Top 10 vulnerabilities with code examples
+- `auth-patterns.md` - Secure authentication implementation
+- `secrets-guide.md` - Secret detection and management
+- `security-headers.md` - HTTP security header configuration

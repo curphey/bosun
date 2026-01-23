@@ -1,126 +1,248 @@
 ---
 name: bosun-azure
-description: Microsoft Azure security and best practices. Use when reviewing Azure infrastructure, RBAC policies, Storage accounts, Azure Functions, or ARM/Bicep templates. Provides patterns for secure Azure deployments.
+description: "Azure infrastructure security review process. Use when reviewing RBAC, Storage accounts, Azure Functions, App Service, or Bicep/ARM templates. Guides systematic security assessment of Azure deployments."
 tags: [azure, cloud, security, rbac, storage, functions, infrastructure]
 ---
 
-# Bosun Azure Skill
+# Azure Skill
 
-Azure security patterns and infrastructure best practices for secure cloud deployments.
+## Overview
+
+Azure provides strong security controls, but they must be explicitly configured. This skill guides systematic review of Azure infrastructure for security misconfigurations.
+
+**Core principle:** Use managed identities, not service principal secrets. Azure AD authentication with managed identities eliminates credential management and reduces attack surface.
 
 ## When to Use
 
-- Reviewing Azure RBAC and managed identities
-- Auditing Storage account configurations
-- Securing Azure Functions and App Service
-- Reviewing ARM templates or Bicep files
-- Setting up VNet and network security groups
-- Configuring Azure SQL security
+Use this skill when you're about to:
+- Review Azure RBAC and managed identities
+- Audit Storage account configurations
+- Secure Azure Functions and App Service
+- Review Bicep/ARM templates or Terraform
+- Configure VNet and network security groups
 
-## When NOT to Use
+**Use this ESPECIALLY when:**
+- Service principals use secrets instead of managed identities
+- Storage accounts allow public blob access
+- Azure SQL uses SQL authentication instead of Azure AD
+- NSG rules allow 0.0.0.0/0
+- Secrets appear in application settings
 
-- General infrastructure patterns (use bosun-devops)
-- AWS-specific (use bosun-aws)
-- GCP-specific (use bosun-gcp)
-- Kubernetes (use bosun-devops)
+## The Azure Security Review Process
 
-## RBAC Security
+### Phase 1: Check Identity First
 
-### Managed Identity Best Practices
+**Identity is the foundation. Start here:**
+
+1. **Review Role Assignments**
+   - Scoped to resource group or resource (not subscription)?
+   - Using built-in roles (not Owner/Contributor)?
+   - No classic administrators?
+
+2. **Check Managed Identities**
+   - User-assigned for critical workloads?
+   - No service principal secrets?
+   - Proper role assignments?
+
+3. **Verify Azure AD Integration**
+   - Azure AD only for Azure SQL?
+   - No shared key access for Storage?
+   - Conditional Access where appropriate?
+
+### Phase 2: Check Network Boundaries
+
+**Then verify network isolation:**
+
+1. **Network Security Groups**
+   - No 0.0.0.0/0 ingress (except Application Gateway)?
+   - Deny rules for sensitive resources?
+   - Flow Logs enabled?
+
+2. **Private Endpoints**
+   - PaaS services use private endpoints?
+   - No public endpoints for data stores?
+   - DNS configured for private resolution?
+
+3. **Access Restrictions**
+   - App Service access restrictions?
+   - Function App access restrictions?
+   - Azure Bastion for VMs?
+
+### Phase 3: Check Data Protection
+
+**Finally, verify data security:**
+
+1. **Encryption**
+   - Customer-managed keys for sensitive data?
+   - HTTPS only / TLS 1.2+?
+   - Key Vault for secrets?
+
+2. **Storage Security**
+   - Public blob access disabled?
+   - Shared key access disabled?
+   - Soft delete enabled?
+
+## Red Flags - STOP and Investigate
+
+### RBAC Red Flags
 
 ```bicep
-// User-assigned managed identity (preferred)
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: 'app-identity'
-  location: location
-}
-
-// Role assignment with least privilege
+// ❌ CRITICAL: Owner at subscription
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(resourceGroup().id, managedIdentity.id, 'Storage Blob Data Reader')
+  scope: subscription()
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1') // Storage Blob Data Reader
-    principalId: managedIdentity.properties.principalId
-    principalType: 'ServicePrincipal'
-  }
-}
-```
-
-### RBAC Anti-Patterns
-
-| Anti-Pattern | Risk | Fix |
-|--------------|------|-----|
-| Owner role | Full control | Use specific roles |
-| Contributor role | Too broad | Scope to service-specific roles |
-| Classic administrators | Legacy, hard to audit | Use RBAC only |
-| Service principal secrets | Credential management | Use managed identities |
-| Subscription-level assignments | Blast radius | Scope to resource group |
-
-### Secure Role Assignment
-
-```bicep
-// ❌ BAD: Owner at subscription level
-resource badAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(subscription().id, 'owner')
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635') // Owner
+    roleDefinitionId: 'Owner'  // Too broad!
     principalId: principalId
   }
-  scope: subscription()
 }
 
-// ✅ GOOD: Specific role at resource scope
-resource goodAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(storageAccount.id, managedIdentity.id, 'blob-reader')
+// ❌ HIGH: Contributor role (still too broad)
+roleDefinitionId: 'Contributor'
+
+// ❌ HIGH: Service principal with secret
+// (Should use managed identity)
+
+// ❌ MEDIUM: Assignment at subscription level
+scope: subscription()  // Should be resource group or resource
+```
+
+### Storage Red Flags
+
+```bicep
+// ❌ CRITICAL: Public blob access
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1') // Storage Blob Data Reader
-    principalId: managedIdentity.properties.principalId
-    principalType: 'ServicePrincipal'
+    allowBlobPublicAccess: true  // Public!
   }
-  scope: storageAccount
+}
+
+// ❌ HIGH: Shared key access
+allowSharedKeyAccess: true  // Use Azure AD only
+
+// ❌ HIGH: HTTP allowed
+supportsHttpsTrafficOnly: false
+
+// ❌ MEDIUM: Old TLS
+minimumTlsVersion: 'TLS1_0'  // Use TLS1_2
+```
+
+### Network Red Flags
+
+```bicep
+// ❌ CRITICAL: Open to internet
+resource nsg 'Microsoft.Network/networkSecurityGroups@2023-05-01' = {
+  properties: {
+    securityRules: [
+      {
+        properties: {
+          direction: 'Inbound'
+          sourceAddressPrefix: '*'  // From anywhere!
+          destinationPortRange: '22'
+          access: 'Allow'
+        }
+      }
+    ]
+  }
+}
+
+// ❌ HIGH: Public SQL
+resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
+  properties: {
+    publicNetworkAccess: 'Enabled'  // Should be Disabled
+  }
 }
 ```
 
-## Storage Account Security
+### App Service Red Flags
 
-### Secure Storage Configuration
+```bicep
+// ❌ HIGH: HTTP allowed
+resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
+  properties: {
+    httpsOnly: false  // Should be true
+  }
+}
+
+// ❌ HIGH: FTP enabled
+siteConfig: {
+  ftpsState: 'AllAllowed'  // Should be Disabled
+}
+
+// ❌ HIGH: Secrets in app settings
+appSettings: [
+  {
+    name: 'DB_PASSWORD'
+    value: 'actual-password-here'  // Use Key Vault reference!
+  }
+]
+```
+
+## Common Rationalizations - Don't Accept These
+
+| Excuse | Reality |
+|--------|---------|
+| "Owner role is easiest" | Built-in roles exist. Use Storage Blob Data Reader, etc. |
+| "Managed identity is complex" | It's simpler than managing secrets. Enable it. |
+| "We need public storage" | Use SAS tokens or Azure CDN with auth. |
+| "SQL auth is fine" | Azure AD only is more secure. Migrate to it. |
+| "Bastion is expensive" | Cheaper than a breach. Use it for VM access. |
+| "Key Vault refs are overhead" | Secrets in settings are visible in portal. Use KV. |
+
+## Azure Security Checklist
+
+Before approving Azure infrastructure:
+
+**Identity:**
+- [ ] No Owner/Contributor at subscription level
+- [ ] Managed identities (not SP secrets)
+- [ ] Azure AD only for data services
+- [ ] Scoped role assignments
+
+**Network:**
+- [ ] No 0.0.0.0/0 in NSG rules
+- [ ] Private endpoints for PaaS
+- [ ] NSG Flow Logs enabled
+- [ ] Azure Bastion for VM access
+
+**Storage:**
+- [ ] Public blob access disabled
+- [ ] Shared key access disabled
+- [ ] HTTPS only, TLS 1.2+
+- [ ] Soft delete enabled
+
+**Compute:**
+- [ ] Managed identity enabled
+- [ ] Secrets from Key Vault
+- [ ] Access restrictions configured
+- [ ] FTP disabled
+
+## Quick Patterns
+
+### Secure Storage Account
 
 ```bicep
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
   location: location
-  sku: {
-    name: 'Standard_GRS'  // Geo-redundant
-  }
+  sku: { name: 'Standard_GRS' }
   kind: 'StorageV2'
   properties: {
-    // Disable public access
     allowBlobPublicAccess: false
-    allowSharedKeyAccess: false  // Use Azure AD only!
-
-    // Require secure transfer
+    allowSharedKeyAccess: false
     supportsHttpsTrafficOnly: true
     minimumTlsVersion: 'TLS1_2'
-
-    // Network restrictions
     networkAcls: {
       defaultAction: 'Deny'
       bypass: 'AzureServices'
       virtualNetworkRules: [
-        {
-          id: subnet.id
-          action: 'Allow'
-        }
+        { id: subnet.id, action: 'Allow' }
       ]
     }
-
-    // Encryption
     encryption: {
       services: {
         blob: { enabled: true, keyType: 'Account' }
-        file: { enabled: true, keyType: 'Account' }
       }
-      keySource: 'Microsoft.Keyvault'  // Customer-managed keys
+      keySource: 'Microsoft.Keyvault'
       keyvaultproperties: {
         keyname: keyVaultKey.name
         keyvaulturi: keyVault.properties.vaultUri
@@ -128,366 +250,63 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     }
   }
 }
-
-// Enable soft delete
-resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
-  parent: storageAccount
-  name: 'default'
-  properties: {
-    deleteRetentionPolicy: {
-      enabled: true
-      days: 30
-    }
-    containerDeleteRetentionPolicy: {
-      enabled: true
-      days: 30
-    }
-  }
-}
 ```
 
-### Storage Anti-Patterns
-
-| Anti-Pattern | Risk | Fix |
-|--------------|------|-----|
-| `allowBlobPublicAccess: true` | Public containers | Set to false |
-| `allowSharedKeyAccess: true` | Key-based access | Use Azure AD |
-| HTTP allowed | Unencrypted traffic | `supportsHttpsTrafficOnly: true` |
-| TLS 1.0/1.1 | Weak encryption | `minimumTlsVersion: 'TLS1_2'` |
-| No network rules | Open to internet | Use VNet rules or private endpoints |
-| No soft delete | Data loss | Enable retention policies |
-
-## Azure Functions Security
-
-### Secure Function Configuration
+### Secure Role Assignment
 
 ```bicep
-resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
-  name: functionAppName
-  location: location
-  kind: 'functionapp'
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${managedIdentity.id}': {}
-    }
-  }
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(storageAccount.id, managedIdentity.id, 'blob-reader')
+  scope: storageAccount  // Resource-level, not subscription!
   properties: {
-    serverFarmId: appServicePlan.id
-    httpsOnly: true
-
-    siteConfig: {
-      ftpsState: 'Disabled'
-      minTlsVersion: '1.2'
-      http20Enabled: true
-
-      // VNet integration
-      vnetRouteAllEnabled: true
-
-      appSettings: [
-        {
-          name: 'AzureWebJobsStorage'
-          value: '@Microsoft.KeyVault(SecretUri=${keyVaultSecret.properties.secretUri})'
-        }
-        {
-          name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: 'node'
-        }
-        {
-          name: 'WEBSITE_RUN_FROM_PACKAGE'
-          value: '1'
-        }
-      ]
-    }
-
-    virtualNetworkSubnetId: subnet.id
-  }
-}
-
-// Restrict access to function
-resource functionAccessRestriction 'Microsoft.Web/sites/config@2023-01-01' = {
-  parent: functionApp
-  name: 'web'
-  properties: {
-    ipSecurityRestrictions: [
-      {
-        ipAddress: 'AzureFrontDoor.Backend'
-        action: 'Allow'
-        tag: 'ServiceTag'
-        priority: 100
-        name: 'Allow Front Door'
-      }
-      {
-        ipAddress: 'Any'
-        action: 'Deny'
-        priority: 2147483647
-        name: 'Deny all'
-      }
-    ]
-  }
-}
-```
-
-### Functions Anti-Patterns
-
-| Anti-Pattern | Risk | Fix |
-|--------------|------|-----|
-| Anonymous auth | Public endpoint | Use function keys or Azure AD |
-| System-assigned identity | Lifecycle issues | Use user-assigned |
-| Secrets in app settings | Visible in portal | Use Key Vault references |
-| No VNet integration | Public network | Enable VNet integration |
-| FTP enabled | Legacy, insecure | Set `ftpsState: 'Disabled'` |
-
-## VNet & NSG Security
-
-### Network Security Group Rules
-
-```bicep
-resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2023-05-01' = {
-  name: nsgName
-  location: location
-  properties: {
-    securityRules: [
-      // ❌ BAD: Open SSH
-      // {
-      //   name: 'AllowSSH'
-      //   properties: {
-      //     priority: 100
-      //     direction: 'Inbound'
-      //     access: 'Allow'
-      //     protocol: 'Tcp'
-      //     sourceAddressPrefix: '*'  // From anywhere!
-      //     destinationPortRange: '22'
-      //   }
-      // }
-
-      // ✅ GOOD: Restricted HTTPS from App Gateway
-      {
-        name: 'AllowAppGateway'
-        properties: {
-          priority: 100
-          direction: 'Inbound'
-          access: 'Allow'
-          protocol: 'Tcp'
-          sourceAddressPrefix: 'GatewayManager'
-          sourcePortRange: '*'
-          destinationAddressPrefix: '*'
-          destinationPortRange: '443'
-        }
-      }
-      {
-        name: 'DenyAllInbound'
-        properties: {
-          priority: 4096
-          direction: 'Inbound'
-          access: 'Deny'
-          protocol: '*'
-          sourceAddressPrefix: '*'
-          sourcePortRange: '*'
-          destinationAddressPrefix: '*'
-          destinationPortRange: '*'
-        }
-      }
-    ]
-  }
-}
-```
-
-### VNet Best Practices
-
-| Practice | Implementation |
-|----------|----------------|
-| Private endpoints | Access PaaS services privately |
-| Service endpoints | VNet-to-service traffic |
-| NSG Flow Logs | Network monitoring |
-| Azure Bastion | Secure VM access |
-| No public IPs | Use NAT Gateway for outbound |
-| Network Watcher | Diagnostics and monitoring |
-
-## Azure SQL Security
-
-### Secure SQL Configuration
-
-```bicep
-resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
-  name: sqlServerName
-  location: location
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${managedIdentity.id}': {}
-    }
-  }
-  properties: {
-    // Azure AD only authentication
-    administrators: {
-      azureADOnlyAuthentication: true
-      administratorType: 'ActiveDirectory'
-      login: aadAdminGroup
-      sid: aadAdminGroupId
-      tenantId: subscription().tenantId
-    }
-
-    // Disable public access
-    publicNetworkAccess: 'Disabled'
-
-    minimalTlsVersion: '1.2'
-  }
-}
-
-resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-05-01-preview' = {
-  parent: sqlServer
-  name: databaseName
-  location: location
-  sku: {
-    name: 'GP_Gen5_2'
-  }
-  properties: {
-    // Transparent Data Encryption
-    // (enabled by default, but can use customer-managed keys)
-  }
-}
-
-// Private endpoint
-resource sqlPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
-  name: '${sqlServerName}-pe'
-  location: location
-  properties: {
-    subnet: {
-      id: subnet.id
-    }
-    privateLinkServiceConnections: [
-      {
-        name: '${sqlServerName}-plsc'
-        properties: {
-          privateLinkServiceId: sqlServer.id
-          groupIds: ['sqlServer']
-        }
-      }
-    ]
-  }
-}
-```
-
-### SQL Anti-Patterns
-
-| Anti-Pattern | Risk | Fix |
-|--------------|------|-----|
-| SQL authentication | Weak credentials | Use Azure AD only |
-| Public network access | Direct internet access | Use private endpoints |
-| TLS < 1.2 | Weak encryption | Set `minimalTlsVersion: '1.2'` |
-| No auditing | No visibility | Enable auditing to Log Analytics |
-| Firewall rule 0.0.0.0 | Allow all Azure | Use private endpoints |
-
-## Key Vault Security
-
-### Using Key Vault
-
-```bicep
-resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
-  name: keyVaultName
-  location: location
-  properties: {
-    sku: {
-      family: 'A'
-      name: 'standard'
-    }
-    tenantId: subscription().tenantId
-
-    // RBAC instead of access policies
-    enableRbacAuthorization: true
-
-    // Soft delete and purge protection
-    enableSoftDelete: true
-    softDeleteRetentionInDays: 90
-    enablePurgeProtection: true
-
-    // Network restrictions
-    networkAcls: {
-      defaultAction: 'Deny'
-      bypass: 'AzureServices'
-      virtualNetworkRules: [
-        { id: subnet.id }
-      ]
-    }
-  }
-}
-
-// Grant access via RBAC
-resource kvSecretsUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(keyVault.id, managedIdentity.id, 'secrets-user')
-  scope: keyVault
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6') // Key Vault Secrets User
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1'  // Storage Blob Data Reader
+    )
     principalId: managedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }
 ```
 
-### Secrets in App Settings
+### Key Vault Reference
 
 ```bicep
-// Reference Key Vault secrets in app settings
-appSettings: [
-  {
-    name: 'DatabasePassword'
-    value: '@Microsoft.KeyVault(SecretUri=${keyVault.properties.vaultUri}secrets/db-password/)'
+resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
+  properties: {
+    siteConfig: {
+      appSettings: [
+        {
+          name: 'DatabasePassword'
+          value: '@Microsoft.KeyVault(SecretUri=${keyVault.properties.vaultUri}secrets/db-password/)'
+        }
+      ]
+    }
   }
-]
+}
 ```
 
-## Quick Reference
+## Quick Security Scans
 
-### Security Checklist
+```bash
+# Azure CLI
+az security assessment list
+az storage account list --query "[?allowBlobPublicAccess==true]"
+az network nsg list --query "[].securityRules[?sourceAddressPrefix=='*']"
 
-**RBAC:**
-- [ ] No Owner/Contributor at subscription level
-- [ ] Managed identities (not service principal secrets)
-- [ ] Scope assignments to resource groups
-- [ ] Custom roles for fine-grained access
+# Third-party scanners
+checkov -f main.bicep           # Bicep scanning
+tfsec .                         # Terraform scanning
+az policy assignment list       # Azure Policy compliance
 
-**Storage:**
-- [ ] Public blob access disabled
-- [ ] Shared key access disabled (Azure AD only)
-- [ ] HTTPS only, TLS 1.2+
-- [ ] Private endpoints or VNet rules
-- [ ] Soft delete enabled
-
-**Functions/App Service:**
-- [ ] HTTPS only
-- [ ] User-assigned managed identity
-- [ ] Secrets from Key Vault
-- [ ] VNet integration
-- [ ] Access restrictions configured
-
-**Network:**
-- [ ] No public IPs on VMs
-- [ ] NSG rules are restrictive
-- [ ] NSG Flow Logs enabled
-- [ ] Azure Bastion for admin access
-
-**Data:**
-- [ ] Azure AD authentication only
-- [ ] Private endpoints for PaaS
-- [ ] TLS 1.2+ required
-- [ ] Auditing enabled
-
-### Azure Security Tools
-
-| Tool | Purpose | Usage |
-|------|---------|-------|
-| Microsoft Defender for Cloud | Security posture | Portal |
-| Azure Policy | Compliance enforcement | Portal/CLI |
-| Azure Advisor | Best practice recommendations | Portal |
-| Network Watcher | Network diagnostics | Portal/CLI |
-| az cli | CLI management | `az` commands |
-| Checkov | IaC security | `checkov -f main.bicep` |
-| tfsec | Terraform security | `tfsec .` |
+# Microsoft tools
+# - Microsoft Defender for Cloud (portal)
+# - Azure Advisor (portal)
+```
 
 ## References
 
-See `references/` for detailed documentation:
-- `rbac-patterns.md` - Advanced RBAC patterns
+Detailed patterns and examples in `references/`:
+- `rbac-patterns.md` - Advanced RBAC and managed identities
 - `network-security.md` - VNet and NSG patterns
 - `defender.md` - Microsoft Defender configuration

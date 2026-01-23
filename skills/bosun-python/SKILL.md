@@ -1,175 +1,262 @@
 ---
 name: bosun-python
-description: Python best practices and patterns. Use when writing, reviewing, or debugging Python code. Provides PEP 8 guidance, type hints, testing with pytest, and async patterns.
+description: "Python development process and code quality review. Use when writing or reviewing Python code. Guides systematic Pythonic development practices."
 tags: [python, pep8, pytest, typing, async]
 ---
 
-# Bosun Python Skill
+# Python Skill
 
-Python knowledge base for idiomatic Python development.
+## Overview
+
+Python's readability is its strength. This skill guides writing idiomatic Python that's clear, maintainable, and follows community standards.
+
+**Core principle:** Explicit is better than implicit. Readability counts. If the implementation is hard to explain, it's a bad idea.
 
 ## When to Use
 
-- Writing new Python code
-- Reviewing Python for best practices
-- Configuring linting (ruff, flake8, pylint)
-- Setting up testing with pytest
-- Working with async/await
+Use this skill when you're about to:
+- Write new Python code
+- Review Python for best practices
+- Add type hints to existing code
+- Debug Python issues
+- Set up Python project tooling
 
-## When NOT to Use
+**Use this ESPECIALLY when:**
+- Code is "clever" but hard to read
+- Type hints are missing or incomplete
+- Bare except clauses appear
+- Mutable default arguments are used
+- Code could be more Pythonic
 
-- Other languages (use appropriate language skill)
-- Security review (use bosun-security first)
-- Architecture decisions (use bosun-architect)
+## The Pythonic Development Process
 
-## PEP 8 Essentials
+### Phase 1: Design Pythonically
 
-### Naming Conventions
+**Before writing implementation:**
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Module | lowercase_underscore | `user_service.py` |
-| Class | PascalCase | `UserService` |
-| Function | lowercase_underscore | `get_user_by_id` |
-| Constant | UPPERCASE | `MAX_RETRIES` |
-| Private | _prefix | `_internal_method` |
+1. **Consider the Zen of Python**
+   - Is there one obvious way to do this?
+   - Is simple better than complex here?
+   - Will this be readable in 6 months?
 
-### Type Hints
+2. **Design with Types**
+   ```python
+   def get_user(user_id: str) -> User | None:
+       """Fetch user by ID, return None if not found."""
+       ...
+   ```
+
+3. **Choose the Right Data Structure**
+   - List for ordered sequences
+   - Set for unique items and fast lookup
+   - Dict for key-value mapping
+   - Dataclass for structured data
+
+### Phase 2: Implement Idiomatically
+
+**Write Python, not Java-in-Python:**
+
+1. **Use Built-in Features**
+   ```python
+   # ❌ Non-Pythonic
+   result = []
+   for item in items:
+       if item.active:
+           result.append(item.name)
+
+   # ✅ Pythonic
+   result = [item.name for item in items if item.active]
+   ```
+
+2. **Handle Errors Explicitly**
+   ```python
+   # ❌ Bare except
+   try:
+       process(data)
+   except:
+       pass
+
+   # ✅ Specific exceptions
+   try:
+       process(data)
+   except ValidationError as e:
+       logger.warning(f"Invalid data: {e}")
+       raise
+   ```
+
+3. **Use Context Managers**
+   ```python
+   # ❌ Manual resource management
+   f = open('file.txt')
+   content = f.read()
+   f.close()
+
+   # ✅ Context manager
+   with open('file.txt') as f:
+       content = f.read()
+   ```
+
+### Phase 3: Review for Quality
+
+**Before approving:**
+
+1. **Check Type Coverage**
+   - Are all public functions typed?
+   - Run `mypy` with strict mode
+
+2. **Check for Anti-patterns**
+   - Mutable default arguments?
+   - Bare except clauses?
+   - Global state mutation?
+
+3. **Verify Tests**
+   - Are edge cases covered?
+   - Are exceptions tested?
+
+## Red Flags - STOP and Fix
+
+### Python Anti-patterns
 
 ```python
-# GOOD: Full type hints
-def get_user(user_id: str) -> User | None:
-    ...
+# Mutable default argument (bug!)
+def add_item(item, items=[]):  # Same list reused!
 
-def process_items(items: list[Item]) -> dict[str, int]:
-    ...
+# Bare except (hides bugs)
+except:
+    pass
 
-# Generic types
-from typing import TypeVar, Generic
+# Star import (namespace pollution)
+from module import *
 
-T = TypeVar('T')
+# Type checking with type()
+if type(x) == list:  # Doesn't handle subclasses
 
-class Repository(Generic[T]):
-    def get(self, id: str) -> T | None:
-        ...
+# String concatenation in loop
+result = ""
+for s in strings:
+    result += s  # O(n²)
 ```
 
-## Modern Python Patterns
+### Code Quality Red Flags
 
-### Dataclasses
+```
+- Functions > 50 lines (break them up)
+- Deeply nested code > 3 levels (simplify)
+- Magic numbers without names
+- No docstrings on public functions
+- Commented-out code (delete it)
+- print() for logging (use logging module)
+```
+
+### Type Hint Red Flags
+
+```
+- Any type used without justification
+- Missing return type annotations
+- # type: ignore without explanation
+- Union of many unrelated types
+- No type hints on public API
+```
+
+## Common Rationalizations - Don't Accept These
+
+| Excuse | Reality |
+|--------|---------|
+| "Duck typing means no type hints" | Type hints document intent and catch bugs. |
+| "It's Pythonic to be dynamic" | Explicit is better than implicit. Add types. |
+| "Performance doesn't matter" | Algorithmic complexity matters. O(n²) hurts. |
+| "Exception handling is verbose" | Specific handling prevents hidden bugs. |
+| "It works" | Working isn't enough. It must be readable. |
+| "I'll add types later" | Later never comes. Add them now. |
+
+## Python Quality Checklist
+
+Before approving Python code:
+
+- [ ] **Typed**: Public functions have type hints
+- [ ] **Mypy clean**: No type errors
+- [ ] **No bare except**: All exceptions are specific
+- [ ] **No mutable defaults**: Default arguments are immutable
+- [ ] **Context managers**: Resources properly managed
+- [ ] **Docstrings**: Public API is documented
+- [ ] **Tests**: Behavior is tested
+
+## Quick Pythonic Patterns
+
+### Use Dataclasses
 
 ```python
-from dataclasses import dataclass
+# ❌ Manual __init__, __repr__, __eq__
+class User:
+    def __init__(self, id, name, email):
+        self.id = id
+        self.name = name
+        self.email = email
 
+# ✅ Dataclass
 @dataclass
 class User:
     id: str
     name: str
     email: str
-    active: bool = True
 ```
 
-### Context Managers
+### Use Comprehensions
 
 ```python
-# Using contextlib
-from contextlib import contextmanager
+# ❌ Manual loop
+squares = []
+for x in range(10):
+    squares.append(x ** 2)
 
-@contextmanager
-def managed_resource():
-    resource = acquire_resource()
-    try:
-        yield resource
-    finally:
-        release_resource(resource)
+# ✅ List comprehension
+squares = [x ** 2 for x in range(10)]
+
+# Dict comprehension
+user_map = {u.id: u for u in users}
+
+# Generator for large data
+total = sum(x ** 2 for x in range(1000000))
 ```
 
-### Async/Await
+### Handle Optional Values
 
 ```python
-import asyncio
+# ❌ None checks everywhere
+if user is not None:
+    if user.profile is not None:
+        name = user.profile.name
 
-async def fetch_users() -> list[User]:
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            return await response.json()
+# ✅ Early return or walrus operator
+if user is None or user.profile is None:
+    return None
+name = user.profile.name
 
-# Run multiple tasks
-results = await asyncio.gather(
-    fetch_users(),
-    fetch_orders(),
-)
+# Or use getattr with default
+name = getattr(getattr(user, 'profile', None), 'name', 'Unknown')
 ```
 
-## Testing with Pytest
+## Quick Commands
 
-```python
-import pytest
+```bash
+# Type checking
+mypy src/ --strict
 
-# Fixtures
-@pytest.fixture
-def user():
-    return User(id="1", name="Test", email="test@example.com")
+# Linting and formatting
+ruff check . --fix
+ruff format .
 
-# Parameterized tests
-@pytest.mark.parametrize("input,expected", [
-    (1, 2),
-    (2, 4),
-    (3, 6),
-])
-def test_double(input: int, expected: int):
-    assert double(input) == expected
+# Testing
+pytest -v --cov=src
 
-# Async tests
-@pytest.mark.asyncio
-async def test_fetch_user():
-    user = await fetch_user("1")
-    assert user.id == "1"
+# Security
+bandit -r src/
+pip-audit
 ```
-
-## Project Structure
-
-```
-myproject/
-├── src/
-│   └── myproject/
-│       ├── __init__.py
-│       ├── models.py
-│       └── services.py
-├── tests/
-│   ├── conftest.py
-│   └── test_services.py
-├── pyproject.toml
-└── README.md
-```
-
-## pyproject.toml
-
-```toml
-[project]
-name = "myproject"
-version = "0.1.0"
-requires-python = ">=3.11"
-
-[tool.ruff]
-line-length = 88
-select = ["E", "F", "I", "N", "W"]
-
-[tool.pytest.ini_options]
-asyncio_mode = "auto"
-```
-
-## Tools
-
-| Tool | Purpose | Command |
-|------|---------|---------|
-| ruff | Linting + formatting | `ruff check . --fix` |
-| mypy | Type checking | `mypy src/` |
-| pytest | Testing | `pytest -v` |
-| pip-audit | Security | `pip-audit` |
-| bandit | Security linting | `bandit -r src/` |
 
 ## References
 
-See `references/` directory for detailed documentation:
-- `python-research.md` - Comprehensive Python patterns
+Detailed patterns and examples in `references/`:
+- `python-idioms.md` - Pythonic patterns and common mistakes
+- `async-patterns.md` - async/await best practices
+- `project-setup.md` - pyproject.toml and tooling configuration

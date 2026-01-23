@@ -1,63 +1,210 @@
 ---
 name: bosun-aws
-description: AWS security and best practices. Use when reviewing AWS infrastructure, IAM policies, S3 buckets, Lambda functions, or CloudFormation templates. Provides patterns for secure AWS deployments.
+description: "AWS infrastructure security review process. Use when reviewing IAM policies, S3 buckets, Lambda, CloudFormation, or any AWS resources. Guides systematic security assessment of AWS deployments."
 tags: [aws, cloud, security, iam, s3, lambda, infrastructure]
 ---
 
-# Bosun AWS Skill
+# AWS Skill
 
-AWS security patterns and infrastructure best practices for secure cloud deployments.
+## Overview
+
+AWS's shared responsibility model means security is YOUR job, not Amazon's. This skill guides systematic review of AWS infrastructure for security misconfigurations—the #1 cause of cloud breaches.
+
+**Core principle:** Default deny everything. AWS resources should have no access unless explicitly granted, no network exposure unless required, and no permissions beyond the minimum needed.
 
 ## When to Use
 
-- Reviewing IAM policies and roles
-- Auditing S3 bucket configurations
-- Securing Lambda functions
-- Reviewing CloudFormation/CDK templates
-- Setting up VPC and security groups
-- Configuring RDS and database security
+Use this skill when you're about to:
+- Review IAM policies and roles
+- Audit S3 bucket configurations
+- Secure Lambda functions
+- Review CloudFormation/CDK/Terraform
+- Configure VPC and security groups
 
-## When NOT to Use
+**Use this ESPECIALLY when:**
+- IAM policies use `*` for actions or resources
+- S3 buckets might be public
+- Lambda functions have broad permissions
+- Security groups allow 0.0.0.0/0
+- Secrets appear in environment variables
 
-- General infrastructure patterns (use bosun-devops)
-- GCP-specific (use bosun-gcp)
-- Azure-specific (use bosun-azure)
-- Kubernetes (use bosun-devops)
+## The AWS Security Review Process
 
-## IAM Security
+### Phase 1: Check IAM First
 
-### Principle of Least Privilege
+**IAM is the foundation. Start here:**
+
+1. **Review Permission Scope**
+   - What actions are allowed?
+   - On which resources?
+   - Under what conditions?
+
+2. **Check for Privilege Escalation Paths**
+   - Can this role create other roles?
+   - Can it modify IAM policies?
+   - Can it assume more powerful roles?
+
+3. **Verify Least Privilege**
+   - Are permissions minimal for the task?
+   - Time-bounded where possible?
+   - Conditions restricting access?
+
+### Phase 2: Check Network Boundaries
+
+**Then verify network isolation:**
+
+1. **Security Groups**
+   - No 0.0.0.0/0 ingress except ALB port 443
+   - No overly broad port ranges
+   - Source restricted to specific security groups
+
+2. **VPC Design**
+   - Private subnets for workloads?
+   - NAT Gateway for outbound only?
+   - VPC Flow Logs enabled?
+
+3. **Public Exposure**
+   - No public IPs on EC2 instances
+   - No publicly accessible RDS
+   - S3 public access blocked
+
+### Phase 3: Check Data Protection
+
+**Finally, verify data security:**
+
+1. **Encryption**
+   - Encryption at rest (KMS)?
+   - Encryption in transit (TLS)?
+   - Customer-managed keys for sensitive data?
+
+2. **Secrets Management**
+   - Secrets in Secrets Manager?
+   - Not in environment variables?
+   - Rotatable without deploy?
+
+## Red Flags - STOP and Investigate
+
+### IAM Red Flags
 
 ```json
-// ❌ BAD: Overly permissive
+// ❌ CRITICAL: Full admin
 {
   "Effect": "Allow",
   "Action": "*",
   "Resource": "*"
 }
 
-// ✅ GOOD: Specific permissions
+// ❌ HIGH: IAM modification (privilege escalation)
 {
-  "Effect": "Allow",
-  "Action": [
-    "s3:GetObject",
-    "s3:PutObject"
-  ],
-  "Resource": "arn:aws:s3:::my-bucket/*"
+  "Action": ["iam:*", "iam:CreateRole", "iam:AttachRolePolicy"]
+}
+
+// ❌ HIGH: No resource restriction
+{
+  "Action": "s3:*",
+  "Resource": "*"  // Should be specific bucket ARN
+}
+
+// ❌ MEDIUM: No conditions
+{
+  "Action": "s3:GetObject"
+  // Missing: Condition for IP, MFA, time bounds
 }
 ```
 
-### IAM Policy Anti-Patterns
+### S3 Red Flags
 
-| Anti-Pattern | Risk | Fix |
-|--------------|------|-----|
-| `"Action": "*"` | Full access to all services | Specify exact actions needed |
-| `"Resource": "*"` | Access to all resources | Scope to specific ARNs |
-| `"Effect": "Allow"` on `iam:*` | Can escalate privileges | Limit IAM actions |
-| No conditions | Access from anywhere | Add IP/MFA conditions |
-| Inline policies | Hard to audit | Use managed policies |
+```json
+// ❌ CRITICAL: Public bucket
+{
+  "Effect": "Allow",
+  "Principal": "*",  // Anyone on internet!
+  "Action": "s3:GetObject"
+}
 
-### Secure IAM Patterns
+// ❌ HIGH: Missing encryption
+// (No ServerSideEncryptionConfiguration)
+
+// ❌ HIGH: No public access block
+// (PublicAccessBlockConfiguration missing or false)
+```
+
+### Network Red Flags
+
+```yaml
+# ❌ CRITICAL: SSH from anywhere
+SecurityGroupIngress:
+  - IpProtocol: tcp
+    FromPort: 22
+    ToPort: 22
+    CidrIp: 0.0.0.0/0
+
+# ❌ CRITICAL: All ports open
+  - IpProtocol: -1
+    CidrIp: 0.0.0.0/0
+
+# ❌ HIGH: RDS publicly accessible
+PubliclyAccessible: true
+```
+
+### Lambda Red Flags
+
+```yaml
+# ❌ HIGH: Hardcoded secrets
+Environment:
+  Variables:
+    API_KEY: "sk-live-actual-secret-key"
+
+# ❌ HIGH: Broad permissions
+Policies:
+  - AmazonS3FullAccess  # Should be specific bucket
+
+# ❌ MEDIUM: No VPC (if accessing private resources)
+# Missing VpcConfig
+```
+
+## Common Rationalizations - Don't Accept These
+
+| Excuse | Reality |
+|--------|---------|
+| "It's only internal" | VPCs get compromised. Defense in depth. |
+| "We'll lock it down later" | Later never comes. Secure from day one. |
+| "The app needs those permissions" | No app needs `*`. Find exact permissions. |
+| "Public bucket is intentional" | Use CloudFront + OAI. Never direct S3. |
+| "SSH access is for debugging" | Use SSM Session Manager. No SSH needed. |
+| "Secrets are encrypted in Lambda" | They're visible in console. Use Secrets Manager. |
+
+## AWS Security Checklist
+
+Before approving AWS infrastructure:
+
+**IAM:**
+- [ ] No `Action: "*"` or `Resource: "*"`
+- [ ] MFA required for sensitive operations
+- [ ] Service roles follow least privilege
+- [ ] No inline policies on users
+- [ ] Conditions used where appropriate
+
+**S3:**
+- [ ] Public access blocked
+- [ ] Encryption enabled (SSE-KMS preferred)
+- [ ] Versioning enabled for critical data
+- [ ] Access logging enabled
+
+**Network:**
+- [ ] No 0.0.0.0/0 except ALB 443
+- [ ] Private subnets for workloads
+- [ ] VPC Flow Logs enabled
+- [ ] No public IPs on compute
+
+**Compute:**
+- [ ] No hardcoded secrets
+- [ ] Least privilege roles
+- [ ] Timeouts and concurrency limits
+
+## Quick Patterns
+
+### Secure IAM Policy
 
 ```json
 {
@@ -68,13 +215,15 @@ AWS security patterns and infrastructure best practices for secure cloud deploym
       "Effect": "Allow",
       "Action": [
         "s3:GetObject",
-        "s3:PutObject",
-        "s3:DeleteObject"
+        "s3:PutObject"
       ],
-      "Resource": "arn:aws:s3:::${BucketName}/*",
+      "Resource": "arn:aws:s3:::my-specific-bucket/*",
       "Condition": {
         "StringEquals": {
-          "aws:PrincipalAccount": "${AWS::AccountId}"
+          "aws:PrincipalAccount": "123456789012"
+        },
+        "IpAddress": {
+          "aws:SourceIp": ["10.0.0.0/8"]
         }
       }
     }
@@ -82,42 +231,9 @@ AWS security patterns and infrastructure best practices for secure cloud deploym
 }
 ```
 
-### Cross-Account Access
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "arn:aws:iam::TRUSTED-ACCOUNT-ID:root"
-      },
-      "Action": "sts:AssumeRole",
-      "Condition": {
-        "StringEquals": {
-          "sts:ExternalId": "unique-external-id"
-        }
-      }
-    }
-  ]
-}
-```
-
-## S3 Security
-
-### Bucket Policy Checklist
-
-- [ ] Block public access enabled
-- [ ] Server-side encryption enabled
-- [ ] Versioning enabled for critical data
-- [ ] Access logging enabled
-- [ ] No `"Principal": "*"` without conditions
-
-### Secure Bucket Configuration
+### Secure S3 Bucket
 
 ```yaml
-# CloudFormation
 SecureBucket:
   Type: AWS::S3::Bucket
   Properties:
@@ -135,232 +251,41 @@ SecureBucket:
       Status: Enabled
     LoggingConfiguration:
       DestinationBucketName: !Ref LoggingBucket
-      LogFilePrefix: s3-access-logs/
 ```
 
-### S3 Anti-Patterns
-
-```json
-// ❌ BAD: Public read access
-{
-  "Effect": "Allow",
-  "Principal": "*",
-  "Action": "s3:GetObject",
-  "Resource": "arn:aws:s3:::my-bucket/*"
-}
-
-// ✅ GOOD: CloudFront OAI access only
-{
-  "Effect": "Allow",
-  "Principal": {
-    "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E1234567890"
-  },
-  "Action": "s3:GetObject",
-  "Resource": "arn:aws:s3:::my-bucket/*"
-}
-```
-
-## Lambda Security
-
-### Function Configuration
+### Secure Security Group
 
 ```yaml
-# Secure Lambda function
-SecureFunction:
-  Type: AWS::Lambda::Function
-  Properties:
-    Runtime: nodejs18.x
-    Handler: index.handler
-    Role: !GetAtt LambdaRole.Arn
-    VpcConfig:  # Run in VPC for network isolation
-      SecurityGroupIds:
-        - !Ref LambdaSecurityGroup
-      SubnetIds:
-        - !Ref PrivateSubnet1
-        - !Ref PrivateSubnet2
-    Environment:
-      Variables:
-        # Never hardcode secrets!
-        DB_SECRET_ARN: !Ref DatabaseSecret
-    ReservedConcurrentExecutions: 100  # Limit concurrency
-    Timeout: 30
-    MemorySize: 256
-```
-
-### Lambda Anti-Patterns
-
-| Anti-Pattern | Risk | Fix |
-|--------------|------|-----|
-| Hardcoded secrets in env vars | Secret exposure | Use Secrets Manager/SSM |
-| `*` permissions | Over-privileged | Scope to exact resources |
-| No VPC | Public network exposure | Deploy in private VPC |
-| No timeout | Runaway costs | Set reasonable timeout |
-| No concurrency limit | DoS vulnerability | Set reserved concurrency |
-
-### Secrets in Lambda
-
-```javascript
-// ❌ BAD: Hardcoded secret
-const API_KEY = 'sk-1234567890';
-
-// ✅ GOOD: Fetch from Secrets Manager
-const { SecretsManagerClient, GetSecretValueCommand } = require('@aws-sdk/client-secrets-manager');
-
-const client = new SecretsManagerClient();
-const secret = await client.send(new GetSecretValueCommand({
-  SecretId: process.env.SECRET_ARN
-}));
-const apiKey = JSON.parse(secret.SecretString).apiKey;
-```
-
-## VPC & Network Security
-
-### Security Group Rules
-
-```yaml
-# ❌ BAD: Open to world
-SecurityGroup:
+AppSecurityGroup:
   Type: AWS::EC2::SecurityGroup
   Properties:
-    SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 22
-        ToPort: 22
-        CidrIp: 0.0.0.0/0  # SSH from anywhere!
-
-# ✅ GOOD: Restricted access
-SecurityGroup:
-  Type: AWS::EC2::SecurityGroup
-  Properties:
+    GroupDescription: Allow only from ALB
+    VpcId: !Ref VPC
     SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 443
         ToPort: 443
-        SourceSecurityGroupId: !Ref ALBSecurityGroup  # Only from ALB
+        SourceSecurityGroupId: !Ref ALBSecurityGroup
 ```
 
-### VPC Best Practices
+## Quick Security Scans
 
-| Practice | Implementation |
-|----------|----------------|
-| Private subnets for workloads | No IGW route for private subnets |
-| NAT Gateway for outbound | Route 0.0.0.0/0 through NAT |
-| VPC Flow Logs | Enable for all traffic |
-| No public IPs on EC2 | Use bastion or SSM Session Manager |
-| Security groups as allowlists | Deny by default, allow specific |
+```bash
+# AWS native tools
+aws iam get-credential-report
+aws s3api get-bucket-policy-status --bucket BUCKET
+aws ec2 describe-security-groups --query 'SecurityGroups[?IpPermissions[?IpRanges[?CidrIp==`0.0.0.0/0`]]]'
 
-## RDS Security
-
-### Secure RDS Configuration
-
-```yaml
-SecureDatabase:
-  Type: AWS::RDS::DBInstance
-  Properties:
-    Engine: postgres
-    EngineVersion: '15'
-    DBInstanceClass: db.t3.medium
-    StorageEncrypted: true
-    KmsKeyId: !Ref KMSKey
-    PubliclyAccessible: false  # Never public!
-    VPCSecurityGroups:
-      - !Ref DatabaseSecurityGroup
-    EnableIAMDatabaseAuthentication: true
-    DeletionProtection: true
-    BackupRetentionPeriod: 7
-    MultiAZ: true  # For production
+# Third-party scanners
+prowler aws                          # Comprehensive AWS audit
+checkov -f template.yaml             # IaC scanning
+cfn-lint template.yaml               # CloudFormation linting
+tfsec .                              # Terraform scanning
 ```
-
-### RDS Anti-Patterns
-
-| Anti-Pattern | Risk | Fix |
-|--------------|------|-----|
-| `PubliclyAccessible: true` | Direct internet access | Keep private, use bastion |
-| No encryption | Data exposure | Enable `StorageEncrypted` |
-| Master password in template | Credentials in code | Use Secrets Manager |
-| No backups | Data loss | Set `BackupRetentionPeriod` |
-| Single AZ | No failover | Enable `MultiAZ` |
-
-## Secrets Management
-
-### Using Secrets Manager
-
-```yaml
-DatabaseSecret:
-  Type: AWS::SecretsManager::Secret
-  Properties:
-    GenerateSecretString:
-      SecretStringTemplate: '{"username": "admin"}'
-      GenerateStringKey: password
-      PasswordLength: 32
-      ExcludeCharacters: '"@/\'
-
-# Attach to RDS
-Database:
-  Type: AWS::RDS::DBInstance
-  Properties:
-    MasterUsername: !Sub '{{resolve:secretsmanager:${DatabaseSecret}:SecretString:username}}'
-    MasterUserPassword: !Sub '{{resolve:secretsmanager:${DatabaseSecret}:SecretString:password}}'
-```
-
-### Secrets Anti-Patterns
-
-| Anti-Pattern | Risk | Fix |
-|--------------|------|-----|
-| Hardcoded in CloudFormation | Secrets in version control | Use Secrets Manager references |
-| Environment variables | Visible in console | Fetch at runtime |
-| SSM Parameter (String) | Not encrypted | Use SecureString |
-| Shared secrets | Blast radius | Per-service secrets |
-
-## Quick Reference
-
-### Security Checklist
-
-**IAM:**
-- [ ] No `*` in actions or resources
-- [ ] MFA required for sensitive operations
-- [ ] Service roles use least privilege
-- [ ] No inline policies on users
-
-**S3:**
-- [ ] Public access blocked
-- [ ] Encryption enabled (SSE-KMS preferred)
-- [ ] Versioning enabled
-- [ ] Access logging enabled
-
-**Lambda:**
-- [ ] No hardcoded secrets
-- [ ] In VPC (if accessing private resources)
-- [ ] Concurrency limits set
-- [ ] Least privilege role
-
-**Network:**
-- [ ] Security groups are restrictive
-- [ ] No 0.0.0.0/0 ingress (except ALB 443)
-- [ ] VPC Flow Logs enabled
-- [ ] Private subnets for workloads
-
-**Data:**
-- [ ] RDS not publicly accessible
-- [ ] Encryption at rest enabled
-- [ ] Encryption in transit (TLS)
-- [ ] Secrets in Secrets Manager
-
-### AWS Security Tools
-
-| Tool | Purpose | Command |
-|------|---------|---------|
-| AWS Config | Compliance rules | Console/API |
-| Security Hub | Aggregated findings | Console/API |
-| GuardDuty | Threat detection | Console/API |
-| IAM Access Analyzer | Unused permissions | Console/API |
-| Prowler | Security audit | `prowler aws` |
-| cfn-lint | CloudFormation linting | `cfn-lint template.yaml` |
-| checkov | IaC security | `checkov -f template.yaml` |
 
 ## References
 
-See `references/` for detailed documentation:
-- `iam-patterns.md` - Advanced IAM patterns
+Detailed patterns and examples in `references/`:
+- `iam-patterns.md` - Advanced IAM patterns and conditions
 - `network-security.md` - VPC and security group patterns
 - `encryption.md` - KMS and encryption patterns
