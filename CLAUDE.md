@@ -49,7 +49,7 @@ Upstream repos (superpowers, VoltAgent, claude-design-engineer) are *sources of 
 ## Tech Stack
 
 - **Type:** Claude Code Plugin (agents + skills + commands)
-- **Languages:** Markdown (skills, agents, commands), Python (complex scripts), Bash (simple scripts)
+- **Languages:** Markdown (skills, agents, commands), Go (complex scripts), Bash (simple scripts)
 - **Distribution:** GitHub via `.claude-plugin/plugin.json`
 
 ## Script Language Strategy
@@ -58,25 +58,32 @@ Choose the right language based on what the script does:
 
 | Use Case | Language | Rationale |
 |----------|----------|-----------|
-| **Data parsing/transformation** | Python | YAML/JSON parsing, cross-referencing, complex validation |
-| **Report generation** | Python | Markdown/HTML output, data aggregation |
-| **File format manipulation** | Python | Library ecosystem (yaml, json, pathlib) |
+| **Data parsing/transformation** | Go | YAML/JSON parsing, cross-referencing, complex validation |
+| **Report generation** | Go | Markdown/HTML output, data aggregation |
+| **File format manipulation** | Go | Single binary, no runtime dependencies |
+| **Complex validation** | Go | Reuse existing Bosun analyzers |
 | **Orchestrating CLI tools** | Bash | Simple wrappers around external tools |
 | **File existence checks** | Bash | Native shell operations |
 | **Git operations** | Bash | Direct git CLI usage |
 
 ### Examples
 
-**Python** - when you need to parse, validate, or transform data:
-```python
-# validate-skills.py - YAML parsing + cross-reference checks
-import yaml
-from pathlib import Path
+**Go** - when you need to parse, validate, or transform data:
+```go
+// cmd/validate-skills/main.go
+package main
 
-def validate_skill(skill_dir):
-    with open(skill_dir / "SKILL.md") as f:
-        frontmatter = yaml.safe_load(...)
-        # Complex validation logic
+import (
+    "gopkg.in/yaml.v3"
+    "os"
+    "path/filepath"
+)
+
+func validateSkill(skillDir string) error {
+    data, _ := os.ReadFile(filepath.Join(skillDir, "SKILL.md"))
+    // Parse frontmatter, validate structure
+    return nil
+}
 ```
 
 **Bash** - when orchestrating other tools or simple checks:
@@ -91,9 +98,9 @@ fi
 
 ### Naming Conventions
 
-- Python scripts: `{verb}-{noun}.py` (e.g., `validate-skills.py`)
+- Go binaries: `bosun-{verb}-{noun}` (e.g., `bosun-validate-skills`)
 - Bash scripts: `{verb}-{noun}.sh` (e.g., `audit-project.sh`)
-- Skill-embedded scripts: `skills/{skill}/scripts/{name}.py|sh`
+- Skill-embedded scripts: `skills/{skill}/scripts/{name}`
 
 ## Directory Structure
 
