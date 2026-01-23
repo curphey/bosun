@@ -49,8 +49,51 @@ Upstream repos (superpowers, VoltAgent, claude-design-engineer) are *sources of 
 ## Tech Stack
 
 - **Type:** Claude Code Plugin (agents + skills + commands)
-- **Languages:** Markdown (skills, agents, commands), Bash (scripts)
+- **Languages:** Markdown (skills, agents, commands), Python (complex scripts), Bash (simple scripts)
 - **Distribution:** GitHub via `.claude-plugin/plugin.json`
+
+## Script Language Strategy
+
+Choose the right language based on what the script does:
+
+| Use Case | Language | Rationale |
+|----------|----------|-----------|
+| **Data parsing/transformation** | Python | YAML/JSON parsing, cross-referencing, complex validation |
+| **Report generation** | Python | Markdown/HTML output, data aggregation |
+| **File format manipulation** | Python | Library ecosystem (yaml, json, pathlib) |
+| **Orchestrating CLI tools** | Bash | Simple wrappers around external tools |
+| **File existence checks** | Bash | Native shell operations |
+| **Git operations** | Bash | Direct git CLI usage |
+
+### Examples
+
+**Python** - when you need to parse, validate, or transform data:
+```python
+# validate-skills.py - YAML parsing + cross-reference checks
+import yaml
+from pathlib import Path
+
+def validate_skill(skill_dir):
+    with open(skill_dir / "SKILL.md") as f:
+        frontmatter = yaml.safe_load(...)
+        # Complex validation logic
+```
+
+**Bash** - when orchestrating other tools or simple checks:
+```bash
+# Simple orchestration of CLI tools
+if [[ -f "package.json" ]]; then
+    npm audit
+elif [[ -f "go.mod" ]]; then
+    govulncheck ./...
+fi
+```
+
+### Naming Conventions
+
+- Python scripts: `{verb}-{noun}.py` (e.g., `validate-skills.py`)
+- Bash scripts: `{verb}-{noun}.sh` (e.g., `audit-project.sh`)
+- Skill-embedded scripts: `skills/{skill}/scripts/{name}.py|sh`
 
 ## Directory Structure
 
@@ -85,10 +128,11 @@ bosun/
 - Reference skills with `skills: [bosun-security]`
 
 ### Skills (skills/*/SKILL.md)
-- YAML frontmatter with `name`, `description`, `tags`
+- YAML frontmatter with `name` and `description` only (no other fields)
 - `description` should include trigger phrases for auto-discovery
 - Keep under 500 lines; put detailed docs in `references/`
 - Use code blocks for patterns and examples
+- All referenced files in `references/` must exist
 
 ### Commands (commands/*.md)
 - YAML frontmatter with `name`, `description`
@@ -99,7 +143,7 @@ bosun/
 - Agents: `{purpose}-agent` (e.g., `security-agent`)
 - Skills: `bosun-{purpose}` (e.g., `bosun-golang`)
 - Commands: `{verb}` (e.g., `audit`)
-- Scripts: `{verb}-{noun}.sh` (e.g., `audit-project.sh`)
+- Scripts: See "Script Language Strategy" section for naming conventions
 
 ## Git Workflow
 
