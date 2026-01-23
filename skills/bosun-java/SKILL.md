@@ -1,7 +1,6 @@
 ---
 name: bosun-java
 description: "Java development process and modern practices review. Use when writing or reviewing Java code. Guides Spring Boot patterns, modern Java features, and enterprise best practices."
-tags: [java, spring, jvm, testing, enterprise]
 ---
 
 # Java Skill

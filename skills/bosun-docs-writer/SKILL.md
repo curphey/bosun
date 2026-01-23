@@ -1,7 +1,6 @@
 ---
 name: bosun-docs-writer
 description: "Documentation review and writing process. Use when creating or reviewing documentation. Guides systematic documentation that serves readers, not writers."
-tags: [documentation, readme, api-docs, changelog, technical-writing]
 ---
 
 # Documentation Skill

@@ -1,7 +1,6 @@
 ---
 name: bosun-project-auditor
 description: "Project health assessment process. Use when auditing project setup, evaluating technical debt, or assessing codebase health. Guides systematic evaluation of project infrastructure."
-tags: [project-audit, configuration, dependencies, technical-debt, health]
 ---
 
 # Project Auditor Skill

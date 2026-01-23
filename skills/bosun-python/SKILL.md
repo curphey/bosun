@@ -1,7 +1,6 @@
 ---
 name: bosun-python
 description: "Python development process and code quality review. Use when writing or reviewing Python code. Guides systematic Pythonic development practices."
-tags: [python, pep8, pytest, typing, async]
 ---
 
 # Python Skill

@@ -1,7 +1,6 @@
 ---
 name: bosun-devops
 description: "DevOps and infrastructure review process. Use when reviewing Dockerfiles, CI/CD pipelines, Kubernetes configs, or IaC. Guides systematic infrastructure security and reliability review."
-tags: [devops, docker, kubernetes, terraform, cicd, monitoring]
 ---
 
 # DevOps Skill

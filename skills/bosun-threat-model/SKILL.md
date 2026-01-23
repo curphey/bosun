@@ -1,7 +1,6 @@
 ---
 name: bosun-threat-model
 description: "Threat modeling methodology and risk assessment process. Use when performing STRIDE analysis, creating attack trees, or assessing risk. Guides systematic threat identification before code review."
-tags: [threat-modeling, stride, risk-assessment, attack-trees, dfd]
 ---
 
 # Threat Model Skill

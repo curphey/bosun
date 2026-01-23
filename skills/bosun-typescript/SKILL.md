@@ -1,7 +1,6 @@
 ---
 name: bosun-typescript
 description: "TypeScript development process and type safety review. Use when writing or reviewing TypeScript code. Guides systematic type-safe development practices."
-tags: [typescript, javascript, types, eslint, testing]
 ---
 
 # TypeScript Skill

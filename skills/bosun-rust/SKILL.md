@@ -1,7 +1,6 @@
 ---
 name: bosun-rust
 description: "Rust development process and idiomatic code review. Use when writing or reviewing Rust code. Guides ownership patterns, error handling, and safe concurrency."
-tags: [rust, ownership, lifetimes, safety, concurrency]
 ---
 
 # Rust Skill

@@ -1,7 +1,6 @@
 ---
 name: bosun-testing
 description: "Test-first development process and test quality review. Use when writing code, reviewing tests, or diagnosing test issues. Guides systematic test creation before implementation."
-tags: [testing, tdd, coverage, unit-tests, integration-tests, e2e]
 ---
 
 # Testing Skill

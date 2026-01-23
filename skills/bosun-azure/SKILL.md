@@ -1,7 +1,6 @@
 ---
 name: bosun-azure
 description: "Azure infrastructure security review process. Use when reviewing RBAC, Storage accounts, Azure Functions, App Service, or Bicep/ARM templates. Guides systematic security assessment of Azure deployments."
-tags: [azure, cloud, security, rbac, storage, functions, infrastructure]
 ---
 
 # Azure Skill

@@ -1,7 +1,6 @@
 ---
 name: bosun-golang
 description: "Go development process and idiomatic code review. Use when writing or reviewing Go code. Guides systematic Go best practices including error handling and concurrency."
-tags: [go, golang, concurrency, testing, error-handling]
 ---
 
 # Go Skill

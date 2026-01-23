@@ -1,7 +1,6 @@
 ---
 name: bosun-ux-ui
 description: "UX/UI review process and accessibility assessment. Use when reviewing UI implementations, evaluating usability, or implementing accessibility. Guides systematic WCAG compliance and usability heuristics."
-tags: [ux, ui, accessibility, wcag, design-systems, usability]
 ---
 
 # UX/UI Skill

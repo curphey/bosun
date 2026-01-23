@@ -1,7 +1,6 @@
 ---
 name: bosun-architect
 description: "Architecture review and design process. Use when designing systems, reviewing structure, or making architectural decisions. Guides systematic evaluation of design trade-offs before implementation."
-tags: [architecture, design-patterns, solid, ddd, api-design]
 ---
 
 # Architecture Review Skill

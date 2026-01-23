@@ -1,7 +1,6 @@
 ---
 name: bosun-aws
 description: "AWS infrastructure security review process. Use when reviewing IAM policies, S3 buckets, Lambda, CloudFormation, or any AWS resources. Guides systematic security assessment of AWS deployments."
-tags: [aws, cloud, security, iam, s3, lambda, infrastructure]
 ---
 
 # AWS Skill

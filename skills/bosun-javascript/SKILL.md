@@ -1,7 +1,6 @@
 ---
 name: bosun-javascript
 description: "JavaScript development process and code review. Use when writing or reviewing JavaScript code. Guides modern JS best practices and common pitfall avoidance."
-tags: [javascript, es6, nodejs, eslint, testing]
 ---
 
 # JavaScript Skill

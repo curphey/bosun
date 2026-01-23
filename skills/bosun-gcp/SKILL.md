@@ -1,7 +1,6 @@
 ---
 name: bosun-gcp
 description: "GCP infrastructure security review process. Use when reviewing IAM policies, Cloud Storage, Cloud Functions, Cloud Run, or Terraform for GCP. Guides systematic security assessment of GCP deployments."
-tags: [gcp, google-cloud, security, iam, cloud-storage, cloud-functions, infrastructure]
 ---
 
 # GCP Skill

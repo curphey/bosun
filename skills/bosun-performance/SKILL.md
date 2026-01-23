@@ -1,7 +1,6 @@
 ---
 name: bosun-performance
 description: "Performance analysis and optimization process. Use when code is slow, reviewing for efficiency, or optimizing bottlenecks. Guides systematic performance investigation before optimization."
-tags: [performance, optimization, profiling, complexity, bottlenecks]
 ---
 
 # Performance Skill

@@ -1,7 +1,6 @@
 ---
 name: bosun-seo-llm
 description: "SEO and LLM optimization review process. Use when optimizing content for search engines and AI systems, implementing structured data, or improving discoverability. Guides systematic content optimization."
-tags: [seo, llm, structured-data, schema, content-optimization]
 ---
 
 # SEO/LLM Skill

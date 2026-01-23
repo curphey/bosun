@@ -1,7 +1,6 @@
 ---
 name: bosun-csharp
 description: "C# development process and modern practices review. Use when writing or reviewing C# code. Guides ASP.NET Core patterns, modern C# features, and .NET best practices."
-tags: [csharp, dotnet, aspnet, linq, testing]
 ---
 
 # C# Skill

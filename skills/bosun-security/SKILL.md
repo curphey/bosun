@@ -1,7 +1,6 @@
 ---
 name: bosun-security
 description: "Security review process and vulnerability prevention. Use when reviewing code for security issues, implementing auth, or handling secrets. Guides systematic security analysis before approving any code."
-tags: [security, vulnerabilities, owasp, authentication, secrets]
 ---
 
 # Security Review Skill
