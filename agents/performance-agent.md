@@ -3,7 +3,7 @@ name: performance-agent
 description: Performance specialist for optimization, profiling, and efficiency review. Use when analyzing performance bottlenecks, optimizing code, reviewing algorithms, or improving load times. Spawned by bosun orchestrator for performance work.
 tools: Read, Write, Edit, Grep, Bash, Glob
 model: sonnet
-skills: [bosun-performance, bosun-architect, bosun-golang, bosun-typescript, bosun-python]
+skills: [performance, architect, golang, typescript, python]
 ---
 
 # Performance Agent

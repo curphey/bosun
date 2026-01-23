@@ -16,7 +16,7 @@ Skills make agents smarter without requiring changes to agent logic.
 
 ```
 skills/
-└── bosun-{name}/
+└── {name}/
     ├── SKILL.md           # Main skill file (required)
     └── references/        # Detailed documentation (optional)
         ├── patterns.md
@@ -48,14 +48,14 @@ Before writing, answer:
 ### Step 2: Create Directory Structure
 
 ```bash
-mkdir -p skills/bosun-{name}/references
+mkdir -p skills/{name}/references
 ```
 
 ### Step 3: Write the Frontmatter
 
 ```yaml
 ---
-name: bosun-{name}
+name: {name}
 description: Brief description with trigger phrases. Use when [specific scenarios]. Provides [capabilities].
 tags: [tag1, tag2, tag3]
 ---
@@ -167,13 +167,13 @@ See `references/` for detailed documentation:
 
 ### Keep Skills Focused
 
-Each skill should cover one domain. Don't create a "bosun-everything" skill.
+Each skill should cover one domain. Don't create a "everything" skill.
 
 | Good | Bad |
 |------|-----|
-| bosun-security | bosun-all-the-things |
-| bosun-typescript | bosun-frontend |
-| bosun-testing | bosun-quality-and-testing-and-docs |
+| security | all-the-things |
+| typescript | frontend |
+| testing | quality-and-testing-and-docs |
 
 ### Keep SKILL.md Under 500 Lines
 
@@ -240,7 +240,7 @@ Include relevant tools and how to use them:
 
 ```markdown
 ---
-name: bosun-{language}
+name: {language}
 description: {Language} best practices and idioms. Use when writing {language} code, reviewing {language} projects, or configuring {language} tooling.
 tags: [{language}, programming]
 ---
@@ -317,7 +317,7 @@ See `references/` for detailed documentation.
 
 ```markdown
 ---
-name: bosun-{domain}
+name: {domain}
 description: {Domain} patterns and best practices. Use when [scenarios]. Provides [capabilities].
 tags: [{domain}, related-tags]
 ---
@@ -407,7 +407,7 @@ Skills are connected to agents via the agent's frontmatter:
 ```yaml
 ---
 name: security-agent
-skills: [bosun-security, bosun-supply-chain]
+skills: [security, supply-chain]
 ---
 ```
 
@@ -424,8 +424,8 @@ To contribute a skill back to Bosun:
 1. Create skill following this guide
 2. Run integration tests: `./tests/integration/run-tests.sh`
 3. Create a PR with:
-   - `skills/bosun-{name}/SKILL.md`
-   - `skills/bosun-{name}/references/` (if applicable)
+   - `skills/{name}/SKILL.md`
+   - `skills/{name}/references/` (if applicable)
    - Updated agent frontmatter (if applicable)
 
 ### Checklist
@@ -444,16 +444,17 @@ To contribute a skill back to Bosun:
 
 ```markdown
 ---
-name: bosun-example
-description: Example patterns. Use when learning Bosun skills.
-tags: [example]
+name: example
+description: "Example patterns and best practices. Use when learning how Bosun skills work, exploring skill structure, or creating a new skill from scratch."
 ---
 
-# Bosun Example Skill
+# Example Skill
 
-## When to Use
+## Overview
 
-- Learning how skills work
+Brief explanation of what this skill covers.
+
+**Core principle:** The key insight that guides this skill.
 
 ## Key Concept
 
@@ -464,11 +465,15 @@ Explanation here.
 \`\`\`javascript
 // Code example
 \`\`\`
+
+## References
+
+- `patterns.md` - Detailed patterns
 ```
 
 ### Full Skill
 
-See `skills/bosun-security/SKILL.md` for a complete example with:
+See `skills/security/SKILL.md` for a complete example with:
 - Comprehensive frontmatter
 - Multiple sections
 - Code examples

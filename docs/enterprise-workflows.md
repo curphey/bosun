@@ -58,7 +58,7 @@ Create a shared `.bosun/config.json` at the repository root:
     "autoCommit": false
   },
   "skills": {
-    "include": ["bosun-typescript", "bosun-security"],
+    "include": ["typescript", "security"],
     "exclude": []
   }
 }
@@ -408,15 +408,15 @@ For monorepos, configure per-package auditing:
 {
   "packages": {
     "packages/api": {
-      "skills": ["bosun-typescript", "bosun-security"],
+      "skills": ["typescript", "security"],
       "agents": ["security", "quality"]
     },
     "packages/web": {
-      "skills": ["bosun-typescript", "bosun-ux-ui"],
+      "skills": ["typescript", "ux-ui"],
       "agents": ["quality"]
     },
     "packages/shared": {
-      "skills": ["bosun-typescript", "bosun-architect"],
+      "skills": ["typescript", "architect"],
       "agents": ["quality"]
     }
   }

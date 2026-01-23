@@ -20,8 +20,7 @@ Bosun is a Claude Code plugin that orchestrates specialized agents for code qual
     └──────┬──────┘ └─────┬──────┘
            │              │
     ┌──────▼──────┐ ┌─────▼──────┐
-    │ bosun-      │ │ bosun-     │  ← Skills (knowledge packages)
-    │ architect   │ │ security   │
+    │ architect   │ │ security   │  ← Skills (knowledge packages)
     │ SKILL       │ │ SKILL      │
     └─────────────┘ └────────────┘
 ```
@@ -113,11 +112,11 @@ bosun/
 │   ├── quality-agent.md      # Code quality reviewer
 │   └── docs-agent.md         # Documentation specialist
 ├── skills/                   # Knowledge packages
-│   ├── bosun-security/
+│   ├── security/
 │   │   ├── SKILL.md          # Skill definition
 │   │   └── references/       # RAG knowledge
-│   ├── bosun-architect/
-│   ├── bosun-golang/
+│   ├── architect/
+│   ├── golang/
 │   └── ...
 ├── commands/                 # User-triggered workflows
 │   └── audit.md              # /audit command
@@ -132,7 +131,7 @@ bosun/
 - YAML frontmatter with `name`, `description`, `tools`, `model`, `skills`
 - Use `disallowedTools: Edit, Write` for read-only agents
 - Specify `model: opus` for critical work, `sonnet` for standard
-- Reference skills with `skills: [bosun-security]`
+- Reference skills with `skills: [security]`
 
 ### Skills (skills/*/SKILL.md)
 - YAML frontmatter with `name` and `description` only (no other fields)
@@ -148,7 +147,7 @@ bosun/
 
 ### Naming
 - Agents: `{purpose}-agent` (e.g., `security-agent`)
-- Skills: `bosun-{purpose}` (e.g., `bosun-golang`)
+- Skills: `{purpose}` (e.g., `golang`, `security`)
 - Commands: `{verb}` (e.g., `audit`)
 - Scripts: See "Script Language Strategy" section for naming conventions
 
@@ -178,7 +177,7 @@ Files must be cited in the skill's References section to be discoverable.
 Use conventional commits:
 ```
 feat(agent): add security-agent for parallel review
-feat(skill): add bosun-rust specialist
+feat(skill): add rust specialist
 fix(audit): handle missing .github directory
 chore(deps): update upstream source tracking
 docs: improve README installation section
@@ -193,7 +192,7 @@ docs: improve README installation section
 4. Reference relevant skills for knowledge
 
 ### Adding a New Skill
-1. Create directory: `skills/bosun-{name}/`
+1. Create directory: `skills/{name}/`
 2. Create `SKILL.md` with frontmatter and instructions
 3. Add `references/` subdirectory for RAG knowledge
 4. Update README skills table

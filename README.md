@@ -34,8 +34,7 @@ Bosun is a Claude Code plugin that orchestrates specialized agents for code qual
     └──────┬──────┘ └─────┬──────┘
            │              │
     ┌──────▼──────┐ ┌─────▼──────┐
-    │ bosun-      │ │ bosun-     │  ← Skills (knowledge packages)
-    │ security    │ │ architect  │
+    │ security    │ │ architect  │  ← Skills (knowledge packages)
     │ SKILL       │ │ SKILL      │
     └──────┬──────┘ └─────┬──────┘
            │              │
@@ -98,28 +97,28 @@ Skills are knowledge packages that agents reference for domain expertise:
 
 | Skill | Purpose |
 |-------|---------|
-| `bosun-architect` | Software architecture patterns, SOLID, DDD, Clean Architecture |
-| `bosun-security` | Secret management, injection prevention, auth patterns, SAST |
-| `bosun-threat-model` | STRIDE methodology, attack trees, DFDs, CVSS/DREAD |
-| `bosun-devops` | CI/CD patterns, IaC, container best practices |
-| `bosun-testing` | Testing strategies, coverage, mocking patterns |
-| `bosun-performance` | Algorithm optimization, profiling, caching |
-| `bosun-docs-writer` | README templates, API docs, changelogs |
-| `bosun-ux-ui` | WCAG accessibility, design systems, usability |
-| `bosun-project-auditor` | Project structure, configuration, hygiene |
-| `bosun-seo-llm` | SEO optimization, structured data, LLM content |
+| `architect` | Software architecture patterns, SOLID, DDD, Clean Architecture |
+| `security` | Secret management, injection prevention, auth patterns, SAST |
+| `threat-model` | STRIDE methodology, attack trees, DFDs, CVSS/DREAD |
+| `devops` | CI/CD patterns, IaC, container best practices |
+| `testing` | Testing strategies, coverage, mocking patterns |
+| `performance` | Algorithm optimization, profiling, caching |
+| `docs-writer` | README templates, API docs, changelogs |
+| `ux-ui` | WCAG accessibility, design systems, usability |
+| `project-auditor` | Project structure, configuration, hygiene |
+| `seo-llm` | SEO optimization, structured data, LLM content |
 
 ### Language Skills
 
 | Skill | Languages/Frameworks |
 |-------|---------------------|
-| `bosun-javascript` | ES6+, Node.js, modules, browser/server |
-| `bosun-typescript` | TypeScript strict mode, ESLint, patterns |
-| `bosun-golang` | Go idioms, error handling, concurrency |
-| `bosun-python` | PEP 8, type hints, pytest, async |
-| `bosun-rust` | Ownership, lifetimes, error handling |
-| `bosun-java` | Modern Java, Spring Boot, testing |
-| `bosun-csharp` | .NET Core, ASP.NET, LINQ, async |
+| `javascript` | ES6+, Node.js, modules, browser/server |
+| `typescript` | TypeScript strict mode, ESLint, patterns |
+| `golang` | Go idioms, error handling, concurrency |
+| `python` | PEP 8, type hints, pytest, async |
+| `rust` | Ownership, lifetimes, error handling |
+| `java` | Modern Java, Spring Boot, testing |
+| `csharp` | .NET Core, ASP.NET, LINQ, async |
 
 ## Findings Schema
 
@@ -294,18 +293,18 @@ bosun/
 │   ├── testing-agent.md         # Test coverage
 │   └── performance-agent.md     # Optimization
 ├── skills/                       # Knowledge packages
-│   ├── bosun-security/
-│   ├── bosun-architect/
-│   ├── bosun-devops/
-│   ├── bosun-testing/
-│   ├── bosun-performance/
-│   ├── bosun-javascript/
-│   ├── bosun-typescript/
-│   ├── bosun-golang/
-│   ├── bosun-python/
-│   ├── bosun-rust/
-│   ├── bosun-java/
-│   ├── bosun-csharp/
+│   ├── security/
+│   ├── architect/
+│   ├── devops/
+│   ├── testing/
+│   ├── performance/
+│   ├── javascript/
+│   ├── typescript/
+│   ├── golang/
+│   ├── python/
+│   ├── rust/
+│   ├── java/
+│   ├── csharp/
 │   └── ...
 ├── commands/                     # Slash commands
 │   ├── audit.md                 # /audit

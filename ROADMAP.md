@@ -69,9 +69,9 @@ Local MCP server for live security intelligence during audits.
 - Deprecated package detection
 
 ### Cloud-Specific Skills
-- **bosun-aws** - AWS security and architecture patterns
-- **bosun-gcp** - Google Cloud best practices
-- **bosun-azure** - Azure-specific guidance
+- **aws** - AWS security and architecture patterns
+- **gcp** - Google Cloud best practices
+- **azure** - Azure-specific guidance
 
 ---
 

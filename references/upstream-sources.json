@@ -15,7 +15,7 @@
       "last_reviewed": "2025-01-15",
       "last_synced_commit": null,
       "status": "curated",
-      "maps_to": ["bosun-architect"],
+      "maps_to": ["architect"],
       "notes": "Architecture patterns and workflow design inspiration. Skills independently written based on reviewed concepts."
     },
     {
@@ -26,7 +26,7 @@
       "last_reviewed": "2025-01-15",
       "last_synced_commit": null,
       "status": "curated",
-      "maps_to": ["bosun-golang", "bosun-typescript", "bosun-python", "bosun-security"],
+      "maps_to": ["golang", "typescript", "python", "security"],
       "notes": "Language specialist patterns and security concepts. Skills independently written with Bosun-specific enhancements."
     },
     {
@@ -37,7 +37,7 @@
       "last_reviewed": "2025-01-15",
       "last_synced_commit": null,
       "status": "curated",
-      "maps_to": ["bosun-ux-ui"],
+      "maps_to": ["ux-ui"],
       "notes": "UX/UI and accessibility patterns. Skills independently written with WCAG compliance focus."
     }
   ]

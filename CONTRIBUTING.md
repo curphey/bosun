@@ -31,11 +31,11 @@ Before contributing, understand Bosun's core principles:
 
 ### Creating a New Skill
 
-1. Create directory: `skills/bosun-{name}/`
+1. Create directory: `skills/{name}/`
 2. Create `SKILL.md` with required frontmatter:
    ```yaml
    ---
-   name: bosun-{name}
+   name: {name}
    description: Brief description including trigger phrases
    ---
    ```
@@ -104,7 +104,7 @@ Bosun curates knowledge from upstream sources. To sync:
 Use conventional commits:
 
 ```
-feat(skill): add bosun-rust specialist
+feat(skill): add rust specialist
 fix(audit): handle missing .github directory
 chore(deps): update upstream source tracking
 docs: improve README installation section

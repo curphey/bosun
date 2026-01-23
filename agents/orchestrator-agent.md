@@ -3,7 +3,7 @@ name: orchestrator-agent
 description: Master orchestrator for coordinating specialized agents. Use when running comprehensive audits, coordinating multi-agent workflows, or aggregating findings from multiple specialists. This is the primary entry point for Bosun reviews.
 tools: Read, Grep, Glob, Bash
 model: sonnet
-skills: [bosun-project-auditor]
+skills: [project-auditor]
 ---
 
 # Orchestrator Agent
@@ -97,13 +97,13 @@ Then use TaskOutput to collect results from each.
 Task tool parameters:
 - subagent_type: "general-purpose"
 - description: "Security audit"
-- prompt: "You are security-agent. Load the bosun-security skill. Audit the project at [path] for security vulnerabilities. Return findings in JSON format with fields: category, severity, title, description, location (file, line), suggestedFix, interactionTier."
+- prompt: "You are security-agent. Load the security skill. Audit the project at [path] for security vulnerabilities. Return findings in JSON format with fields: category, severity, title, description, location (file, line), suggestedFix, interactionTier."
 - run_in_background: true
 ```
 
 **Agent prompts must include:**
 1. Agent identity (e.g., "You are security-agent")
-2. Skill to load (e.g., "Load bosun-security skill")
+2. Skill to load (e.g., "Load security skill")
 3. Scope/path to audit
 4. Output format requirement (JSON findings schema)
 
@@ -274,4 +274,4 @@ Individual findings are produced by specialized agents. See their respective doc
 - Deduplicate findings across agents
 - Prioritize critical and high severity issues in reports
 - Provide clear next steps for users
-- Reference the bosun-project-auditor skill for project analysis patterns
+- Reference the project-auditor skill for project analysis patterns
